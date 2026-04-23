@@ -1,0 +1,2774 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no" />
+  <meta name="theme-color" content="#0e0f14" />
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+  <meta http-equiv="Pragma" content="no-cache" />
+  <meta http-equiv="Expires" content="0" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="Nelson's Bar" />
+  <link rel="manifest" href="manifest.json" />
+  <link rel="icon" type="image/svg+xml" href="icon.svg" />
+  <link rel="apple-touch-icon" href="icon-192.png" />
+  <title>Nelson's Bar</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Playfair+Display:ital,wght@0,500;0,700;0,800;1,500&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+  <style>
+    :root {
+      --bg-deep:    #0e0f14;
+      --bg-card:    #1a1d26;
+      --bg-elev:    #232732;
+      --bg-soft:    #161922;
+      --brass:      #c89b3c;
+      --brass-glow: #f5c662;
+      --brass-soft: rgba(200, 155, 60, 0.14);
+      --brass-line: rgba(200, 155, 60, 0.30);
+      --copper:     #b66f3c;
+      --smoke:      #6e7585;
+      --ink:        #f0e9d8;
+      --ink-strong: #fff5e0;
+      --whisper:    #9aa0ad;
+      --ruby:       #c4374f;
+      --ruby-soft:  rgba(196, 55, 79, 0.18);
+      --absinthe:   #7fb069;
+      --absinthe-soft: rgba(127, 176, 105, 0.18);
+
+      --shadow-sm:  0 2px 10px rgba(0, 0, 0, 0.35);
+      --shadow:     0 8px 28px rgba(0, 0, 0, 0.55);
+      --shadow-lg:  0 18px 60px rgba(0, 0, 0, 0.65);
+      --glow-brass: 0 0 24px rgba(245, 198, 98, 0.28);
+
+      --r-xl: 26px;
+      --r-lg: 20px;
+      --r-md: 14px;
+      --r-sm: 10px;
+
+      --safe-bottom: env(safe-area-inset-bottom, 0px);
+      --safe-top:    env(safe-area-inset-top, 0px);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+    html, body { overscroll-behavior-y: none; }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: var(--bg-deep);
+      background-image:
+        radial-gradient(circle at 20% 0%, rgba(200, 155, 60, 0.08), transparent 40%),
+        radial-gradient(circle at 90% 100%, rgba(182, 111, 60, 0.06), transparent 50%);
+      color: var(--ink);
+      min-height: 100vh;
+      padding-bottom: calc(96px + var(--safe-bottom));
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* Subtle paper-noise texture */
+    body::before {
+      content: '';
+      position: fixed; inset: 0;
+      pointer-events: none;
+      opacity: 0.035;
+      z-index: 0;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    }
+
+    h1, h2, h3, h4 { font-family: 'Playfair Display', Georgia, serif; font-weight: 700; letter-spacing: -0.01em; color: var(--ink-strong); }
+
+    /* ── Top App Bar ─────────────────────────────────────────────── */
+    .topbar {
+      position: sticky; top: 0; z-index: 100;
+      padding: calc(var(--safe-top) + 16px) 20px 14px;
+      background: linear-gradient(180deg, rgba(14,15,20,0.96) 0%, rgba(14,15,20,0.85) 70%, rgba(14,15,20,0.55) 100%);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border-bottom: 1px solid rgba(200, 155, 60, 0.08);
+    }
+
+    .topbar-inner { display: flex; align-items: center; justify-content: space-between; gap: 12px; max-width: 720px; margin: 0 auto; }
+    .brand { display: flex; align-items: center; gap: 12px; }
+    .brand-mark {
+      width: 38px; height: 38px;
+      border-radius: 12px;
+      background:
+        radial-gradient(circle at 50% 60%, rgba(245, 198, 98, 0.55), transparent 60%),
+        linear-gradient(135deg, #1a1d26, #0a0b10);
+      border: 1px solid var(--brass-line);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 20px;
+      box-shadow: 0 4px 14px rgba(0,0,0,0.5), inset 0 1px 0 rgba(245,198,98,0.15);
+    }
+    .brand-text h1 { font-family: 'Playfair Display', serif; font-size: 21px; line-height: 1; letter-spacing: 0.01em; }
+    .brand-text h1 .amp { font-style: italic; color: var(--brass); margin: 0 2px; }
+    .brand-text p { font-size: 10.5px; color: var(--whisper); margin-top: 4px; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; }
+    .brand-text .ver { font-size: 9px; color: var(--smoke); opacity: 0.7; margin-left: 5px; font-weight: 700; letter-spacing: 0.04em; }
+
+    .sync-pill {
+      display: flex; align-items: center; gap: 7px;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 50px;
+      padding: 6px 12px;
+      font-size: 11px; font-weight: 700;
+      color: var(--whisper);
+      letter-spacing: 0.04em;
+    }
+    .sync-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; transition: background 0.3s; }
+    .sync-pill.synced .sync-dot   { background: var(--absinthe); box-shadow: 0 0 10px var(--absinthe); }
+    .sync-pill.syncing .sync-dot  { background: var(--brass-glow); animation: pulse 1.2s infinite; box-shadow: 0 0 10px var(--brass-glow); }
+    .sync-pill.offline .sync-dot,
+    .sync-pill.error .sync-dot    { background: var(--ruby); box-shadow: 0 0 10px var(--ruby); }
+    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
+
+    /* ── Main ────────────────────────────────────────────────────── */
+    main { max-width: 720px; margin: 0 auto; padding: 10px 18px 32px; position: relative; z-index: 1; }
+
+    .tab-panel { display: none; animation: fadeIn 0.28s ease; }
+    .tab-panel.active { display: block; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(8px) } to { opacity: 1; transform: none } }
+
+    .h-row { display: flex; align-items: center; justify-content: space-between; margin: 12px 0 18px; gap: 12px; }
+    .h-title { font-size: 30px; line-height: 1.05; }
+    .h-sub { font-size: 13px; color: var(--whisper); margin-top: 6px; font-weight: 500; letter-spacing: 0.02em; }
+
+    .section-label {
+      font-size: 11px; font-weight: 800; letter-spacing: 0.18em;
+      color: var(--brass); text-transform: uppercase;
+      margin: 22px 0 10px;
+    }
+
+    /* ── Buttons ─────────────────────────────────────────────────── */
+    .btn {
+      display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+      padding: 12px 20px; border: none; border-radius: 50px;
+      font-family: inherit; font-size: 14px; font-weight: 700;
+      cursor: pointer;
+      transition: transform 0.15s, box-shadow 0.15s, background 0.15s;
+      white-space: nowrap; letter-spacing: 0.02em;
+    }
+    .btn:active { transform: scale(0.96); }
+    .btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--brass-glow) 0%, var(--brass) 60%, var(--copper) 100%);
+      color: #1a1308;
+      box-shadow: 0 6px 22px rgba(200, 155, 60, 0.42), inset 0 1px 0 rgba(255,255,255,0.25);
+    }
+    .btn-primary:hover { box-shadow: 0 10px 32px rgba(245, 198, 98, 0.55), inset 0 1px 0 rgba(255,255,255,0.3); }
+
+    .btn-ghost {
+      background: rgba(255,255,255,0.04);
+      color: var(--ink);
+      border: 1px solid rgba(255,255,255,0.10);
+    }
+    .btn-ghost:hover { border-color: var(--brass); color: var(--brass-glow); background: rgba(200, 155, 60, 0.08); }
+
+    .btn-outline {
+      background: transparent;
+      color: var(--brass);
+      border: 1px solid var(--brass-line);
+    }
+    .btn-outline:hover { background: var(--brass-soft); }
+
+    .btn-danger {
+      background: rgba(196, 55, 79, 0.10);
+      color: var(--ruby);
+      border: 1px solid rgba(196, 55, 79, 0.35);
+    }
+
+    .btn-icon { width: 42px; height: 42px; padding: 0; border-radius: 50%; font-size: 16px; }
+    .btn-sm { padding: 8px 14px; font-size: 12px; }
+    .btn-lg { padding: 16px 28px; font-size: 15px; }
+    .btn-block { width: 100%; }
+
+    /* ── Cards ────────────────────────────────────────────────────── */
+    .card {
+      background: var(--bg-card);
+      border-radius: var(--r-lg);
+      padding: 20px;
+      box-shadow: var(--shadow);
+      margin-bottom: 14px;
+      border: 1px solid rgba(255,255,255,0.04);
+    }
+    .card-elev { background: var(--bg-elev); }
+    .card-soft { background: rgba(255,255,255,0.02); border-color: rgba(255,255,255,0.06); }
+
+    .card-title {
+      font-family: 'Inter', sans-serif;
+      font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.16em;
+      color: var(--brass); margin-bottom: 12px;
+      display: flex; align-items: center; gap: 8px;
+    }
+
+    /* ── Hero ─────────────────────────────────────────────────────── */
+    .hero {
+      position: relative;
+      background:
+        radial-gradient(circle at 80% 0%, rgba(245, 198, 98, 0.30), transparent 55%),
+        radial-gradient(circle at 0% 100%, rgba(182, 111, 60, 0.25), transparent 50%),
+        linear-gradient(135deg, #1d1f29 0%, #0e0f14 100%);
+      color: var(--ink-strong);
+      border-radius: var(--r-xl);
+      padding: 30px 26px 32px;
+      margin-bottom: 16px;
+      overflow: hidden;
+      box-shadow: var(--shadow-lg);
+      border: 1px solid var(--brass-line);
+    }
+    .hero::before {
+      content: '';
+      position: absolute; top: -60px; right: -60px;
+      width: 220px; height: 220px;
+      background: radial-gradient(circle, rgba(245, 198, 98, 0.4), transparent 70%);
+      border-radius: 50%;
+      filter: blur(40px);
+    }
+    .hero-eyebrow { position: relative; font-size: 10.5px; font-weight: 800; letter-spacing: 0.22em; color: var(--brass); text-transform: uppercase; margin-bottom: 10px; }
+    .hero h2 { position: relative; font-size: 30px; line-height: 1.05; font-weight: 800; }
+    .hero h2 em { color: var(--brass-glow); font-style: italic; }
+    .hero p { position: relative; font-size: 14.5px; opacity: 0.88; margin-top: 10px; line-height: 1.55; font-weight: 500; max-width: 92%; }
+    .hero-actions { position: relative; margin-top: 22px; display: flex; gap: 10px; flex-wrap: wrap; }
+
+    /* ── Stat tiles ──────────────────────────────────────────────── */
+    .stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 18px; }
+    .stat-tile {
+      background: var(--bg-card);
+      border: 1px solid rgba(255,255,255,0.05);
+      border-radius: var(--r-lg);
+      padding: 16px 18px;
+      box-shadow: var(--shadow-sm);
+      position: relative; overflow: hidden;
+    }
+    .stat-tile .badge {
+      width: 34px; height: 34px; border-radius: 10px;
+      display: flex; align-items: center; justify-content: center; font-size: 16px;
+      margin-bottom: 10px;
+      background: var(--brass-soft);
+      color: var(--brass-glow);
+      border: 1px solid var(--brass-line);
+    }
+    .stat-tile .num { font-family: 'Playfair Display', serif; font-size: 28px; font-weight: 800; line-height: 1; color: var(--ink-strong); }
+    .stat-tile .lbl { font-size: 11.5px; color: var(--whisper); margin-top: 6px; font-weight: 600; letter-spacing: 0.05em; }
+
+    /* Recent drink card */
+    .recent-drink {
+      background: var(--bg-card);
+      border: 1px solid rgba(255,255,255,0.05);
+      border-radius: var(--r-lg);
+      padding: 18px 20px;
+      cursor: pointer;
+      transition: border-color 0.2s;
+    }
+    .recent-drink:hover { border-color: var(--brass-line); }
+    .recent-drink .lbl { font-size: 10.5px; font-weight: 800; letter-spacing: 0.18em; color: var(--brass); text-transform: uppercase; margin-bottom: 6px; }
+    .recent-drink h3 { font-size: 22px; line-height: 1.15; margin-bottom: 6px; }
+    .recent-drink .meta { font-size: 12.5px; color: var(--whisper); font-weight: 500; }
+
+    /* ── Chips & filters ─────────────────────────────────────────── */
+    .chip-row {
+      display: flex; gap: 8px; overflow-x: auto;
+      padding: 4px 2px 12px; margin: 0 -18px 8px; padding-left: 18px; padding-right: 18px;
+      scrollbar-width: none;
+    }
+    .chip-row::-webkit-scrollbar { display: none; }
+
+    .chip {
+      flex-shrink: 0;
+      padding: 8px 14px;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 50px;
+      font-family: inherit; font-size: 12.5px; font-weight: 600;
+      color: var(--whisper);
+      cursor: pointer;
+      transition: all 0.15s;
+      white-space: nowrap;
+    }
+    .chip:hover { color: var(--ink); border-color: var(--brass-line); }
+    .chip.active {
+      background: var(--brass-soft);
+      color: var(--brass-glow);
+      border-color: var(--brass);
+    }
+    .chip.active-mood {
+      background: linear-gradient(135deg, var(--brass-glow), var(--brass));
+      color: #1a1308;
+      border-color: var(--brass);
+      box-shadow: 0 0 16px rgba(245, 198, 98, 0.4);
+    }
+
+    /* ── Inputs ──────────────────────────────────────────────────── */
+    .text-input, textarea, select {
+      width: 100%;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.10);
+      color: var(--ink);
+      border-radius: var(--r-md);
+      padding: 12px 14px;
+      font-family: inherit; font-size: 14px; font-weight: 500;
+      transition: border-color 0.15s, background 0.15s;
+    }
+    .text-input:focus, textarea:focus, select:focus {
+      outline: none;
+      border-color: var(--brass);
+      background: rgba(200, 155, 60, 0.06);
+      box-shadow: 0 0 0 3px rgba(200, 155, 60, 0.15);
+    }
+    textarea { resize: vertical; min-height: 70px; font-family: inherit; }
+    select { appearance: none; background-image: linear-gradient(45deg, transparent 50%, var(--brass) 50%), linear-gradient(135deg, var(--brass) 50%, transparent 50%); background-position: calc(100% - 18px) center, calc(100% - 13px) center; background-size: 5px 5px, 5px 5px; background-repeat: no-repeat; padding-right: 36px; }
+    .field-label { display: block; font-size: 11px; font-weight: 800; letter-spacing: 0.14em; color: var(--brass); text-transform: uppercase; margin-bottom: 8px; }
+    .field-row { margin-bottom: 14px; }
+    .field-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+
+    /* Toggle pill */
+    .toggle {
+      display: inline-flex; padding: 5px 12px; font-size: 12px; font-weight: 700;
+      border-radius: 50px; cursor: pointer; transition: all 0.15s;
+    }
+    .toggle.on { background: var(--brass-soft); color: var(--brass-glow); border: 1px solid var(--brass); }
+    .toggle.off { background: rgba(255,255,255,0.04); color: var(--whisper); border: 1px solid rgba(255,255,255,0.10); }
+
+    /* ── Bar item rows ───────────────────────────────────────────── */
+    .item-list { display: flex; flex-direction: column; gap: 10px; }
+
+    .bar-item {
+      background: var(--bg-card);
+      border: 1px solid rgba(255,255,255,0.05);
+      border-radius: var(--r-md);
+      padding: 14px;
+      display: flex; gap: 14px; align-items: center;
+      transition: border-color 0.15s;
+      position: relative;
+    }
+    .bar-item:hover { border-color: var(--brass-line); }
+    .bar-item.fav { border-color: rgba(245, 198, 98, 0.32); }
+    .bar-item.low { border-color: rgba(196, 55, 79, 0.30); }
+
+    .bar-emoji {
+      width: 46px; height: 46px; flex-shrink: 0;
+      background: var(--bg-elev);
+      border: 1px solid rgba(255,255,255,0.06);
+      border-radius: 12px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 24px;
+    }
+
+    .bar-info { flex: 1; min-width: 0; cursor: pointer; }
+    .bar-name { font-size: 14.5px; font-weight: 700; color: var(--ink-strong); display: flex; align-items: center; gap: 6px; }
+    .bar-name .star { color: var(--brass-glow); font-size: 13px; }
+    .bar-meta { font-size: 11.5px; color: var(--whisper); margin-top: 3px; display: flex; gap: 6px; flex-wrap: wrap; align-items: center; }
+    .tag {
+      display: inline-block;
+      background: rgba(255,255,255,0.06);
+      color: var(--ink);
+      padding: 2px 8px; border-radius: 50px;
+      font-size: 10.5px; font-weight: 600;
+      letter-spacing: 0.04em;
+    }
+    .tag.brass { background: var(--brass-soft); color: var(--brass-glow); }
+    .tag.ruby  { background: var(--ruby-soft); color: var(--ruby); }
+    .tag.absinthe { background: var(--absinthe-soft); color: var(--absinthe); }
+
+    .vol-bar-wrap { width: 100%; height: 5px; background: rgba(255,255,255,0.06); border-radius: 50px; margin-top: 7px; overflow: hidden; }
+    .vol-bar-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--brass), var(--brass-glow));
+      border-radius: 50px; transition: width 0.4s;
+      box-shadow: 0 0 10px rgba(245, 198, 98, 0.5);
+    }
+    .vol-bar-fill.low { background: linear-gradient(90deg, var(--ruby), #d4536a); box-shadow: 0 0 8px rgba(196, 55, 79, 0.4); }
+
+    .bar-actions { display: flex; align-items: center; gap: 4px; flex-shrink: 0; }
+    .icon-btn {
+      width: 30px; height: 30px;
+      background: transparent;
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 8px;
+      color: var(--whisper);
+      font-size: 14px; font-weight: 700;
+      cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      transition: all 0.15s;
+    }
+    .icon-btn:hover { color: var(--brass-glow); border-color: var(--brass); background: var(--brass-soft); }
+    .icon-btn.danger:hover { color: var(--ruby); border-color: var(--ruby); background: var(--ruby-soft); }
+    .icon-btn.fav.on { color: var(--brass-glow); border-color: var(--brass); background: var(--brass-soft); }
+
+    /* ── Empty states ────────────────────────────────────────────── */
+    .empty-state {
+      text-align: center;
+      padding: 50px 20px;
+      background: rgba(255,255,255,0.02);
+      border: 1px dashed rgba(255,255,255,0.08);
+      border-radius: var(--r-lg);
+    }
+    .empty-state .empty-emoji { font-size: 48px; margin-bottom: 14px; opacity: 0.7; }
+    .empty-state h3 { font-size: 19px; margin-bottom: 6px; }
+    .empty-state p { font-size: 13px; color: var(--whisper); }
+
+    /* ── Photo tile (Bar) ─────────────────────────────────────────── */
+    .photo-tile {
+      display: flex; align-items: center; gap: 14px;
+      background: linear-gradient(135deg, rgba(200, 155, 60, 0.12) 0%, rgba(182, 111, 60, 0.05) 100%);
+      border: 1px solid var(--brass-line);
+      border-radius: var(--r-lg);
+      padding: 16px 18px;
+      cursor: pointer;
+      transition: all 0.2s;
+      margin-bottom: 12px;
+      width: 100%;
+      text-align: left;
+      color: var(--ink);
+      font-family: inherit;
+    }
+    .photo-tile:hover { border-color: var(--brass); box-shadow: 0 8px 28px rgba(200, 155, 60, 0.18); }
+    .photo-tile .pt-icon {
+      width: 48px; height: 48px; flex-shrink: 0;
+      background: var(--brass);
+      border-radius: 14px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 22px; color: #1a1308;
+      box-shadow: 0 4px 14px rgba(200, 155, 60, 0.4);
+    }
+    .photo-tile .pt-text { flex: 1; }
+    .photo-tile .pt-text strong { display: block; font-size: 14.5px; font-weight: 700; color: var(--ink-strong); }
+    .photo-tile .pt-text span { display: block; font-size: 11.5px; color: var(--whisper); margin-top: 3px; font-weight: 500; }
+
+    /* ── Bottom Nav ──────────────────────────────────────────────── */
+    .bottom-nav {
+      position: fixed; bottom: 0; left: 0; right: 0; z-index: 90;
+      padding: 10px 14px calc(8px + var(--safe-bottom));
+      background: linear-gradient(180deg, rgba(14,15,20,0) 0%, rgba(14,15,20,0.85) 30%, rgba(14,15,20,0.98) 100%);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+    }
+    .bottom-nav-inner {
+      max-width: 720px; margin: 0 auto;
+      display: grid; grid-template-columns: repeat(6, 1fr); gap: 4px;
+      background: var(--bg-card);
+      border: 1px solid rgba(255,255,255,0.06);
+      border-radius: 28px;
+      padding: 6px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    }
+    .nav-btn {
+      background: none; border: none;
+      padding: 8px 4px;
+      display: flex; flex-direction: column; align-items: center; gap: 2px;
+      color: var(--smoke);
+      font-family: inherit; font-size: 9.5px; font-weight: 700; letter-spacing: 0.04em;
+      cursor: pointer;
+      border-radius: 18px;
+      transition: color 0.15s, background 0.15s;
+    }
+    .nav-btn .ico { font-size: 17px; line-height: 1; }
+    .nav-btn:hover { color: var(--ink); }
+    .nav-btn.active { color: var(--brass-glow); background: var(--brass-soft); }
+    .nav-btn.center {
+      position: relative;
+      transform: translateY(-14px);
+      background: linear-gradient(135deg, var(--brass-glow), var(--brass) 70%, var(--copper));
+      color: #1a1308;
+      border-radius: 50%;
+      width: 56px; height: 56px;
+      box-shadow: 0 6px 22px rgba(200, 155, 60, 0.55), inset 0 1px 0 rgba(255,255,255,0.3);
+      margin: 0 auto;
+      padding: 0;
+    }
+    .nav-btn.center .ico { font-size: 22px; }
+    .nav-btn.center .lbl { font-size: 9px; margin-top: 0; }
+    .nav-btn.center.active { background: linear-gradient(135deg, var(--brass-glow), var(--brass)); }
+
+    /* ── Modal ───────────────────────────────────────────────────── */
+    .modal-bg {
+      position: fixed; inset: 0; z-index: 1000;
+      background: rgba(5, 6, 10, 0.78);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      display: none; align-items: flex-end; justify-content: center;
+      padding: 0;
+      animation: fadeIn 0.2s ease;
+    }
+    .modal-bg.open { display: flex; }
+    .modal {
+      background: var(--bg-card);
+      width: 100%;
+      max-width: 560px;
+      border-radius: 26px 26px 0 0;
+      padding: 22px 22px calc(22px + var(--safe-bottom));
+      max-height: 88vh;
+      overflow-y: auto;
+      animation: slideUp 0.32s cubic-bezier(0.2, 0.8, 0.3, 1);
+      border-top: 1px solid rgba(245, 198, 98, 0.16);
+      box-shadow: 0 -20px 60px rgba(0,0,0,0.6);
+    }
+    @keyframes slideUp { from { transform: translateY(100%); } to { transform: none; } }
+    @media (min-width: 720px) {
+      .modal-bg { align-items: center; padding: 24px; }
+      .modal { border-radius: 26px; max-height: 86vh; }
+      @keyframes slideUp { from { transform: scale(0.96); opacity: 0; } to { transform: none; opacity: 1; } }
+    }
+    .modal-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 18px; gap: 12px; }
+    .modal-head h2 { font-size: 22px; line-height: 1.15; }
+    .modal-close {
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.10);
+      color: var(--whisper);
+      width: 36px; height: 36px;
+      border-radius: 50%; cursor: pointer;
+      font-size: 16px; font-weight: 700;
+      flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center;
+      transition: all 0.15s;
+    }
+    .modal-close:hover { color: var(--ruby); border-color: var(--ruby); }
+    .modal-actions { display: flex; gap: 10px; margin-top: 18px; }
+
+    /* ── Mood picker ──────────────────────────────────────────────── */
+    .mood-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+      gap: 10px; margin-bottom: 6px;
+    }
+    .mood-tile {
+      padding: 16px 14px;
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: var(--r-md);
+      cursor: pointer;
+      transition: all 0.2s;
+      text-align: center;
+      font-family: inherit; color: var(--ink);
+    }
+    .mood-tile:hover { border-color: var(--brass-line); background: rgba(200, 155, 60, 0.05); }
+    .mood-tile.active {
+      background: linear-gradient(135deg, rgba(245, 198, 98, 0.18), rgba(200, 155, 60, 0.08));
+      border-color: var(--brass);
+      box-shadow: 0 0 18px rgba(245, 198, 98, 0.22);
+    }
+    .mood-tile .emoji { font-size: 26px; display: block; margin-bottom: 6px; }
+    .mood-tile .name { font-size: 12px; font-weight: 700; color: var(--ink-strong); }
+    .mood-tile .desc { font-size: 10px; color: var(--whisper); margin-top: 3px; font-weight: 500; }
+
+    /* ── Recipe card ─────────────────────────────────────────────── */
+    .recipe-card {
+      background:
+        radial-gradient(circle at 90% 0%, rgba(200, 155, 60, 0.12), transparent 50%),
+        linear-gradient(160deg, var(--bg-elev), var(--bg-card));
+      border: 1px solid var(--brass-line);
+      border-radius: var(--r-xl);
+      padding: 26px;
+      box-shadow: var(--shadow-lg);
+      position: relative;
+      overflow: hidden;
+    }
+    .recipe-eyebrow { font-size: 10.5px; font-weight: 800; letter-spacing: 0.22em; color: var(--brass); text-transform: uppercase; margin-bottom: 8px; }
+    .recipe-name { font-family: 'Playfair Display', serif; font-size: 32px; line-height: 1.05; color: var(--ink-strong); margin-bottom: 10px; font-weight: 800; }
+    .recipe-tagline { font-family: 'Playfair Display', serif; font-style: italic; font-size: 15px; color: var(--brass-glow); line-height: 1.5; margin-bottom: 18px; }
+    .recipe-meta-row { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 18px; }
+    .meta-pill {
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.08);
+      padding: 5px 11px;
+      border-radius: 50px;
+      font-size: 11px; font-weight: 600;
+      color: var(--ink); letter-spacing: 0.03em;
+    }
+    .meta-pill strong { color: var(--brass-glow); margin-right: 4px; font-weight: 700; }
+
+    .recipe-section-label { font-size: 10.5px; font-weight: 800; letter-spacing: 0.18em; color: var(--brass); text-transform: uppercase; margin: 18px 0 10px; }
+
+    .ing-table { width: 100%; }
+    .ing-row {
+      display: flex; align-items: center; padding: 8px 0;
+      border-bottom: 1px dashed rgba(255,255,255,0.08);
+      gap: 10px;
+    }
+    .ing-row:last-child { border-bottom: none; }
+    .ing-name { flex: 1; font-size: 14px; font-weight: 600; color: var(--ink); }
+    .ing-name.missing { color: var(--ruby); }
+    .ing-amt { font-family: 'Playfair Display', serif; font-size: 14.5px; color: var(--brass-glow); font-weight: 700; white-space: nowrap; }
+    .ing-amt small { color: var(--whisper); font-size: 11px; font-family: 'Inter', sans-serif; font-weight: 500; margin-left: 4px; }
+    .sub-link {
+      font-size: 11px; color: var(--brass); cursor: pointer; text-decoration: underline;
+      margin-left: 6px; font-weight: 600;
+    }
+
+    .step-list { padding-left: 20px; }
+    .step-list li { margin-bottom: 8px; line-height: 1.55; font-size: 13.5px; color: var(--ink); }
+    .step-list li::marker { color: var(--brass); font-weight: 700; }
+
+    .lore-block {
+      background: rgba(0,0,0,0.25);
+      border-left: 3px solid var(--brass);
+      padding: 12px 16px;
+      margin: 18px 0 4px;
+      border-radius: 0 10px 10px 0;
+      font-family: 'Playfair Display', serif;
+      font-style: italic;
+      font-size: 13.5px;
+      line-height: 1.6;
+      color: var(--ink);
+    }
+
+    .recipe-actions { display: flex; gap: 10px; margin-top: 22px; flex-wrap: wrap; }
+
+    /* ── To buy ──────────────────────────────────────────────────── */
+    .buy-row {
+      background: var(--bg-card);
+      border: 1px solid rgba(255,255,255,0.05);
+      border-radius: var(--r-md);
+      padding: 14px;
+      display: flex; align-items: center; gap: 14px;
+      cursor: pointer;
+      transition: border-color 0.15s, opacity 0.15s;
+    }
+    .buy-row:hover { border-color: var(--brass-line); }
+    .buy-row.checked { opacity: 0.45; }
+    .buy-row.checked .buy-name { text-decoration: line-through; }
+    .check-circle {
+      width: 24px; height: 24px; flex-shrink: 0;
+      border-radius: 50%;
+      border: 1.5px solid rgba(255,255,255,0.2);
+      transition: all 0.15s;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 13px; color: transparent;
+    }
+    .buy-row.checked .check-circle { background: var(--brass); border-color: var(--brass); color: #1a1308; }
+    .buy-row.checked .check-circle::after { content: '✓'; color: #1a1308; }
+    .buy-info { flex: 1; }
+    .buy-name { font-size: 14px; font-weight: 700; color: var(--ink-strong); }
+    .buy-qty { font-size: 11.5px; color: var(--whisper); margin-top: 2px; }
+
+    .add-buy-row {
+      display: flex; gap: 8px; margin-bottom: 14px;
+    }
+    .add-buy-row .text-input { flex: 1; }
+
+    /* ── History ─────────────────────────────────────────────────── */
+    .history-group { margin-bottom: 24px; }
+    .history-date {
+      font-size: 11px; font-weight: 800; letter-spacing: 0.18em;
+      color: var(--brass); text-transform: uppercase;
+      margin-bottom: 10px;
+    }
+    .history-card {
+      background: var(--bg-card);
+      border: 1px solid rgba(255,255,255,0.05);
+      border-radius: var(--r-md);
+      padding: 16px 18px;
+      cursor: pointer;
+      margin-bottom: 8px;
+      transition: border-color 0.15s;
+    }
+    .history-card:hover { border-color: var(--brass-line); }
+    .history-card .h-name { font-family: 'Playfair Display', serif; font-size: 19px; font-weight: 700; color: var(--ink-strong); margin-bottom: 4px; }
+    .history-card .h-time { font-size: 11px; color: var(--whisper); display: flex; gap: 8px; align-items: center; }
+    .stars { color: var(--brass-glow); letter-spacing: 1px; }
+    .stars-empty { color: rgba(255,255,255,0.15); }
+    .history-card .h-ings { font-size: 12px; color: var(--whisper); margin-top: 8px; line-height: 1.5; }
+
+    /* ── Settings ─────────────────────────────────────────────────── */
+    .kv-row {
+      display: grid; grid-template-columns: 110px 1fr; gap: 10px;
+      padding: 9px 0;
+      border-bottom: 1px solid rgba(255,255,255,0.04);
+      font-size: 13px;
+    }
+    .kv-row:last-child { border-bottom: none; }
+    .kv-row .k { color: var(--whisper); font-size: 11px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; padding-top: 2px; }
+    .kv-row .v { color: var(--ink); font-weight: 500; }
+    .tag-list { display: flex; flex-wrap: wrap; gap: 5px; }
+
+    /* ── Toast ───────────────────────────────────────────────────── */
+    .toast {
+      position: fixed;
+      bottom: calc(110px + var(--safe-bottom));
+      left: 50%;
+      transform: translateX(-50%) translateY(20px);
+      background: var(--bg-elev);
+      border: 1px solid var(--brass-line);
+      color: var(--ink-strong);
+      padding: 12px 20px;
+      border-radius: 50px;
+      font-size: 13px;
+      font-weight: 600;
+      box-shadow: var(--shadow-lg);
+      opacity: 0;
+      transition: all 0.3s cubic-bezier(0.2, 0.8, 0.3, 1);
+      pointer-events: none;
+      z-index: 2000;
+      max-width: 90%;
+      text-align: center;
+    }
+    .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+    /* ── Loading spinner ─────────────────────────────────────────── */
+    .gen-loading {
+      display: flex; flex-direction: column; align-items: center;
+      padding: 40px 20px; gap: 16px;
+    }
+    .spinner {
+      width: 40px; height: 40px;
+      border: 3px solid rgba(245, 198, 98, 0.15);
+      border-top-color: var(--brass);
+      border-radius: 50%;
+      animation: spin 0.9s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .gen-loading p { color: var(--whisper); font-size: 13px; font-weight: 600; font-family: 'Playfair Display', serif; font-style: italic; }
+
+    /* ── Setup banner ────────────────────────────────────────────── */
+    .setup-banner {
+      position: fixed; top: 70px; left: 50%; transform: translateX(-50%);
+      z-index: 200;
+      background: var(--bg-elev);
+      border: 1px solid var(--ruby);
+      color: var(--ink);
+      padding: 10px 16px;
+      border-radius: 50px;
+      font-size: 12px; font-weight: 600;
+      display: flex; align-items: center; gap: 10px;
+      box-shadow: var(--shadow-lg);
+      max-width: 92%;
+    }
+    .setup-banner a { color: var(--brass-glow); text-decoration: none; font-weight: 700; }
+    .setup-banner button { background: none; border: none; color: var(--whisper); cursor: pointer; font-size: 16px; padding: 0 4px; }
+
+    /* ── Install banner ──────────────────────────────────────────── */
+    .install-banner {
+      position: fixed; top: 70px; left: 50%; transform: translateX(-50%);
+      z-index: 150;
+      background: var(--bg-elev);
+      border: 1px solid var(--brass);
+      color: var(--ink);
+      padding: 10px 16px;
+      border-radius: 50px;
+      font-size: 12px; font-weight: 700;
+      display: none; align-items: center; gap: 10px;
+      box-shadow: var(--shadow-lg);
+    }
+    .install-banner.show { display: flex; }
+    .install-banner button {
+      background: var(--brass); color: #1a1308; border: none;
+      padding: 5px 12px; border-radius: 50px; font-weight: 800; cursor: pointer; font-size: 11px;
+    }
+    .install-banner .x {
+      background: none; color: var(--whisper); padding: 0 4px; font-size: 16px;
+    }
+
+    /* ── Detail sheet (bar-item detail in modal) ─────────────────── */
+    .vol-control { display: flex; align-items: center; gap: 8px; }
+    .vol-control .qty {
+      width: 38px; height: 38px;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.10);
+      color: var(--ink-strong);
+      border-radius: 10px;
+      font-size: 16px; font-weight: 700; cursor: pointer;
+    }
+    .vol-control .qty:hover { color: var(--brass-glow); border-color: var(--brass); }
+
+    /* ── Photo confirm list ──────────────────────────────────────── */
+    .photo-confirm-row {
+      background: var(--bg-elev);
+      border: 1px solid rgba(255,255,255,0.05);
+      border-radius: var(--r-md);
+      padding: 12px;
+      margin-bottom: 10px;
+      display: grid;
+      grid-template-columns: 38px 1fr auto;
+      gap: 10px;
+      align-items: center;
+    }
+    .photo-confirm-row .em-input {
+      width: 38px; height: 38px; padding: 0;
+      text-align: center; font-size: 20px;
+      background: var(--bg-card);
+    }
+    .photo-confirm-row input.text-input { padding: 7px 10px; font-size: 13px; }
+
+    /* Misc */
+    a { color: var(--brass-glow); }
+    code { background: rgba(255,255,255,0.06); padding: 1px 6px; border-radius: 4px; font-size: 12px; color: var(--brass-glow); }
+    hr.divider { border: none; border-top: 1px solid rgba(255,255,255,0.06); margin: 18px 0; }
+  </style>
+</head>
+<body>
+
+<!-- ─── Top bar ─── -->
+<header class="topbar">
+  <div class="topbar-inner">
+    <div class="brand">
+      <div class="brand-mark">🥃</div>
+      <div class="brand-text">
+        <h1>Nelson's<span class="amp"> &amp; </span>Bar<span class="ver" id="ver-tag">v1.0</span></h1>
+        <p>A speakeasy of one</p>
+      </div>
+    </div>
+    <div class="sync-pill syncing" id="sync-pill">
+      <span class="sync-dot"></span>
+      <span id="sync-label">Loading</span>
+    </div>
+  </div>
+</header>
+
+<main>
+
+  <!-- ─── HOME ─── -->
+  <section id="tab-home" class="tab-panel active">
+    <div class="hero">
+      <div class="hero-eyebrow">Tonight's pour</div>
+      <h2 id="home-greeting">A drink, <em>perfectly yours.</em></h2>
+      <p>Tell me how you feel — I'll find something from the shelf that fits the night.</p>
+      <div class="hero-actions">
+        <button class="btn btn-primary" onclick="openMixModal()">✨ Pour something</button>
+        <button class="btn btn-ghost" onclick="goTo('bar')">View the bar</button>
+      </div>
+    </div>
+
+    <div class="stat-grid">
+      <div class="stat-tile">
+        <div class="badge">🍾</div>
+        <div class="num" id="stat-bottles">0</div>
+        <div class="lbl">Bottles in bar</div>
+      </div>
+      <div class="stat-tile">
+        <div class="badge">🍸</div>
+        <div class="num" id="stat-month">0</div>
+        <div class="lbl">Drinks this month</div>
+      </div>
+      <div class="stat-tile">
+        <div class="badge">⚠</div>
+        <div class="num" id="stat-low">0</div>
+        <div class="lbl">Running low</div>
+      </div>
+      <div class="stat-tile">
+        <div class="badge">⭐</div>
+        <div class="num" id="stat-fav" style="font-size:18px;line-height:1.2;">—</div>
+        <div class="lbl">Favorite spirit</div>
+      </div>
+    </div>
+
+    <div class="section-label">Most recent</div>
+    <div id="home-recent-wrap"></div>
+  </section>
+
+  <!-- ─── BAR ─── -->
+  <section id="tab-bar" class="tab-panel">
+    <div class="h-row">
+      <div>
+        <h2 class="h-title">The Bar</h2>
+        <div class="h-sub" id="bar-sub">— bottles</div>
+      </div>
+      <button class="btn btn-outline btn-sm" onclick="openAddBottleModal()">＋ Add</button>
+    </div>
+
+    <button class="photo-tile" onclick="document.getElementById('photo-input').click()">
+      <div class="pt-icon">📷</div>
+      <div class="pt-text">
+        <strong>Snap a bottle or shelf</strong>
+        <span>AI catalogs everything it sees</span>
+      </div>
+      <span style="font-size:18px; color:var(--brass);">→</span>
+    </button>
+    <input type="file" id="photo-input" accept="image/*" capture="environment" style="display:none" onchange="handleBarPhoto(event)" />
+
+    <div class="chip-row" id="bar-filter-chips">
+      <button class="chip active" onclick="setBarFilter('all', this)">All</button>
+      <button class="chip" onclick="setBarFilter('spirit', this)">Spirits</button>
+      <button class="chip" onclick="setBarFilter('liqueur', this)">Liqueurs</button>
+      <button class="chip" onclick="setBarFilter('wine_vermouth', this)">Wine / Vermouth</button>
+      <button class="chip" onclick="setBarFilter('mixer', this)">Mixers</button>
+      <button class="chip" onclick="setBarFilter('bitter', this)">Bitters</button>
+      <button class="chip" onclick="setBarFilter('garnish', this)">Garnishes</button>
+      <button class="chip" onclick="setBarFilter('low', this)">Running low</button>
+      <button class="chip" onclick="setBarFilter('fav', this)">⭐ Favorites</button>
+    </div>
+
+    <div id="bar-list" class="item-list"></div>
+  </section>
+
+  <!-- ─── TO BUY ─── -->
+  <section id="tab-buy" class="tab-panel">
+    <div class="h-row">
+      <div>
+        <h2 class="h-title">To Buy</h2>
+        <div class="h-sub">Empty bottles auto-show here</div>
+      </div>
+      <button class="btn btn-outline btn-sm" onclick="copyBuyList()">📋 Copy</button>
+    </div>
+
+    <div class="add-buy-row">
+      <input type="text" class="text-input" id="buy-input" placeholder="Add to shopping list…" onkeydown="if(event.key==='Enter')addBuyItem()" />
+      <button class="btn btn-primary" onclick="addBuyItem()">＋</button>
+    </div>
+
+    <div id="buy-list" class="item-list"></div>
+  </section>
+
+  <!-- ─── HISTORY ─── -->
+  <section id="tab-history" class="tab-panel">
+    <div class="h-row">
+      <div>
+        <h2 class="h-title">History</h2>
+        <div class="h-sub" id="history-sub">— drinks made</div>
+      </div>
+    </div>
+
+    <div class="chip-row" id="history-filter-chips">
+      <button class="chip active" onclick="setHistFilter('all', this)">All</button>
+      <button class="chip" onclick="setHistFilter('fav', this)">⭐ Favorites</button>
+      <button class="chip" onclick="setHistFilter('spirit', this)">Whiskey</button>
+      <button class="chip" onclick="setHistFilter('gin', this)">Gin</button>
+      <button class="chip" onclick="setHistFilter('mezcal', this)">Mezcal</button>
+      <button class="chip" onclick="setHistFilter('rum', this)">Rum</button>
+      <button class="chip" onclick="setHistFilter('tequila', this)">Tequila</button>
+    </div>
+
+    <div id="history-list"></div>
+  </section>
+
+  <!-- ─── SETTINGS ─── -->
+  <section id="tab-settings" class="tab-panel">
+    <div class="h-row">
+      <div>
+        <h2 class="h-title">Settings</h2>
+        <div class="h-sub">Profile, sync, install</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">👤 Profile</div>
+      <div id="settings-profile-view"></div>
+      <button class="btn btn-outline btn-sm btn-block" style="margin-top:14px;" onclick="openProfileModal()">Edit profile</button>
+    </div>
+
+    <div class="card" id="install-card" style="display:none;">
+      <div class="card-title">📲 Install as App</div>
+      <p style="font-size:13px;color:var(--whisper);margin-bottom:12px;line-height:1.55;" id="install-status">Install Nelson's Bar on your home screen.</p>
+      <button class="btn btn-primary btn-block" id="db-install-btn" onclick="triggerInstall()">＋ Install Nelson's Bar</button>
+      <p style="font-size:12px;color:var(--whisper);margin-top:12px;line-height:1.55;" id="install-help"></p>
+    </div>
+
+    <div class="card">
+      <div class="card-title">🔁 Troubleshoot Sync</div>
+      <p style="font-size:12.5px;color:var(--whisper);margin-bottom:12px;line-height:1.55;">If something looks stale or your data isn't matching another device.</p>
+      <div style="display:flex;flex-direction:column;gap:8px;">
+        <button class="btn btn-ghost btn-block" onclick="forceResync()">↻ Force Resync</button>
+        <button class="btn btn-ghost btn-block" onclick="clearLocalCache()">🗑 Clear Local Cache</button>
+        <button class="btn btn-ghost btn-block" onclick="hardReload()">⟳ Hard Reload</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">💾 Backup</div>
+      <div style="display:flex;flex-direction:column;gap:8px;">
+        <button class="btn btn-ghost btn-block" onclick="exportDB()">⬇ Export bar (JSON)</button>
+        <button class="btn btn-ghost btn-block" onclick="openImportModal()">⬆ Import bar (JSON)</button>
+        <button class="btn btn-danger btn-block" onclick="resetDB()">↺ Reset to defaults</button>
+      </div>
+    </div>
+
+    <div class="card card-soft" style="text-align:center;">
+      <p style="font-size:11.5px;color:var(--whisper);font-weight:600;letter-spacing:0.05em;">Nelson's Bar · <span id="ver-tag-2">v1.0</span></p>
+    </div>
+  </section>
+
+</main>
+
+<!-- ─── BOTTOM NAV ─── -->
+<nav class="bottom-nav">
+  <div class="bottom-nav-inner">
+    <button class="nav-btn active" data-tab="home" onclick="goTo('home')"><span class="ico">🏠</span><span class="lbl">Home</span></button>
+    <button class="nav-btn" data-tab="bar" onclick="goTo('bar')"><span class="ico">🥃</span><span class="lbl">Bar</span></button>
+    <button class="nav-btn center" onclick="openMixModal()"><span class="ico">✨</span><span class="lbl">Mix</span></button>
+    <button class="nav-btn" data-tab="buy" onclick="goTo('buy')"><span class="ico">🛒</span><span class="lbl">Buy</span></button>
+    <button class="nav-btn" data-tab="history" onclick="goTo('history')"><span class="ico">📜</span><span class="lbl">Made</span></button>
+    <button class="nav-btn" data-tab="settings" onclick="goTo('settings')"><span class="ico">⚙</span><span class="lbl">Settings</span></button>
+  </div>
+</nav>
+
+<!-- ─── MODAL: Add Bottle Manually ─── -->
+<div class="modal-bg" id="modal-add">
+  <div class="modal">
+    <div class="modal-head">
+      <h2>Add a bottle</h2>
+      <button class="modal-close" onclick="closeModal('modal-add')">×</button>
+    </div>
+    <div class="field-row">
+      <label class="field-label">Name</label>
+      <input type="text" class="text-input" id="ab-name" placeholder="e.g. Buffalo Trace" />
+    </div>
+    <div class="field-grid field-row">
+      <div>
+        <label class="field-label">Category</label>
+        <select id="ab-category">
+          <option value="spirit">Spirit</option>
+          <option value="liqueur">Liqueur</option>
+          <option value="wine_vermouth">Wine / Vermouth</option>
+          <option value="mixer">Mixer</option>
+          <option value="bitter">Bitter</option>
+          <option value="garnish">Garnish</option>
+          <option value="tool">Tool</option>
+        </select>
+      </div>
+      <div>
+        <label class="field-label">Subcategory</label>
+        <input type="text" class="text-input" id="ab-sub" placeholder="bourbon, gin…" />
+      </div>
+    </div>
+    <div class="field-grid field-row">
+      <div>
+        <label class="field-label">ABV %</label>
+        <input type="number" class="text-input" id="ab-abv" placeholder="40" />
+      </div>
+      <div>
+        <label class="field-label">Bottle ml</label>
+        <input type="number" class="text-input" id="ab-vol" value="750" />
+      </div>
+    </div>
+    <div class="field-grid field-row">
+      <div>
+        <label class="field-label">Remaining %</label>
+        <input type="number" class="text-input" id="ab-rem" value="100" min="0" max="100" />
+      </div>
+      <div>
+        <label class="field-label">Emoji</label>
+        <input type="text" class="text-input" id="ab-emoji" placeholder="🥃" />
+      </div>
+    </div>
+    <div class="field-row">
+      <label class="field-label">Notes</label>
+      <textarea id="ab-notes" placeholder="Tasting notes, story, why you bought it…"></textarea>
+    </div>
+    <div class="field-row">
+      <span id="ab-fav" class="toggle off" onclick="toggleEl(this)">⭐ Mark favorite</span>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost btn-block" onclick="closeModal('modal-add')">Cancel</button>
+      <button class="btn btn-primary btn-block" onclick="saveBottle()">Save</button>
+    </div>
+  </div>
+</div>
+
+<!-- ─── MODAL: Bottle Detail ─── -->
+<div class="modal-bg" id="modal-detail">
+  <div class="modal" id="modal-detail-body"></div>
+</div>
+
+<!-- ─── MODAL: Photo Confirm ─── -->
+<div class="modal-bg" id="modal-photo">
+  <div class="modal">
+    <div class="modal-head">
+      <h2>Detected from photo</h2>
+      <button class="modal-close" onclick="closeModal('modal-photo')">×</button>
+    </div>
+    <p style="font-size:12.5px;color:var(--whisper);margin-bottom:14px;">Edit anything that looks off, then add to your bar.</p>
+    <div id="photo-output"></div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost btn-block" onclick="closeModal('modal-photo')">Cancel</button>
+      <button class="btn btn-primary btn-block" onclick="confirmPhotoAdd()">＋ Add to bar</button>
+    </div>
+  </div>
+</div>
+
+<!-- ─── MODAL: Mix flow ─── -->
+<div class="modal-bg" id="modal-mix">
+  <div class="modal">
+    <div class="modal-head">
+      <h2 id="mix-modal-title">What's the mood?</h2>
+      <button class="modal-close" onclick="closeModal('modal-mix')">×</button>
+    </div>
+    <div id="mix-modal-body"></div>
+  </div>
+</div>
+
+<!-- ─── MODAL: Make this (deduct volumes) ─── -->
+<div class="modal-bg" id="modal-make">
+  <div class="modal">
+    <div class="modal-head">
+      <h2>Pouring it up</h2>
+      <button class="modal-close" onclick="closeModal('modal-make')">×</button>
+    </div>
+    <p style="font-size:12.5px;color:var(--whisper);margin-bottom:14px;">Confirm volumes used. We'll deduct from each bottle.</p>
+    <div id="make-list"></div>
+    <div class="field-row" style="margin-top:14px;">
+      <label class="field-label">Rating</label>
+      <div id="make-rating" style="display:flex;gap:10px;font-size:26px;"></div>
+    </div>
+    <div class="field-row">
+      <span id="make-fav" class="toggle off" onclick="toggleEl(this)">⭐ Favorite</span>
+    </div>
+    <div class="field-row">
+      <label class="field-label">Notes</label>
+      <textarea id="make-notes" placeholder="How did it turn out?"></textarea>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost btn-block" onclick="closeModal('modal-make')">Cancel</button>
+      <button class="btn btn-primary btn-block" onclick="confirmMakeDrink()">🥃 Pour it</button>
+    </div>
+  </div>
+</div>
+
+<!-- ─── MODAL: History detail ─── -->
+<div class="modal-bg" id="modal-hist-detail">
+  <div class="modal" id="modal-hist-body"></div>
+</div>
+
+<!-- ─── MODAL: Profile editor ─── -->
+<div class="modal-bg" id="modal-profile">
+  <div class="modal">
+    <div class="modal-head">
+      <h2>Your taste</h2>
+      <button class="modal-close" onclick="closeModal('modal-profile')">×</button>
+    </div>
+    <div class="field-row">
+      <label class="field-label">Name</label>
+      <input type="text" class="text-input" id="pf-name" />
+    </div>
+    <div class="field-row">
+      <label class="field-label">Loves <span style="font-weight:500;color:var(--whisper);text-transform:none;letter-spacing:0;">(comma-separated)</span></label>
+      <input type="text" class="text-input" id="pf-loves" />
+    </div>
+    <div class="field-row">
+      <label class="field-label">Avoid <span style="font-weight:500;color:var(--whisper);text-transform:none;letter-spacing:0;">(comma-separated)</span></label>
+      <input type="text" class="text-input" id="pf-avoid" />
+    </div>
+    <div class="field-grid field-row">
+      <div>
+        <label class="field-label">Strength</label>
+        <select id="pf-strength">
+          <option value="light">Light</option>
+          <option value="medium">Medium</option>
+          <option value="spirit-forward">Spirit-forward</option>
+        </select>
+      </div>
+      <div>
+        <label class="field-label">Skill</label>
+        <select id="pf-skill">
+          <option value="beginner">Beginner</option>
+          <option value="enthusiast">Enthusiast</option>
+          <option value="advanced">Advanced</option>
+          <option value="pro">Pro</option>
+        </select>
+      </div>
+    </div>
+    <div class="field-row">
+      <label class="field-label">Default glass</label>
+      <input type="text" class="text-input" id="pf-glass" placeholder="rocks, coupe, highball…" />
+    </div>
+    <div class="field-row">
+      <label class="field-label">Notes</label>
+      <textarea id="pf-notes" placeholder="Anything I should know about your taste…"></textarea>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost btn-block" onclick="closeModal('modal-profile')">Cancel</button>
+      <button class="btn btn-primary btn-block" onclick="saveProfile()">Save</button>
+    </div>
+  </div>
+</div>
+
+<!-- ─── MODAL: Import ─── -->
+<div class="modal-bg" id="modal-import">
+  <div class="modal">
+    <div class="modal-head">
+      <h2>Import bar</h2>
+      <button class="modal-close" onclick="closeModal('modal-import')">×</button>
+    </div>
+    <p style="font-size:12.5px;color:var(--whisper);margin-bottom:12px;">Paste an exported JSON. This replaces everything.</p>
+    <textarea id="import-textarea" style="min-height:160px;font-family:monospace;font-size:12px;" placeholder='{"user_profile":...}'></textarea>
+    <div class="modal-actions">
+      <button class="btn btn-ghost btn-block" onclick="closeModal('modal-import')">Cancel</button>
+      <button class="btn btn-primary btn-block" onclick="importDB()">Import</button>
+    </div>
+  </div>
+</div>
+
+<!-- Install banner + toast -->
+<div class="install-banner" id="install-banner">
+  <span>📲 Install Nelson's Bar?</span>
+  <button onclick="triggerInstall()">Install</button>
+  <button class="x" onclick="document.getElementById('install-banner').classList.remove('show')">×</button>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ═══════════════════════════════════════════════════════════════════════
+// ── CONFIG ─────────────────────────────────────────────────────────────
+// ═══════════════════════════════════════════════════════════════════════
+
+const APP_VERSION = 'v1.0';
+const SUPABASE_URL = 'https://qdhqkcsfslkbhxtogjfp.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_bmapexcRWmRzsRvbqIJCpw_XnWaMCZL';
+const CONNECT_TIMEOUT_MS = 8000;
+const SAVE_TIMEOUT_MS    = 8000;
+const DB_ROW_ID = 'nelson';
+const LS_KEY    = 'nelsons_bar_db_v1';
+
+console.log("Nelson's Bar", APP_VERSION);
+
+let sbClient = null;
+try {
+  sbClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+} catch (e) {
+  console.error('Supabase SDK failed to load:', e);
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+// ── DATA MODEL ─────────────────────────────────────────────────────────
+// ═══════════════════════════════════════════════════════════════════════
+
+function uid(prefix='id') { return prefix + '_' + Math.random().toString(36).slice(2, 9); }
+function nowMs() { return Date.now(); }
+
+function defaultBar() {
+  const t = nowMs();
+  return [
+    // Spirits — daily-drinker bourbon, mezcal, gin, etc.
+    { id: uid('b'), name: 'Buffalo Trace', category: 'spirit', subcategory: 'bourbon', abv: 45, volume_ml: 750, remaining_pct: 70, emoji: '🥃', notes: 'Daily-drinker bourbon. Caramel, oak, gentle spice.', favorite: true,  added_at: t },
+    { id: uid('b'), name: "Hendrick's Gin",   category: 'spirit', subcategory: 'gin',     abv: 44, volume_ml: 750, remaining_pct: 60, emoji: '🌿', notes: 'Cucumber, rose. Best with tonic + cucumber slice.',     favorite: false, added_at: t },
+    { id: uid('b'), name: 'Del Maguey Vida',  category: 'spirit', subcategory: 'mezcal',  abv: 42, volume_ml: 750, remaining_pct: 55, emoji: '🌵', notes: 'Bright, smoky entry mezcal. Sub for tequila in anything.', favorite: true, added_at: t },
+    { id: uid('b'), name: 'Plantation 3 Stars', category: 'spirit', subcategory: 'rum',   abv: 41.2, volume_ml: 750, remaining_pct: 80, emoji: '🍹', notes: 'White-rum blend. Versatile, great in daiquiris.', favorite: false, added_at: t },
+    { id: uid('b'), name: 'Espolòn Blanco',   category: 'spirit', subcategory: 'tequila', abv: 40, volume_ml: 750, remaining_pct: 50, emoji: '🌶️', notes: 'Clean, peppery blanco. House margarita.', favorite: false, added_at: t },
+
+    // Liqueurs / aperitifs
+    { id: uid('b'), name: 'Cointreau',        category: 'liqueur', subcategory: 'orange liqueur', abv: 40, volume_ml: 750, remaining_pct: 65, emoji: '🍊', notes: 'Margaritas, sidecars, anywhere you need orange.', favorite: false, added_at: t },
+    { id: uid('b'), name: 'Aperol',           category: 'liqueur', subcategory: 'aperitivo',      abv: 11, volume_ml: 750, remaining_pct: 75, emoji: '🧡', notes: 'Spritz season starter.', favorite: false, added_at: t },
+    { id: uid('b'), name: 'Luxardo Maraschino', category: 'liqueur', subcategory: 'maraschino', abv: 32, volume_ml: 500, remaining_pct: 80, emoji: '🍒', notes: 'Aviation, hemingway daiquiri, last word.', favorite: false, added_at: t },
+
+    // Wine / vermouth
+    { id: uid('b'), name: 'Carpano Antica',   category: 'wine_vermouth', subcategory: 'sweet vermouth', abv: 16.5, volume_ml: 750, remaining_pct: 60, emoji: '🍷', notes: 'Vanilla, baking spice. The Manhattan vermouth.', favorite: true, added_at: t },
+    { id: uid('b'), name: 'Dolin Dry',        category: 'wine_vermouth', subcategory: 'dry vermouth',   abv: 17.5, volume_ml: 750, remaining_pct: 55, emoji: '🍸', notes: 'Crisp dry martini base.', favorite: false, added_at: t },
+    { id: uid('b'), name: 'Cocchi Americano', category: 'wine_vermouth', subcategory: 'aperitif wine',  abv: 16.5, volume_ml: 750, remaining_pct: 70, emoji: '🥂', notes: 'White Negroni. Better than Lillet Blanc.', favorite: false, added_at: t },
+
+    // Bitters
+    { id: uid('b'), name: 'Angostura',        category: 'bitter', subcategory: 'aromatic bitters', abv: 44.7, volume_ml: 200, remaining_pct: 80, emoji: '🍂', notes: 'The bitters. Old fashioneds, manhattans.', favorite: false, added_at: t },
+    { id: uid('b'), name: "Peychaud's",       category: 'bitter', subcategory: 'creole bitters',   abv: 35, volume_ml: 148, remaining_pct: 90, emoji: '🌹', notes: 'Sazeracs, vieux carrés.', favorite: false, added_at: t },
+    { id: uid('b'), name: 'Regan\'s Orange',  category: 'bitter', subcategory: 'orange bitters',   abv: 45, volume_ml: 148, remaining_pct: 85, emoji: '🟠', notes: 'Bright lift for gin & whiskey drinks.', favorite: false, added_at: t },
+
+    // Mixers
+    { id: uid('b'), name: 'Fever-Tree Tonic', category: 'mixer', subcategory: 'tonic',     abv: null, volume_ml: 500, remaining_pct: 100, emoji: '🥤', notes: '',  favorite: false, added_at: t },
+    { id: uid('b'), name: 'Soda water',       category: 'mixer', subcategory: 'soda',      abv: null, volume_ml: 1000, remaining_pct: 100, emoji: '💦', notes: '', favorite: false, added_at: t },
+    { id: uid('b'), name: 'Demerara syrup',   category: 'mixer', subcategory: 'syrup',     abv: null, volume_ml: 250, remaining_pct: 90, emoji: '🍯', notes: 'Rich syrup — better than simple in stirred drinks.', favorite: false, added_at: t },
+
+    // Garnishes
+    { id: uid('b'), name: 'Lemons',           category: 'garnish', subcategory: 'citrus', abv: null, volume_ml: 0, remaining_pct: 100, emoji: '🍋', notes: '', favorite: false, added_at: t },
+    { id: uid('b'), name: 'Oranges',          category: 'garnish', subcategory: 'citrus', abv: null, volume_ml: 0, remaining_pct: 100, emoji: '🍊', notes: '', favorite: false, added_at: t },
+    { id: uid('b'), name: 'Luxardo cherries', category: 'garnish', subcategory: 'cocktail cherry', abv: null, volume_ml: 0, remaining_pct: 80, emoji: '🍒', notes: 'The good ones. Don\'t skimp.', favorite: false, added_at: t }
+  ];
+}
+
+const DEFAULT_DB = {
+  user_profile: {
+    name: 'Nelson',
+    loves: ['bourbon', 'mezcal', 'amaro', 'smoky', 'citrus-forward', 'savory'],
+    avoid: ['overly sweet', 'bottled juice'],
+    preferred_strength: 'spirit-forward',
+    default_glassware: 'rocks',
+    skill_level: 'enthusiast',
+    notes: 'Likes the history behind a drink. Owns a Lewis bag, fine strainer, and good ice.'
+  },
+  state: {
+    bar: [],
+    to_buy: [],
+    drinks_made: [],
+    favorites: []
+  }
+};
+
+// ═══════════════════════════════════════════════════════════════════════
+// ── NORMALIZE / MIGRATE (defensive) ────────────────────────────────────
+// ═══════════════════════════════════════════════════════════════════════
+
+function normalizeDB(data) {
+  const fresh = JSON.parse(JSON.stringify(DEFAULT_DB));
+  if (!data || typeof data !== 'object') {
+    fresh.state.bar = defaultBar();
+    return fresh;
+  }
+  const out = { ...fresh, ...data };
+  out.user_profile = { ...fresh.user_profile, ...(data.user_profile || {}) };
+  out.state        = { ...fresh.state, ...(data.state || {}) };
+
+  if (!Array.isArray(out.state.bar))         out.state.bar = [];
+  if (!Array.isArray(out.state.to_buy))      out.state.to_buy = [];
+  if (!Array.isArray(out.state.drinks_made)) out.state.drinks_made = [];
+  if (!Array.isArray(out.state.favorites))   out.state.favorites = [];
+
+  // Per-bar-item field defaults
+  out.state.bar = out.state.bar.map(b => ({
+    id: b.id || uid('b'),
+    name: b.name || 'Bottle',
+    category: b.category || 'spirit',
+    subcategory: b.subcategory || '',
+    abv: b.abv ?? null,
+    volume_ml: typeof b.volume_ml === 'number' ? b.volume_ml : 750,
+    remaining_pct: typeof b.remaining_pct === 'number' ? b.remaining_pct : 100,
+    emoji: b.emoji || '🍾',
+    image_url: b.image_url ?? null,
+    notes: b.notes ?? '',
+    favorite: !!b.favorite,
+    added_at: b.added_at ?? Date.now(),
+    ...b
+  }));
+
+  // Per-buy item defaults
+  out.state.to_buy = out.state.to_buy.map(b => ({
+    id: b.id || uid('tb'),
+    name: b.name || 'Item',
+    qty: typeof b.qty === 'number' ? b.qty : 1,
+    checked: !!b.checked,
+    added_at: b.added_at || Date.now(),
+    ...b
+  }));
+
+  // Per-drink-made defaults
+  out.state.drinks_made = out.state.drinks_made.map(d => ({
+    id: d.id || uid('dm'),
+    name: d.name || 'Drink',
+    made_at: d.made_at || new Date().toISOString(),
+    rating: typeof d.rating === 'number' ? d.rating : 0,
+    favorite: !!d.favorite,
+    ingredients_used: Array.isArray(d.ingredients_used) ? d.ingredients_used : [],
+    notes: d.notes || '',
+    recipe: d.recipe || null,
+    ...d
+  }));
+
+  return out;
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+// ── SYNC LAYER ─────────────────────────────────────────────────────────
+// ═══════════════════════════════════════════════════════════════════════
+
+function setSyncStatus(status, label) {
+  const pill = document.getElementById('sync-pill');
+  const span = document.getElementById('sync-label');
+  if (!pill || !span) return;
+  pill.className = `sync-pill ${status}`;
+  span.textContent = label;
+}
+
+function loadFromLocal() {
+  try {
+    const raw = localStorage.getItem(LS_KEY);
+    if (!raw) {
+      const fresh = JSON.parse(JSON.stringify(DEFAULT_DB));
+      fresh.state.bar = defaultBar();
+      return fresh;
+    }
+    return normalizeDB(JSON.parse(raw));
+  } catch (e) {
+    console.warn('localStorage corrupt, resetting:', e);
+    const fresh = JSON.parse(JSON.stringify(DEFAULT_DB));
+    fresh.state.bar = defaultBar();
+    return fresh;
+  }
+}
+
+function saveToLocal(data) {
+  try { localStorage.setItem(LS_KEY, JSON.stringify(data)); }
+  catch (e) { console.warn('localStorage save failed:', e); }
+}
+
+async function loadFromSupabase() {
+  if (!sbClient) throw new Error('SDK not loaded');
+  const fetchPromise = sbClient.from('bar_state').select('data').eq('id', DB_ROW_ID).single()
+    .then(({ data, error }) => {
+      if (error) throw error;
+      if (!data?.data || Object.keys(data.data).length === 0) {
+        throw Object.assign(new Error('empty_row'), { code: 'EMPTY' });
+      }
+      return normalizeDB(data.data);
+    });
+  const timeoutPromise = new Promise((_, reject) =>
+    setTimeout(() => reject(new Error('timeout')), CONNECT_TIMEOUT_MS)
+  );
+  return Promise.race([fetchPromise, timeoutPromise]);
+}
+
+async function saveToSupabase(dbObj) {
+  if (!sbClient) throw new Error('SDK not loaded');
+  const savePromise = sbClient.from('bar_state')
+    .upsert({ id: DB_ROW_ID, data: dbObj, updated_at: new Date().toISOString() }, { onConflict: 'id' })
+    .then(({ error }) => { if (error) throw error; });
+  const timeoutPromise = new Promise((_, reject) =>
+    setTimeout(() => reject(new Error('save_timeout')), SAVE_TIMEOUT_MS)
+  );
+  return Promise.race([savePromise, timeoutPromise]);
+}
+
+async function loadDB() {
+  if (!sbClient) { setSyncStatus('error', 'SDK error'); return loadFromLocal(); }
+  setSyncStatus('syncing', 'Syncing');
+  try {
+    const remote = await loadFromSupabase();
+    saveToLocal(remote);
+    setSyncStatus('synced', 'Synced');
+    return remote;
+  } catch (e) {
+    console.warn('Supabase load failed:', e.message, e.code);
+    if (e.code === 'PGRST205' || e.message?.includes('bar_state') || e.code === 'EMPTY') {
+      if (e.code === 'EMPTY') {
+        try {
+          const local = loadFromLocal();
+          await saveToSupabase(local);
+          setSyncStatus('synced', 'Synced');
+          return local;
+        } catch { /* fall through */ }
+      }
+      setSyncStatus('error', 'Run setup SQL');
+      showSetupBanner();
+      return loadFromLocal();
+    }
+    setSyncStatus('offline', 'Offline');
+    return loadFromLocal();
+  }
+}
+
+async function saveDB() {
+  saveToLocal(db);
+  if (!sbClient) return;
+  setSyncStatus('syncing', 'Saving');
+  try {
+    await saveToSupabase(db);
+    setSyncStatus('synced', 'Synced');
+  } catch (e) {
+    console.warn('Save failed:', e.message);
+    setSyncStatus('offline', 'Saved local');
+  }
+}
+
+function subscribeToChanges() {
+  if (!sbClient) return;
+  sbClient.channel('bar_state_changes')
+    .on('postgres_changes',
+      { event: 'UPDATE', schema: 'public', table: 'bar_state', filter: `id=eq.${DB_ROW_ID}` },
+      (payload) => {
+        const remote = payload.new.data;
+        if (JSON.stringify(remote) !== JSON.stringify(db)) {
+          db = normalizeDB(remote);
+          saveToLocal(db);
+          renderAll();
+          setSyncStatus('synced', 'Live sync');
+          showToast('📲 Updated from another device');
+        }
+      })
+    .subscribe((status) => {
+      if (status === 'SUBSCRIBED') setSyncStatus('synced', 'Live sync');
+    });
+}
+
+function showSetupBanner() {
+  if (document.getElementById('setup-banner')) return;
+  const b = document.createElement('div');
+  b.id = 'setup-banner';
+  b.className = 'setup-banner';
+  b.innerHTML = `
+    <span>⚠ Database table not found.</span>
+    <a href="https://supabase.com/dashboard/project/qdhqkcsfslkbhxtogjfp/editor" target="_blank" rel="noopener">Open SQL Editor ↗</a>
+    <button onclick="this.parentElement.remove()">×</button>
+  `;
+  document.body.appendChild(b);
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+// ── STATE ──────────────────────────────────────────────────────────────
+// ═══════════════════════════════════════════════════════════════════════
+
+let db = loadFromLocal();
+let barFilter = 'all';
+let histFilter = 'all';
+let photoDraft = [];
+let currentRecipe = null;
+let mixState = { mood: null, freeText: '', count: 1, strength: '', complexity: 'classic' };
+let makeDraft = null;
+
+// ═══════════════════════════════════════════════════════════════════════
+// ── HELPERS ────────────────────────────────────────────────────────────
+// ═══════════════════════════════════════════════════════════════════════
+
+function escapeHtml(s) {
+  return String(s || '').replace(/[&<>"']/g, c => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' })[c]);
+}
+function escapeAttr(s) { return escapeHtml(s).replace(/`/g, '&#96;'); }
+
+function fmtDate(iso) {
+  const d = new Date(iso);
+  if (isNaN(d.getTime())) return '';
+  return d.toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' });
+}
+function fmtTime(iso) {
+  const d = new Date(iso);
+  if (isNaN(d.getTime())) return '';
+  return d.toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit' });
+}
+function dayBucket(iso) {
+  const d = new Date(iso);
+  const today = new Date(); today.setHours(0,0,0,0);
+  const yest = new Date(today); yest.setDate(today.getDate() - 1);
+  const wkAgo = new Date(today); wkAgo.setDate(today.getDate() - 7);
+  if (d >= today) return 'Today';
+  if (d >= yest) return 'Yesterday';
+  if (d >= wkAgo) return 'This week';
+  return 'Earlier';
+}
+
+function categoryLabel(c) {
+  return ({
+    spirit: 'Spirit', liqueur: 'Liqueur', wine_vermouth: 'Wine / Vermouth',
+    mixer: 'Mixer', bitter: 'Bitter', garnish: 'Garnish', tool: 'Tool'
+  })[c] || c;
+}
+
+function toggleEl(el) { el.classList.toggle('on'); el.classList.toggle('off'); }
+
+// ═══════════════════════════════════════════════════════════════════════
+// ── NAVIGATION ─────────────────────────────────────────────────────────
+// ═══════════════════════════════════════════════════════════════════════
+
+function goTo(tab) {
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('tab-' + tab).classList.add('active');
+  const navBtn = document.querySelector(`.nav-btn[data-tab="${tab}"]`);
+  if (navBtn) navBtn.classList.add('active');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function openModal(id) { document.getElementById(id).classList.add('open'); }
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+
+document.querySelectorAll('.modal-bg').forEach(bg => {
+  bg.addEventListener('click', (e) => { if (e.target === bg) bg.classList.remove('open'); });
+});
+
+// ═══════════════════════════════════════════════════════════════════════
+// ── HOME ───────────────────────────────────────────────────────────────
+// ═══════════════════════════════════════════════════════════════════════
+
+function renderHome() {
+  const bar = db.state.bar;
+  const drinks = db.state.drinks_made;
+  document.getElementById('home-greeting').innerHTML =
+    `${greeting()}, <em>${escapeHtml(db.user_profile.name || 'friend')}.</em>`;
+
+  document.getElementById('stat-bottles').textContent = bar.filter(b => b.category !== 'tool').length;
+
+  const monthAgo = Date.now() - 30 * 86400000;
+  const made = drinks.filter(d => new Date(d.made_at).getTime() > monthAgo);
+  document.getElementById('stat-month').textContent = made.length;
+
+  document.getElementById('stat-low').textContent =
+    bar.filter(b => (b.category === 'spirit' || b.category === 'liqueur' || b.category === 'wine_vermouth' || b.category === 'bitter') && b.remaining_pct < 25).length;
+
+  // Favorite spirit = most-used in last 30 days
+  const counts = {};
+  made.forEach(d => (d.ingredients_used || []).forEach(i => {
+    counts[i.bar_id || i.name] = (counts[i.bar_id || i.name] || 0) + 1;
+  }));
+  let topId = null, topCount = 0;
+  Object.entries(counts).forEach(([k, v]) => { if (v > topCount) { topId = k; topCount = v; } });
+  let favName = '—';
+  if (topId) {
+    const match = bar.find(b => b.id === topId);
+    if (match) favName = match.name;
+    else {
+      const m2 = made.find(d => (d.ingredients_used || []).some(i => i.bar_id === topId || i.name === topId));
+      const ing = m2 && m2.ingredients_used.find(i => i.bar_id === topId || i.name === topId);
+      if (ing) favName = ing.name;
+    }
+  } else if (bar.find(b => b.favorite && b.category === 'spirit')) {
+    favName = bar.find(b => b.favorite && b.category === 'spirit').name;
+  }
+  document.getElementById('stat-fav').textContent = favName;
+
+  // Most recent drink
+  const recentWrap = document.getElementById('home-recent-wrap');
+  const recent = drinks.slice().sort((a,b) => new Date(b.made_at) - new Date(a.made_at))[0];
+  if (recent) {
+    recentWrap.innerHTML = `
+      <div class="recent-drink" onclick="openHistDetail('${recent.id}')">
+        <div class="lbl">Last poured · ${fmtDate(recent.made_at)}</div>
+        <h3>${escapeHtml(recent.name)}</h3>
+        <div class="meta">${stars(recent.rating)} ${recent.favorite ? '· ⭐ favorite' : ''} ${recent.notes ? '· ' + escapeHtml(recent.notes.slice(0, 60)) + (recent.notes.length > 60 ? '…' : '') : ''}</div>
+      </div>`;
+  } else {
+    recentWrap.innerHTML = `
+      <div class="card card-soft" style="text-align:center;">
+        <p style="font-size:13px;color:var(--whisper);line-height:1.55;">No drinks made yet. Tap <strong style="color:var(--brass-glow);">✨ Pour something</strong> to start.</p>
+      </div>`;
+  }
+}
+
+function greeting() {
+  const h = new Date().getHours();
+  if (h < 5)  return 'Late night';
+  if (h < 12) return 'Good morning';
+  if (h < 17) return 'Good afternoon';
+  if (h < 21) return 'Good evening';
+  return 'Tonight';
+}
+
+function stars(n) {
+  n = Math.max(0, Math.min(5, n || 0));
+  return `<span class="stars">${'★'.repeat(n)}<span class="stars-empty">${'★'.repeat(5-n)}</span></span>`;
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+// ── BAR TAB ────────────────────────────────────────────────────────────
+// ═══════════════════════════════════════════════════════════════════════
+
+function setBarFilter(f, btn) {
+  barFilter = f;
+  document.querySelectorAll('#bar-filter-chips .chip').forEach(c => c.classList.remove('active'));
+  btn.classList.add('active');
+  renderBar();
+}
+
+function renderBar() {
+  const all = db.state.bar;
+  const items = all.filter(b => {
+    if (barFilter === 'all') return true;
+    if (barFilter === 'low') return (b.category === 'spirit' || b.category === 'liqueur' || b.category === 'wine_vermouth' || b.category === 'bitter') && b.remaining_pct < 25;
+    if (barFilter === 'fav') return b.favorite;
+    return b.category === barFilter;
+  }).sort((a, b) => {
+    if (a.favorite !== b.favorite) return b.favorite - a.favorite;
+    return a.name.localeCompare(b.name);
+  });
+
+  document.getElementById('bar-sub').textContent = `${all.length} bottles · ${all.filter(b => b.favorite).length} favorites`;
+  const list = document.getElementById('bar-list');
+
+  if (items.length === 0) {
+    list.innerHTML = `
+      <div class="empty-state">
+        <div class="empty-emoji">🥃</div>
+        <h3>Nothing here yet</h3>
+        <p>Snap a photo or add a bottle manually.</p>
+      </div>`;
+    return;
+  }
+
+  list.innerHTML = items.map(b => {
+    const isPercentItem = b.category !== 'garnish' && b.category !== 'mixer' && b.category !== 'tool';
+    const low = isPercentItem && b.remaining_pct < 25;
+    const subtag = b.subcategory ? `<span class="tag">${escapeHtml(b.subcategory)}</span>` : '';
+    const abvtag = b.abv != null ? `<span class="tag brass">${b.abv}%</span>` : '';
+    const volBar = isPercentItem ? `
+      <div class="vol-bar-wrap"><div class="vol-bar-fill ${low ? 'low' : ''}" style="width:${Math.max(0,Math.min(100,b.remaining_pct))}%"></div></div>
+    ` : '';
+    return `
+      <div class="bar-item ${b.favorite ? 'fav' : ''} ${low ? 'low' : ''}">
+        <div class="bar-emoji">${b.emoji || '🍾'}</div>
+        <div class="bar-info" onclick="openBarDetail('${b.id}')">
+          <div class="bar-name">${escapeHtml(b.name)} ${b.favorite ? '<span class="star">★</span>' : ''}</div>
+          <div class="bar-meta">${subtag}${abvtag}${isPercentItem ? `<span style="color:var(--whisper);">${Math.round((b.remaining_pct/100)*b.volume_ml)} ml left</span>` : ''}</div>
+          ${volBar}
+        </div>
+        <div class="bar-actions">
+          ${isPercentItem ? `
+            <button class="icon-btn" onclick="bumpRem('${b.id}', -10)" title="−10%">−</button>
+            <button class="icon-btn" onclick="bumpRem('${b.id}', 10)" title="+10%">+</button>
+          ` : ''}
+          <button class="icon-btn fav ${b.favorite ? 'on' : ''}" onclick="toggleFav('${b.id}')" title="Favorite">★</button>
+          <button class="icon-btn danger" onclick="deleteBottle('${b.id}')" title="Delete">×</button>
+        </div>
+      </div>`;
+  }).join('');
+}
+
+async function bumpRem(id, delta) {
+  const b = db.state.bar.find(x => x.id === id);
+  if (!b) return;
+  b.remaining_pct = Math.max(0, Math.min(100, (b.remaining_pct || 0) + delta));
+  if (b.remaining_pct === 0) {
+    if (!db.state.to_buy.find(t => t.name.toLowerCase() === b.name.toLowerCase())) {
+      db.state.to_buy.push({ id: uid('tb'), name: b.name, qty: 1, checked: false, added_at: Date.now() });
+      showToast(`Added ${b.name} to To Buy`);
+    }
+  }
+  renderAll();
+  await saveDB();
+}
+
+async function toggleFav(id) {
+  const b = db.state.bar.find(x => x.id === id);
+  if (!b) return;
+  b.favorite = !b.favorite;
+  renderAll();
+  await saveDB();
+}
+
+async function deleteBottle(id) {
+  const b = db.state.bar.find(x => x.id === id);
+  if (!b) return;
+  if (!confirm(`Remove ${b.name} from your bar?`)) return;
+  db.state.bar = db.state.bar.filter(x => x.id !== id);
+  renderAll();
+  await saveDB();
+}
+
+function openBarDetail(id) {
+  const b = db.state.bar.find(x => x.id === id);
+  if (!b) return;
+  const isPercentItem = b.category !== 'garnish' && b.category !== 'mixer' && b.category !== 'tool';
+  const body = document.getElementById('modal-detail-body');
+  body.innerHTML = `
+    <div class="modal-head">
+      <h2>${b.emoji || '🍾'} ${escapeHtml(b.name)}</h2>
+      <button class="modal-close" onclick="closeModal('modal-detail')">×</button>
+    </div>
+    <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px;">
+      <span class="tag">${categoryLabel(b.category)}</span>
+      ${b.subcategory ? `<span class="tag">${escapeHtml(b.subcategory)}</span>` : ''}
+      ${b.abv != null ? `<span class="tag brass">${b.abv}% ABV</span>` : ''}
+      ${b.favorite ? `<span class="tag brass">⭐ favorite</span>` : ''}
+    </div>
+
+    ${isPercentItem ? `
+      <div class="card card-soft" style="margin-bottom:14px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+          <strong style="font-size:13px;color:var(--whisper);letter-spacing:0.06em;text-transform:uppercase;">Volume</strong>
+          <span style="font-family:'Playfair Display',serif;color:var(--brass-glow);font-size:18px;font-weight:700;">${Math.round((b.remaining_pct/100)*b.volume_ml)} / ${b.volume_ml} ml</span>
+        </div>
+        <div class="vol-bar-wrap" style="height:8px;"><div class="vol-bar-fill" style="width:${b.remaining_pct}%"></div></div>
+        <div class="vol-control" style="margin-top:14px;justify-content:center;">
+          <button class="qty" onclick="bumpRemAndRefresh('${b.id}', -25)">−25%</button>
+          <button class="qty" onclick="bumpRemAndRefresh('${b.id}', -10)">−10</button>
+          <span style="font-family:'Playfair Display',serif;font-size:24px;color:var(--brass-glow);min-width:60px;text-align:center;font-weight:700;">${b.remaining_pct}%</span>
+          <button class="qty" onclick="bumpRemAndRefresh('${b.id}', 10)">+10</button>
+          <button class="qty" onclick="bumpRemAndRefresh('${b.id}', 25)">+25%</button>
+        </div>
+      </div>
+    ` : ''}
+
+    ${b.notes ? `<div class="lore-block">${escapeHtml(b.notes)}</div>` : ''}
+
+    <div style="display:flex;flex-direction:column;gap:8px;margin-top:16px;">
+      <button class="btn btn-primary btn-block" onclick="closeModal('modal-detail');openMixModalWith(['${b.id}'])">✨ Mix with this</button>
+      <button class="btn btn-ghost btn-block" onclick="toggleFavRefresh('${b.id}')">${b.favorite ? '★ Unfavorite' : '★ Favorite'}</button>
+      <button class="btn btn-ghost btn-block" onclick="markRanOut('${b.id}')">⏷ Mark ran out</button>
+      <button class="btn btn-danger btn-block" onclick="deleteBottle('${b.id}');closeModal('modal-detail')">🗑 Remove from bar</button>
+    </div>
+  `;
+  openModal('modal-detail');
+}
+
+async function bumpRemAndRefresh(id, delta) {
+  await bumpRem(id, delta);
+  openBarDetail(id);
+}
+async function toggleFavRefresh(id) {
+  await toggleFav(id);
+  openBarDetail(id);
+}
+async function markRanOut(id) {
+  const b = db.state.bar.find(x => x.id === id);
+  if (!b) return;
+  b.remaining_pct = 0;
+  if (!db.state.to_buy.find(t => t.name.toLowerCase() === b.name.toLowerCase())) {
+    db.state.to_buy.push({ id: uid('tb'), name: b.name, qty: 1, checked: false, added_at: Date.now() });
+  }
+  closeModal('modal-detail');
+  renderAll();
+  await saveDB();
+  showToast(`${b.name} added to To Buy`);
+}
+
+function openAddBottleModal() {
+  ['ab-name','ab-sub','ab-abv','ab-emoji','ab-notes'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('ab-vol').value = 750;
+  document.getElementById('ab-rem').value = 100;
+  document.getElementById('ab-category').value = 'spirit';
+  const f = document.getElementById('ab-fav'); f.classList.remove('on'); f.classList.add('off');
+  openModal('modal-add');
+  setTimeout(() => document.getElementById('ab-name').focus(), 200);
+}
+
+async function saveBottle() {
+  const name = document.getElementById('ab-name').value.trim();
+  if (!name) { showToast('Add a name first'); return; }
+  const item = {
+    id: uid('b'),
+    name,
+    category: document.getElementById('ab-category').value,
+    subcategory: document.getElementById('ab-sub').value.trim(),
+    abv: parseFloat(document.getElementById('ab-abv').value) || null,
+    volume_ml: parseInt(document.getElementById('ab-vol').value, 10) || 750,
+    remaining_pct: Math.max(0, Math.min(100, parseInt(document.getElementById('ab-rem').value, 10) || 100)),
+    emoji: document.getElementById('ab-emoji').value.trim() || '🍾',
+    notes: document.getElementById('ab-notes').value.trim(),
+    favorite: document.getElementById('ab-fav').classList.contains('on'),
+    added_at: Date.now()
+  };
+  db.state.bar.push(item);
+  closeModal('modal-add');
+  renderAll();
+  await saveDB();
+  showToast(`Added ${item.name}`);
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+// ── PHOTO → BOTTLES ────────────────────────────────────────────────────
+// ═══════════════════════════════════════════════════════════════════════
+
+async function handleBarPhoto(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  showToast('🔍 Reading the label…');
+  try {
+    const dataUrl = await resizeImage(file, 1024);
+    const items = await openaiPhotoToBar(dataUrl);
+    photoDraft = items;
+    renderPhotoOutput();
+    openModal('modal-photo');
+  } catch (e) {
+    console.error(e);
+    showToast('AI error: ' + (e.message || 'unknown'));
+  }
+  event.target.value = '';
+}
+
+function resizeImage(file, maxDim) {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    img.onload = () => {
+      const scale = Math.min(1, maxDim / Math.max(img.width, img.height));
+      const w = Math.round(img.width * scale);
+      const h = Math.round(img.height * scale);
+      const canvas = document.createElement('canvas');
+      canvas.width = w; canvas.height = h;
+      canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+      resolve(canvas.toDataURL('image/jpeg', 0.85));
+    };
+    img.onerror = reject;
+    const reader = new FileReader();
+    reader.onload = () => { img.src = reader.result; };
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+}
+
+function renderPhotoOutput() {
+  const out = document.getElementById('photo-output');
+  if (!photoDraft || photoDraft.length === 0) {
+    out.innerHTML = `<p style="color:var(--whisper);text-align:center;padding:20px;">No bottles detected.</p>`;
+    return;
+  }
+  out.innerHTML = photoDraft.map((it, i) => `
+    <div class="photo-confirm-row">
+      <input class="text-input em-input" value="${escapeAttr(it.emoji || '🍾')}" oninput="photoDraft[${i}].emoji=this.value" />
+      <div>
+        <input class="text-input" value="${escapeAttr(it.name || '')}" oninput="photoDraft[${i}].name=this.value" placeholder="Name" />
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:6px;margin-top:6px;">
+          <select class="text-input" style="padding:6px;font-size:11px;" onchange="photoDraft[${i}].category=this.value">
+            ${['spirit','liqueur','wine_vermouth','mixer','bitter','garnish'].map(c => `<option value="${c}" ${it.category===c?'selected':''}>${categoryLabel(c)}</option>`).join('')}
+          </select>
+          <input class="text-input" style="padding:6px;font-size:11px;" value="${escapeAttr(it.subcategory || '')}" placeholder="sub" oninput="photoDraft[${i}].subcategory=this.value" />
+          <input type="number" class="text-input" style="padding:6px;font-size:11px;" value="${it.abv ?? ''}" placeholder="ABV%" oninput="photoDraft[${i}].abv=parseFloat(this.value)||null" />
+          <input type="number" class="text-input" style="padding:6px;font-size:11px;" value="${it.remaining_pct ?? 100}" placeholder="rem%" oninput="photoDraft[${i}].remaining_pct=parseInt(this.value)||100" />
+        </div>
+      </div>
+      <button class="icon-btn danger" onclick="photoDraft.splice(${i},1);renderPhotoOutput()">×</button>
+    </div>
+  `).join('');
+}
+
+async function confirmPhotoAdd() {
+  if (!photoDraft || photoDraft.length === 0) { closeModal('modal-photo'); return; }
+  const stamp = Date.now();
+  photoDraft.forEach(it => {
+    if (!it.name) return;
+    db.state.bar.push({
+      id: uid('b'),
+      name: it.name,
+      category: it.category || 'spirit',
+      subcategory: it.subcategory || '',
+      abv: typeof it.abv === 'number' ? it.abv : null,
+      volume_ml: typeof it.volume_ml === 'number' ? it.volume_ml : 750,
+      remaining_pct: typeof it.remaining_pct === 'number' ? it.remaining_pct : 100,
+      emoji: it.emoji || '🍾',
+      notes: it.notes || '',
+      favorite: false,
+      added_at: stamp
+    });
+  });
+  closeModal('modal-photo');
+  renderAll();
+  await saveDB();
+  showToast(`Added ${photoDraft.length} bottle${photoDraft.length>1?'s':''}`);
+  photoDraft = [];
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+// ── TO BUY ─────────────────────────────────────────────────────────────
+// ═══════════════════════════════════════════════════════════════════════
+
+function renderBuy() {
+  const items = db.state.to_buy.slice().sort((a,b) => Number(a.checked) - Number(b.checked));
+  const list = document.getElementById('buy-list');
+  if (items.length === 0) {
+    list.innerHTML = `
+      <div class="empty-state">
+        <div class="empty-emoji">🛒</div>
+        <h3>Nothing to buy</h3>
+        <p>Empty bottles auto-show here.</p>
+      </div>`;
+    return;
+  }
+  list.innerHTML = items.map(b => `
+    <div class="buy-row ${b.checked ? 'checked' : ''}" onclick="toggleBuy('${b.id}')">
+      <div class="check-circle"></div>
+      <div class="buy-info">
+        <div class="buy-name">${escapeHtml(b.name)}</div>
+        ${b.qty && b.qty > 1 ? `<div class="buy-qty">×${b.qty}</div>` : ''}
+      </div>
+      <button class="icon-btn danger" onclick="event.stopPropagation();deleteBuy('${b.id}')">×</button>
+    </div>
+  `).join('');
+}
+
+async function addBuyItem() {
+  const input = document.getElementById('buy-input');
+  const name = input.value.trim();
+  if (!name) return;
+  db.state.to_buy.push({ id: uid('tb'), name, qty: 1, checked: false, added_at: Date.now() });
+  input.value = '';
+  renderAll();
+  await saveDB();
+}
+
+async function toggleBuy(id) {
+  const b = db.state.to_buy.find(x => x.id === id);
+  if (!b) return;
+  b.checked = !b.checked;
+  renderAll();
+  await saveDB();
+}
+
+async function deleteBuy(id) {
+  db.state.to_buy = db.state.to_buy.filter(b => b.id !== id);
+  renderAll();
+  await saveDB();
+}
+
+function copyBuyList() {
+  const items = db.state.to_buy.filter(b => !b.checked);
+  if (items.length === 0) { showToast('Nothing to copy'); return; }
+  const text = "🛒 BAR SHOPPING LIST\n\n" + items.map(b => `• ${b.name}${b.qty>1?` (×${b.qty})`:''}`).join('\n');
+  navigator.clipboard.writeText(text).then(() => showToast('Copied to clipboard'));
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+// ── HISTORY ────────────────────────────────────────────────────────────
+// ═══════════════════════════════════════════════════════════════════════
+
+function setHistFilter(f, btn) {
+  histFilter = f;
+  document.querySelectorAll('#history-filter-chips .chip').forEach(c => c.classList.remove('active'));
+  btn.classList.add('active');
+  renderHistory();
+}
+
+function renderHistory() {
+  const all = db.state.drinks_made.slice().sort((a,b) => new Date(b.made_at) - new Date(a.made_at));
+  document.getElementById('history-sub').textContent = `${all.length} drinks made`;
+
+  const filtered = all.filter(d => {
+    if (histFilter === 'all') return true;
+    if (histFilter === 'fav') return d.favorite;
+    const subs = (d.ingredients_used || []).map(i => {
+      const b = db.state.bar.find(x => x.id === i.bar_id);
+      return (b?.subcategory || '').toLowerCase() + ' ' + (i.name || '').toLowerCase();
+    }).join(' ');
+    if (histFilter === 'spirit') return /bourbon|whisk(e)?y|rye|scotch/.test(subs);
+    if (histFilter === 'gin') return subs.includes('gin');
+    if (histFilter === 'mezcal') return subs.includes('mezcal');
+    if (histFilter === 'rum') return subs.includes('rum');
+    if (histFilter === 'tequila') return subs.includes('tequila');
+    return true;
+  });
+
+  const list = document.getElementById('history-list');
+  if (filtered.length === 0) {
+    list.innerHTML = `
+      <div class="empty-state">
+        <div class="empty-emoji">📜</div>
+        <h3>${all.length === 0 ? 'No drinks yet' : 'Nothing matches'}</h3>
+        <p>${all.length === 0 ? 'Tap the ✨ Mix button to make one.' : 'Try a different filter.'}</p>
+      </div>`;
+    return;
+  }
+
+  // Group by date bucket
+  const groups = {};
+  filtered.forEach(d => {
+    const k = dayBucket(d.made_at);
+    (groups[k] = groups[k] || []).push(d);
+  });
+  const order = ['Today','Yesterday','This week','Earlier'];
+  list.innerHTML = order.filter(k => groups[k]).map(k => `
+    <div class="history-group">
+      <div class="history-date">${k}</div>
+      ${groups[k].map(d => `
+        <div class="history-card" onclick="openHistDetail('${d.id}')">
+          <div class="h-name">${escapeHtml(d.name)} ${d.favorite ? '<span style="color:var(--brass-glow);">★</span>' : ''}</div>
+          <div class="h-time">${stars(d.rating)} <span>·</span> <span>${fmtTime(d.made_at)}</span></div>
+          ${d.ingredients_used && d.ingredients_used.length ? `<div class="h-ings">${d.ingredients_used.map(i => `<span style="color:var(--brass);">●</span> ${escapeHtml(i.name)}${i.amount_ml ? ` <span style="opacity:0.6;">(${i.amount_ml}ml)</span>` : ''}`).join(' &nbsp; ')}</div>` : ''}
+        </div>
+      `).join('')}
+    </div>
+  `).join('');
+}
+
+function openHistDetail(id) {
+  const d = db.state.drinks_made.find(x => x.id === id);
+  if (!d) return;
+  const body = document.getElementById('modal-hist-body');
+  const ings = (d.ingredients_used || []).map(i => `<div class="ing-row"><span class="ing-name">${escapeHtml(i.name)}</span><span class="ing-amt">${i.amount_ml ?? '—'}ml</span></div>`).join('') || '<p style="color:var(--whisper);font-size:13px;">No ingredients tracked.</p>';
+  body.innerHTML = `
+    <div class="modal-head">
+      <h2>${escapeHtml(d.name)}</h2>
+      <button class="modal-close" onclick="closeModal('modal-hist-detail')">×</button>
+    </div>
+    <div class="recipe-meta-row">
+      <div class="meta-pill">${fmtDate(d.made_at)} · ${fmtTime(d.made_at)}</div>
+      <div class="meta-pill">${stars(d.rating)}</div>
+      ${d.favorite ? `<div class="meta-pill"><strong>★</strong> favorite</div>` : ''}
+    </div>
+    <div class="recipe-section-label">Used</div>
+    ${ings}
+    ${d.notes ? `<div class="lore-block">${escapeHtml(d.notes)}</div>` : ''}
+    ${d.recipe ? `
+      <div class="recipe-section-label">Steps</div>
+      <ol class="step-list">${(d.recipe.steps || []).map(s => `<li>${escapeHtml(s)}</li>`).join('')}</ol>
+      ${d.recipe.history ? `<div class="lore-block">${escapeHtml(d.recipe.history)}</div>` : ''}
+    ` : ''}
+    <div style="display:flex;flex-direction:column;gap:8px;margin-top:16px;">
+      ${d.recipe ? `<button class="btn btn-primary btn-block" onclick="makeAgain('${d.id}')">🥃 Make again</button>` : ''}
+      <button class="btn btn-ghost btn-block" onclick="toggleHistFav('${d.id}')">${d.favorite ? '★ Unfavorite' : '★ Mark favorite'}</button>
+      <button class="btn btn-danger btn-block" onclick="deleteHist('${d.id}')">🗑 Remove from history</button>
+    </div>
+  `;
+  openModal('modal-hist-detail');
+}
+
+async function toggleHistFav(id) {
+  const d = db.state.drinks_made.find(x => x.id === id);
+  if (!d) return;
+  d.favorite = !d.favorite;
+  renderAll();
+  await saveDB();
+  openHistDetail(id);
+}
+async function deleteHist(id) {
+  if (!confirm('Remove this drink from history?')) return;
+  db.state.drinks_made = db.state.drinks_made.filter(x => x.id !== id);
+  closeModal('modal-hist-detail');
+  renderAll();
+  await saveDB();
+}
+function makeAgain(id) {
+  const d = db.state.drinks_made.find(x => x.id === id);
+  if (!d || !d.recipe) return;
+  closeModal('modal-hist-detail');
+  currentRecipe = d.recipe;
+  showRecipe(d.recipe);
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+// ── ✨ MIX FLOW ─────────────────────────────────────────────────────────
+// ═══════════════════════════════════════════════════════════════════════
+
+const MOODS = [
+  { id: 'rainy', emoji: '🌧',  name: 'Rainy night', desc: 'Cozy, warming' },
+  { id: 'celebrate', emoji: '🎉', name: 'Celebration', desc: 'Bubbly, festive' },
+  { id: 'brunch', emoji: '🌅', name: 'Brunch', desc: 'Bright, sessionable' },
+  { id: 'focus', emoji: '🎯', name: 'Focus', desc: 'One sip, no fuss' },
+  { id: 'after-work', emoji: '💼', name: 'After work', desc: 'Decompress' },
+  { id: 'date', emoji: '❤️', name: 'Date night', desc: 'Impress' },
+  { id: 'party', emoji: '🪩', name: 'Party', desc: 'Crowd-pleaser' },
+  { id: 'surprise', emoji: '🎴', name: 'Surprise me', desc: "Dealer's choice" }
+];
+
+function openMixModal() {
+  mixState = { mood: null, freeText: '', count: 1, strength: db.user_profile.preferred_strength || 'medium', complexity: 'classic', focusBarIds: [] };
+  currentRecipe = null;
+  document.getElementById('mix-modal-title').textContent = "What's the mood?";
+  renderMixStep1();
+  openModal('modal-mix');
+}
+
+function openMixModalWith(barIds) {
+  openMixModal();
+  mixState.focusBarIds = barIds;
+}
+
+function renderMixStep1() {
+  const body = document.getElementById('mix-modal-body');
+  body.innerHTML = `
+    <div class="mood-grid">
+      ${MOODS.map(m => `
+        <div class="mood-tile ${mixState.mood === m.id ? 'active' : ''}" onclick="pickMood('${m.id}')">
+          <span class="emoji">${m.emoji}</span>
+          <div class="name">${m.name}</div>
+          <div class="desc">${m.desc}</div>
+        </div>
+      `).join('')}
+    </div>
+    <div class="field-row" style="margin-top:18px;">
+      <label class="field-label">Or, in your own words</label>
+      <input type="text" class="text-input" id="mix-free" placeholder="e.g. tired but want something interesting" value="${escapeAttr(mixState.freeText)}" />
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost btn-block" onclick="closeModal('modal-mix')">Cancel</button>
+      <button class="btn btn-primary btn-block" onclick="goToMixStep2()">Next →</button>
+    </div>
+  `;
+}
+
+function pickMood(id) {
+  mixState.mood = id;
+  renderMixStep1();
+}
+
+function goToMixStep2() {
+  mixState.freeText = document.getElementById('mix-free').value.trim();
+  if (!mixState.mood && !mixState.freeText) { showToast('Pick a mood or describe one'); return; }
+  document.getElementById('mix-modal-title').textContent = 'Fine-tune';
+  renderMixStep2();
+}
+
+function renderMixStep2() {
+  const body = document.getElementById('mix-modal-body');
+  body.innerHTML = `
+    <div class="field-row">
+      <label class="field-label">Strength</label>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;">
+        ${['light','medium','spirit-forward'].map(s => `
+          <button class="chip ${mixState.strength === s ? 'active' : ''}" onclick="mixState.strength='${s}';renderMixStep2()">${s}</button>
+        `).join('')}
+      </div>
+    </div>
+    <div class="field-row">
+      <label class="field-label">Complexity</label>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;">
+        ${[['simple','3-ingredient'],['classic','classic'],['adventurous','go wild']].map(([k,l]) => `
+          <button class="chip ${mixState.complexity === k ? 'active' : ''}" onclick="mixState.complexity='${k}';renderMixStep2()">${l}</button>
+        `).join('')}
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost btn-block" onclick="renderMixStep1();document.getElementById('mix-modal-title').textContent='What\\'s the mood?'">← Back</button>
+      <button class="btn btn-primary btn-block" onclick="generateRecipe()">✨ Pour</button>
+    </div>
+  `;
+}
+
+async function generateRecipe() {
+  const body = document.getElementById('mix-modal-body');
+  document.getElementById('mix-modal-title').textContent = 'Pouring…';
+  body.innerHTML = `
+    <div class="gen-loading">
+      <div class="spinner"></div>
+      <p>Studying your shelf…</p>
+    </div>
+  `;
+
+  try {
+    const recipe = await openaiCreateCocktail({
+      profile: db.user_profile,
+      bar: db.state.bar,
+      recent_drinks: db.state.drinks_made.slice(0, 8),
+      mood: MOODS.find(m => m.id === mixState.mood)?.name || '',
+      notes: mixState.freeText,
+      count: mixState.count,
+      strength: mixState.strength,
+      complexity: mixState.complexity,
+      focus: (mixState.focusBarIds || []).map(id => db.state.bar.find(b => b.id === id)?.name).filter(Boolean)
+    });
+    currentRecipe = recipe;
+    showRecipe(recipe);
+  } catch (e) {
+    console.error(e);
+    body.innerHTML = `
+      <div style="padding:18px;background:var(--ruby-soft);border:1px solid rgba(196,55,79,0.3);border-radius:14px;">
+        <strong style="color:var(--ruby);font-size:13px;">Couldn't pour</strong>
+        <p style="font-size:12.5px;color:var(--ink);margin-top:6px;line-height:1.55;">${escapeHtml(e.message || 'unknown error')}</p>
+      </div>
+      <div class="modal-actions">
+        <button class="btn btn-ghost btn-block" onclick="renderMixStep2()">← Back</button>
+        <button class="btn btn-primary btn-block" onclick="generateRecipe()">↻ Try again</button>
+      </div>
+    `;
+  }
+}
+
+function showRecipe(recipe) {
+  document.getElementById('mix-modal-title').textContent = ' ';
+  const body = document.getElementById('mix-modal-body');
+  const ings = (recipe.ingredients || []).map((i, idx) => {
+    const inBar = db.state.bar.find(b => b.id === i.bar_id) || db.state.bar.find(b => b.name.toLowerCase() === (i.name || '').toLowerCase());
+    const missing = !inBar;
+    return `
+      <div class="ing-row">
+        <span class="ing-name ${missing ? 'missing' : ''}">${escapeHtml(i.name)}${missing ? ` <span class="sub-link" onclick="suggestSub('${escapeAttr(i.name)}')">find sub</span>` : ''}</span>
+        <span class="ing-amt">${i.ml ?? '—'}<small>ml</small> <small>·</small> ${i.oz ?? '—'}<small>oz</small></span>
+      </div>
+    `;
+  }).join('');
+
+  body.innerHTML = `
+    <button class="modal-close" style="position:absolute;top:16px;right:16px;" onclick="closeModal('modal-mix')">×</button>
+    <div class="recipe-card">
+      <div class="recipe-eyebrow">${recipe.complexity || 'cocktail'} · ${recipe.method || 'served'}</div>
+      <div class="recipe-name">${escapeHtml(recipe.name || 'Drink')}</div>
+      <div class="recipe-tagline">"${escapeHtml(recipe.tagline || '')}"</div>
+      <div class="recipe-meta-row">
+        ${recipe.glass ? `<div class="meta-pill"><strong>Glass</strong>${escapeHtml(recipe.glass)}</div>` : ''}
+        ${recipe.ice ? `<div class="meta-pill"><strong>Ice</strong>${escapeHtml(recipe.ice)}</div>` : ''}
+        ${recipe.garnish ? `<div class="meta-pill"><strong>Garnish</strong>${escapeHtml(recipe.garnish)}</div>` : ''}
+        ${recipe.estimated_abv_pct ? `<div class="meta-pill"><strong>ABV</strong>~${recipe.estimated_abv_pct}%</div>` : ''}
+      </div>
+      <div class="recipe-section-label">Build</div>
+      ${ings}
+      <div class="recipe-section-label">Method</div>
+      <ol class="step-list">${(recipe.steps || []).map(s => `<li>${escapeHtml(s)}</li>`).join('')}</ol>
+      ${recipe.history ? `<div class="lore-block">${escapeHtml(recipe.history)}</div>` : ''}
+      <div class="recipe-actions">
+        <button class="btn btn-primary" onclick="openMakeFlow()">🥃 Make this</button>
+        <button class="btn btn-ghost" onclick="renderMixStep1();document.getElementById('mix-modal-title').textContent='What\\'s the mood?'">↺ Try again</button>
+      </div>
+    </div>
+  `;
+}
+
+async function suggestSub(name) {
+  showToast('Looking for a sub…');
+  try {
+    const sub = await openaiSuggestSub(name, db.state.bar);
+    if (!sub || !sub.substitute) {
+      showToast('No good sub in your bar');
+      return;
+    }
+    alert(`Sub for ${name}:\n\n${sub.substitute}\n\n${sub.rationale}\n\nAdjustment: ${sub.adjustment || 'none'}`);
+  } catch (e) {
+    showToast('Sub error: ' + e.message);
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+// ── MAKE THIS (deduct + log) ───────────────────────────────────────────
+// ═══════════════════════════════════════════════════════════════════════
+
+function openMakeFlow() {
+  if (!currentRecipe) return;
+  const list = document.getElementById('make-list');
+  makeDraft = { rating: 0, favorite: false, notes: '', uses: [] };
+  // Pre-match to bar items
+  list.innerHTML = (currentRecipe.ingredients || []).map((i, idx) => {
+    const matched = db.state.bar.find(b => b.id === i.bar_id) || db.state.bar.find(b => b.name.toLowerCase() === (i.name || '').toLowerCase());
+    makeDraft.uses.push({ name: i.name, amount_ml: i.ml || 0, bar_id: matched?.id || null });
+    return `
+      <div class="card card-soft" style="padding:12px 14px;margin-bottom:8px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;">
+          <div style="flex:1;">
+            <div style="font-weight:700;font-size:13.5px;color:var(--ink-strong);">${escapeHtml(i.name)}</div>
+            <div style="font-size:11px;color:var(--whisper);margin-top:2px;">${matched ? '↳ ' + escapeHtml(matched.name) : '(not in bar — won\'t deduct)'}</div>
+          </div>
+          <div style="display:flex;align-items:center;gap:6px;">
+            <input type="number" class="text-input" style="width:74px;padding:7px 10px;font-size:13px;text-align:right;" value="${i.ml || 0}" oninput="makeDraft.uses[${idx}].amount_ml=parseFloat(this.value)||0" />
+            <span style="color:var(--whisper);font-size:11.5px;">ml</span>
+          </div>
+        </div>
+      </div>
+    `;
+  }).join('');
+  // Reset rating UI
+  document.getElementById('make-notes').value = '';
+  const f = document.getElementById('make-fav'); f.classList.remove('on'); f.classList.add('off');
+  renderMakeRating();
+  openModal('modal-make');
+}
+
+function renderMakeRating() {
+  const wrap = document.getElementById('make-rating');
+  wrap.innerHTML = [1,2,3,4,5].map(n => `
+    <span style="cursor:pointer;color:${n <= makeDraft.rating ? 'var(--brass-glow)' : 'rgba(255,255,255,0.15)'};" onclick="makeDraft.rating=${n};renderMakeRating()">★</span>
+  `).join('');
+}
+
+async function confirmMakeDrink() {
+  if (!currentRecipe || !makeDraft) return;
+  // Deduct from bar
+  makeDraft.uses.forEach(u => {
+    if (!u.bar_id) return;
+    const b = db.state.bar.find(x => x.id === u.bar_id);
+    if (!b || !b.volume_ml) return;
+    const pctUsed = (u.amount_ml / b.volume_ml) * 100;
+    b.remaining_pct = Math.max(0, (b.remaining_pct || 0) - pctUsed);
+    if (b.remaining_pct <= 0) {
+      b.remaining_pct = 0;
+      if (!db.state.to_buy.find(t => t.name.toLowerCase() === b.name.toLowerCase())) {
+        db.state.to_buy.push({ id: uid('tb'), name: b.name, qty: 1, checked: false, added_at: Date.now() });
+      }
+    }
+  });
+  const drink = {
+    id: uid('dm'),
+    name: currentRecipe.name,
+    made_at: new Date().toISOString(),
+    rating: makeDraft.rating,
+    favorite: document.getElementById('make-fav').classList.contains('on'),
+    notes: document.getElementById('make-notes').value.trim(),
+    ingredients_used: makeDraft.uses.filter(u => u.bar_id || u.amount_ml > 0).map(u => ({ bar_id: u.bar_id, name: u.name, amount_ml: u.amount_ml })),
+    recipe: currentRecipe
+  };
+  db.state.drinks_made.unshift(drink);
+  closeModal('modal-make');
+  closeModal('modal-mix');
+  goTo('history');
+  renderAll();
+  await saveDB();
+  showToast(`🥃 ${drink.name} poured`);
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+// ── SETTINGS / PROFILE ─────────────────────────────────────────────────
+// ═══════════════════════════════════════════════════════════════════════
+
+function renderSettings() {
+  const p = db.user_profile;
+  document.getElementById('settings-profile-view').innerHTML = `
+    <div class="kv-row"><div class="k">Name</div><div class="v">${escapeHtml(p.name)}</div></div>
+    <div class="kv-row"><div class="k">Loves</div><div class="v"><div class="tag-list">${(p.loves||[]).map(t => `<span class="tag brass">${escapeHtml(t)}</span>`).join('')}</div></div></div>
+    <div class="kv-row"><div class="k">Avoid</div><div class="v"><div class="tag-list">${(p.avoid||[]).map(t => `<span class="tag ruby">${escapeHtml(t)}</span>`).join('')}</div></div></div>
+    <div class="kv-row"><div class="k">Strength</div><div class="v"><span class="tag">${escapeHtml(p.preferred_strength)}</span></div></div>
+    <div class="kv-row"><div class="k">Skill</div><div class="v"><span class="tag">${escapeHtml(p.skill_level)}</span></div></div>
+    <div class="kv-row"><div class="k">Glass</div><div class="v"><span class="tag">${escapeHtml(p.default_glassware)}</span></div></div>
+    ${p.notes ? `<div class="kv-row"><div class="k">Notes</div><div class="v">${escapeHtml(p.notes)}</div></div>` : ''}
+  `;
+}
+
+function openProfileModal() {
+  const p = db.user_profile;
+  document.getElementById('pf-name').value = p.name || '';
+  document.getElementById('pf-loves').value = (p.loves || []).join(', ');
+  document.getElementById('pf-avoid').value = (p.avoid || []).join(', ');
+  document.getElementById('pf-strength').value = p.preferred_strength || 'medium';
+  document.getElementById('pf-skill').value = p.skill_level || 'enthusiast';
+  document.getElementById('pf-glass').value = p.default_glassware || 'rocks';
+  document.getElementById('pf-notes').value = p.notes || '';
+  openModal('modal-profile');
+}
+
+async function saveProfile() {
+  db.user_profile = {
+    ...db.user_profile,
+    name: document.getElementById('pf-name').value.trim() || 'Nelson',
+    loves: document.getElementById('pf-loves').value.split(',').map(s => s.trim()).filter(Boolean),
+    avoid: document.getElementById('pf-avoid').value.split(',').map(s => s.trim()).filter(Boolean),
+    preferred_strength: document.getElementById('pf-strength').value,
+    skill_level: document.getElementById('pf-skill').value,
+    default_glassware: document.getElementById('pf-glass').value.trim(),
+    notes: document.getElementById('pf-notes').value.trim()
+  };
+  closeModal('modal-profile');
+  renderAll();
+  await saveDB();
+  showToast('Profile saved');
+}
+
+function exportDB() {
+  const json = JSON.stringify(db, null, 2);
+  const blob = new Blob([json], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = 'nelsons_bar_db.json'; a.click();
+  URL.revokeObjectURL(url);
+  showToast('Exported');
+}
+
+function openImportModal() {
+  document.getElementById('import-textarea').value = '';
+  openModal('modal-import');
+}
+
+async function importDB() {
+  try {
+    const data = JSON.parse(document.getElementById('import-textarea').value.trim());
+    if (!data.state || !data.user_profile) throw new Error('Invalid');
+    db = normalizeDB(data);
+    closeModal('modal-import');
+    renderAll();
+    await saveDB();
+    showToast('Imported');
+  } catch {
+    alert('Invalid JSON');
+  }
+}
+
+async function resetDB() {
+  if (!confirm('Reset everything to defaults? This wipes your bar, history, and to-buy list.')) return;
+  db = JSON.parse(JSON.stringify(DEFAULT_DB));
+  db.state.bar = defaultBar();
+  renderAll();
+  await saveDB();
+  showToast('Reset complete');
+}
+
+async function forceResync() {
+  showToast('↻ Pulling from cloud…');
+  setSyncStatus('syncing', 'Resyncing');
+  try {
+    const remote = await loadFromSupabase();
+    db = remote;
+    saveToLocal(db);
+    renderAll();
+    setSyncStatus('synced', 'Synced');
+    showToast('✓ Resynced from cloud');
+  } catch (e) {
+    if (e.code === 'EMPTY') {
+      try {
+        await saveToSupabase(db);
+        setSyncStatus('synced', 'Synced');
+        showToast('✓ Pushed local data to cloud');
+      } catch (e2) {
+        setSyncStatus('error', 'Save failed');
+        showToast('Save failed: ' + e2.message);
+      }
+    } else {
+      setSyncStatus('offline', 'Offline');
+      showToast('Resync failed: ' + e.message);
+    }
+  }
+}
+
+async function clearLocalCache() {
+  if (!confirm('Wipe ALL local data and re-download from cloud?')) return;
+  try {
+    localStorage.removeItem(LS_KEY);
+    if ('caches' in window) {
+      const keys = await caches.keys();
+      await Promise.all(keys.map(k => caches.delete(k)));
+    }
+    if ('serviceWorker' in navigator) {
+      const regs = await navigator.serviceWorker.getRegistrations();
+      await Promise.all(regs.map(r => r.unregister()));
+    }
+    showToast('🗑 Cleared. Reloading…');
+    setTimeout(() => location.reload(), 600);
+  } catch (e) {
+    showToast('Clear failed: ' + e.message);
+  }
+}
+
+function hardReload() {
+  const url = new URL(location.href);
+  url.searchParams.set('_v', Date.now().toString());
+  location.href = url.toString();
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+// ── OPENAI (proxied via Supabase ai_call) ─────────────────────────────
+// ═══════════════════════════════════════════════════════════════════════
+
+async function callOpenAI(payload) {
+  if (!sbClient) {
+    const err = new Error('Supabase client not loaded');
+    err.code = 'NO_AI';
+    throw err;
+  }
+  const { data, error } = await sbClient.rpc('ai_call', { payload });
+  if (error) {
+    if (error.code === 'PGRST202' || error.message?.includes('ai_call')) {
+      const e = new Error('AI proxy not deployed');
+      e.code = 'NO_AI';
+      throw e;
+    }
+    throw new Error(error.message);
+  }
+  if (data?.error) {
+    const detail = data.detail?.error?.message || JSON.stringify(data.detail || {});
+    throw new Error(`${data.error} — ${detail}`);
+  }
+  const content = data?.choices?.[0]?.message?.content;
+  if (!content) throw new Error('Empty AI response');
+  return content;
+}
+
+function extractJSON(text) {
+  const fenced = text.match(/```(?:json)?\s*([\s\S]*?)```/);
+  const candidate = fenced ? fenced[1] : text;
+  try { return JSON.parse(candidate.trim()); } catch {}
+  const sO = candidate.indexOf('{'), sA = candidate.indexOf('[');
+  const head = (sA !== -1 && (sO === -1 || sA < sO)) ? sA : sO;
+  if (head === -1) throw new Error('No JSON in response');
+  const closer = candidate[head] === '[' ? ']' : '}';
+  return JSON.parse(candidate.slice(head, candidate.lastIndexOf(closer) + 1));
+}
+
+async function openaiPhotoToBar(dataUrl) {
+  const text = await callOpenAI({
+    model: 'gpt-4o',
+    max_tokens: 2000,
+    temperature: 0.3,
+    response_format: { type: 'json_object' },
+    messages: [
+      { role: 'system', content: 'You are a vision assistant that catalogs spirits, liqueurs, mixers, bitters, and bar ingredients in photos. You ALWAYS respond with valid JSON only.' },
+      { role: 'user', content: [
+        { type: 'image_url', image_url: { url: dataUrl, detail: 'high' } },
+        { type: 'text', text: `Identify each distinct bottle / bar ingredient in this photo. Return JSON:
+
+{"items":[{"name":"Buffalo Trace Kentucky Straight Bourbon","category":"spirit","subcategory":"bourbon","abv":45,"volume_ml":750,"remaining_pct":80,"emoji":"🥃","notes":"One-line tasting note if you recognize the bottle."}]}
+
+Rules:
+- category: spirit | liqueur | wine_vermouth | mixer | bitter | garnish
+- subcategory: gin / whiskey / bourbon / scotch / rye / rum / vodka / tequila / mezcal / brandy / etc.
+- abv: integer % alcohol; null for non-alcoholic mixers
+- volume_ml: 750/1000/700/375/200, best guess from label
+- remaining_pct: estimate from visible liquid level (50 if you can't see)
+- emoji: a single emoji
+Return ONLY the JSON object.` }
+      ] }
+    ]
+  });
+  const parsed = extractJSON(text);
+  return Array.isArray(parsed) ? parsed : (parsed.items || []);
+}
+
+async function openaiCreateCocktail({ profile, bar, recent_drinks, mood, notes, count, strength, complexity, focus }) {
+  const barList = bar
+    .filter(b => b.category !== 'tool')
+    .map(b => {
+      const remMl = Math.round((b.remaining_pct/100) * b.volume_ml);
+      return `- [${b.id}] ${b.name} (${b.subcategory || b.category}${b.abv != null ? ', ' + b.abv + '%' : ''}${b.volume_ml ? ', ~' + remMl + 'ml left' : ''})`;
+    }).join('\n');
+  const recentList = (recent_drinks || []).map(d => `- ${d.name}`).join('\n') || '(none)';
+
+  const userPrompt = `NELSON'S PROFILE:
+- Loves: ${(profile.loves || []).join(', ')}
+- Avoid: ${(profile.avoid || []).join(', ')}
+- Preferred strength: ${profile.preferred_strength}
+- Skill level: ${profile.skill_level}
+- Default glassware: ${profile.default_glassware}
+
+CURRENT BAR (use ONLY these — bracketed code is the bar_id):
+${barList}
+
+RECENT DRINKS (avoid repetition):
+${recentList}
+
+REQUEST:
+- Mood/occasion: ${mood || '(none)'}
+- Free text: ${notes || '(none)'}
+- Number of drinks: ${count}
+- Strength preference: ${strength}
+- Complexity: ${complexity}
+${focus && focus.length ? `- MUST showcase: ${focus.join(', ')}` : ''}
+
+RULES:
+1. Use ONLY ingredients in the bar above. Reference each by its bar_id.
+2. Quantities in milliliters AND ounces.
+3. Never invent an ingredient.
+4. Match mood and Nelson's loves; avoid items in his avoid list.
+5. Include a one-sentence sensory descriptor (tagline) capturing the vibe.
+6. Include 1–2 sentences of history/lore for the drink.
+7. If a classic name fits, use it (e.g. "Old Fashioned"); otherwise give it a fitting evocative name.
+
+Return JSON in EXACTLY this shape:
+{
+  "name": "Old Fashioned",
+  "tagline": "Caramel, oak, and a kiss of orange — the original American cocktail.",
+  "glass": "rocks",
+  "ice": "one large king cube",
+  "garnish": "orange peel, expressed",
+  "ingredients": [{"name":"Buffalo Trace","ml":60,"oz":2.0,"bar_id":"b_xxx"}],
+  "method": "stirred",
+  "steps": ["step 1","step 2"],
+  "history": "First defined in print in 1806 as a 'cocktail'…",
+  "estimated_abv_pct": 32,
+  "complexity": "classic"
+}`;
+
+  const text = await callOpenAI({
+    model: 'gpt-4o',
+    max_tokens: 2500,
+    temperature: 0.85,
+    response_format: { type: 'json_object' },
+    messages: [
+      { role: 'system', content: "You are Nelson's personal cocktail consultant. You design ONE perfect drink at a time using only what's in his bar. You ALWAYS respond with valid JSON only." },
+      { role: 'user', content: userPrompt }
+    ]
+  });
+  return extractJSON(text);
+}
+
+async function openaiSuggestSub(missingName, bar) {
+  const barList = bar.filter(b => b.category !== 'tool').map(b => `- ${b.name} (${b.subcategory || b.category})`).join('\n');
+  const text = await callOpenAI({
+    model: 'gpt-4o-mini',
+    max_tokens: 400,
+    temperature: 0.5,
+    response_format: { type: 'json_object' },
+    messages: [
+      { role: 'system', content: "You suggest cocktail-ingredient substitutions from Nelson's actual bar. You ALWAYS respond with valid JSON only." },
+      { role: 'user', content: `RECIPE INGREDIENT MISSING: ${missingName}
+NELSON'S BAR:
+${barList}
+
+Return JSON: {"substitute":"name in bar","rationale":"one sentence","adjustment":"any tweak needed"}
+If no good substitute exists in the bar, return {"substitute":null,"rationale":"why not","adjustment":""}.`}
+    ]
+  });
+  return extractJSON(text);
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+// ── MASTER RENDER ──────────────────────────────────────────────────────
+// ═══════════════════════════════════════════════════════════════════════
+
+function renderAll() {
+  for (const [name, fn] of [
+    ['home',     renderHome],
+    ['bar',      renderBar],
+    ['buy',      renderBuy],
+    ['history',  renderHistory],
+    ['settings', renderSettings]
+  ]) {
+    try { fn(); } catch (e) { console.error(`render ${name} failed:`, e); }
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+// ── TOAST ──────────────────────────────────────────────────────────────
+// ═══════════════════════════════════════════════════════════════════════
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(t._timer);
+  t._timer = setTimeout(() => t.classList.remove('show'), 2600);
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+// ── PWA ────────────────────────────────────────────────────────────────
+// ═══════════════════════════════════════════════════════════════════════
+
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('sw.js').catch(e => console.warn('SW register failed:', e));
+  });
+}
+
+let deferredInstallPrompt = null;
+const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+const isAndroid = /Android/i.test(navigator.userAgent);
+const isStandalone = window.navigator.standalone || window.matchMedia('(display-mode: standalone)').matches;
+
+window.addEventListener('beforeinstallprompt', (e) => {
+  e.preventDefault();
+  deferredInstallPrompt = e;
+  if (!isStandalone) document.getElementById('install-banner').classList.add('show');
+  refreshInstallCard();
+});
+
+window.addEventListener('appinstalled', () => {
+  deferredInstallPrompt = null;
+  document.getElementById('install-banner').classList.remove('show');
+  showToast('✓ Installed! Look in your App Drawer.');
+  refreshInstallCard();
+});
+
+async function triggerInstall() {
+  if (deferredInstallPrompt) {
+    deferredInstallPrompt.prompt();
+    const { outcome } = await deferredInstallPrompt.userChoice;
+    if (outcome === 'accepted') {
+      document.getElementById('install-banner').classList.remove('show');
+      showToast('Installing…');
+    }
+    deferredInstallPrompt = null;
+    refreshInstallCard();
+  } else if (isIOS) {
+    alert('On iOS:\n\n1. Tap the Share button (square with arrow up)\n2. Scroll down and tap "Add to Home Screen"\n3. Tap "Add"');
+  } else if (isAndroid) {
+    alert('On Android:\n\n1. Tap the Chrome menu (⋮ in top right)\n2. Tap "Install app" or "Add to Home screen"\n3. Tap "Install"\n\nThe app will appear in your App Drawer.');
+  } else {
+    alert("Look for the install icon (⊕) in your browser's address bar.");
+  }
+}
+
+function refreshInstallCard() {
+  const card    = document.getElementById('install-card');
+  const status  = document.getElementById('install-status');
+  const btn     = document.getElementById('db-install-btn');
+  const help    = document.getElementById('install-help');
+  if (!card) return;
+  card.style.display = 'block';
+  if (isStandalone) {
+    status.innerHTML = '✅ <strong>Installed</strong> — you\'re using the app version.';
+    btn.style.display = 'none';
+    help.textContent = '';
+    return;
+  }
+  btn.style.display = 'inline-flex';
+  if (deferredInstallPrompt) {
+    status.innerHTML = '✨ Ready to install. Tap below.';
+    help.innerHTML = isAndroid ? '<strong>After install:</strong> swipe up to find Nelson\'s Bar in your App Drawer.' : 'After install, the app opens in its own window.';
+  } else if (isIOS) {
+    status.innerHTML = '📱 <strong>iOS:</strong> Safari → Share → "Add to Home Screen".';
+    help.textContent = 'iOS only allows installation from Safari (not Chrome on iOS).';
+  } else if (isAndroid) {
+    status.innerHTML = '⚠️ Chrome hasn\'t prompted yet. Open Chrome menu (⋮) → "Install app".';
+    help.textContent = '';
+  } else {
+    status.innerHTML = '⚠️ Try Chrome, Edge, or Brave for installation.';
+    help.textContent = '';
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+// ── INIT ───────────────────────────────────────────────────────────────
+// ═══════════════════════════════════════════════════════════════════════
+
+(async () => {
+  try {
+    document.getElementById('ver-tag').textContent = APP_VERSION;
+    document.getElementById('ver-tag-2').textContent = APP_VERSION;
+    db = normalizeDB(db);
+    renderAll();
+  } catch (e) {
+    console.error('First render failed:', e);
+    setSyncStatus('error', 'Render error');
+  }
+
+  try {
+    const remote = await loadDB();
+    if (JSON.stringify(remote) !== JSON.stringify(db)) {
+      db = remote;
+      renderAll();
+    }
+    subscribeToChanges();
+  } catch (e) {
+    console.error('Init error:', e);
+    setSyncStatus('error', 'Init failed');
+    showToast('Sync error — using local data');
+  }
+
+  try { refreshInstallCard(); } catch (e) { console.warn(e); }
+})();
+</script>
+</body>
+</html>
