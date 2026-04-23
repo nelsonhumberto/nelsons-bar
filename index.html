@@ -793,6 +793,161 @@
     }
     .photo-confirm-row input.text-input { padding: 7px 10px; font-size: 13px; }
 
+    /* ── Bartender chat ──────────────────────────────────────────── */
+    .ask-thread {
+      display: flex; flex-direction: column; gap: 12px;
+      padding-bottom: 18px;
+      min-height: 40vh;
+    }
+    .msg {
+      max-width: 92%;
+      padding: 14px 16px;
+      border-radius: 18px;
+      line-height: 1.55;
+      font-size: 14px;
+      animation: fadeIn 0.25s ease;
+    }
+    .msg.user {
+      align-self: flex-end;
+      background: linear-gradient(135deg, var(--brass-glow), var(--brass));
+      color: #1a1308;
+      border-bottom-right-radius: 6px;
+      font-weight: 600;
+      box-shadow: 0 4px 14px rgba(200, 155, 60, 0.28);
+    }
+    .msg.assistant {
+      align-self: flex-start;
+      background: var(--bg-card);
+      border: 1px solid rgba(255,255,255,0.06);
+      color: var(--ink);
+      border-bottom-left-radius: 6px;
+      box-shadow: var(--shadow-sm);
+    }
+    .msg.assistant .msg-body { white-space: pre-wrap; }
+    .msg.assistant .msg-eyebrow {
+      display: flex; align-items: center; gap: 6px;
+      font-size: 10.5px; font-weight: 800; letter-spacing: 0.16em;
+      color: var(--brass); text-transform: uppercase; margin-bottom: 8px;
+    }
+    .msg.assistant .msg-eyebrow .dot {
+      width: 6px; height: 6px; border-radius: 50%;
+      background: var(--brass-glow);
+      box-shadow: 0 0 8px var(--brass-glow);
+    }
+
+    .msg-typing {
+      display: inline-flex; gap: 4px; padding: 4px 0;
+    }
+    .msg-typing span {
+      width: 7px; height: 7px; border-radius: 50%;
+      background: var(--brass);
+      animation: bounce 1.2s infinite;
+    }
+    .msg-typing span:nth-child(2) { animation-delay: 0.15s; }
+    .msg-typing span:nth-child(3) { animation-delay: 0.3s; }
+    @keyframes bounce { 0%,80%,100% { transform: translateY(0); opacity: 0.4 } 40% { transform: translateY(-5px); opacity: 1 } }
+    .msg-typing-text { font-family: 'Playfair Display', serif; font-style: italic; color: var(--whisper); font-size: 13px; margin-top: 4px; }
+
+    /* Inline cards inside assistant messages */
+    .inline-card {
+      margin-top: 12px;
+      background: var(--bg-elev);
+      border: 1px solid rgba(255,255,255,0.06);
+      border-radius: 14px;
+      padding: 14px;
+    }
+    .inline-card.recipe-mini {
+      border-color: var(--brass-line);
+      background: linear-gradient(160deg, var(--bg-elev), var(--bg-card));
+    }
+    .inline-card .ic-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 18px; font-weight: 700; color: var(--ink-strong);
+      margin-bottom: 4px; line-height: 1.2;
+    }
+    .inline-card .ic-tagline {
+      font-family: 'Playfair Display', serif; font-style: italic;
+      font-size: 13px; color: var(--brass-glow); margin-bottom: 10px;
+    }
+    .inline-card .ic-meta {
+      font-size: 11.5px; color: var(--whisper);
+      display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 10px;
+    }
+    .inline-card .ic-actions {
+      display: flex; gap: 8px; flex-wrap: wrap; margin-top: 10px;
+    }
+
+    .shopping-card {
+      margin-top: 10px;
+      background: var(--bg-elev);
+      border: 1px solid rgba(255,255,255,0.06);
+      border-radius: 12px;
+      padding: 12px 14px;
+      display: flex; align-items: center; gap: 12px;
+    }
+    .shopping-card .sc-info { flex: 1; min-width: 0; }
+    .shopping-card .sc-name { font-weight: 700; color: var(--ink-strong); font-size: 13.5px; }
+    .shopping-card .sc-why { font-size: 11.5px; color: var(--whisper); margin-top: 2px; line-height: 1.4; }
+    .shopping-card .sc-actions { display: flex; gap: 6px; flex-shrink: 0; flex-direction: column; }
+    .shopping-card .sc-actions .btn { padding: 6px 11px; font-size: 11px; }
+
+    .followups { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 12px; }
+    .followups .chip { font-size: 11.5px; padding: 6px 12px; }
+
+    .ask-composer {
+      position: sticky;
+      bottom: calc(90px + var(--safe-bottom));
+      display: flex; gap: 8px; align-items: flex-end;
+      background: rgba(14,15,20,0.92);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      padding: 10px 0;
+      margin: 0 -2px;
+      z-index: 5;
+    }
+    .ask-composer textarea {
+      flex: 1;
+      min-height: 44px;
+      max-height: 140px;
+      padding: 12px 16px;
+      resize: none;
+      border-radius: 22px;
+      font-size: 14px;
+      line-height: 1.4;
+      background: var(--bg-card);
+      border: 1px solid rgba(255,255,255,0.10);
+    }
+    .ask-composer .btn-icon {
+      width: 44px; height: 44px;
+      flex-shrink: 0;
+      font-size: 18px; font-weight: 800;
+    }
+
+    /* Quantity badge on bar items */
+    .qty-badge {
+      display: inline-block;
+      background: var(--brass-soft);
+      color: var(--brass-glow);
+      border: 1px solid var(--brass-line);
+      padding: 1px 7px;
+      border-radius: 50px;
+      font-size: 10.5px;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      margin-left: 4px;
+    }
+
+    .help-text {
+      display: block;
+      font-size: 11px;
+      color: var(--whisper);
+      margin-top: 4px;
+      font-weight: 500;
+      line-height: 1.4;
+      letter-spacing: 0;
+      text-transform: none;
+    }
+
     /* Misc */
     a { color: var(--brass-glow); }
     code { background: rgba(255,255,255,0.06); padding: 1px 6px; border-radius: 4px; font-size: 12px; color: var(--brass-glow); }
@@ -934,6 +1089,33 @@
     <div id="history-list"></div>
   </section>
 
+  <!-- ─── ASK MY BARTENDER ─── -->
+  <section id="tab-ask" class="tab-panel">
+    <div class="h-row">
+      <div>
+        <h2 class="h-title">Ask the Bartender</h2>
+        <div class="h-sub">I know your shelf. Ask me anything.</div>
+      </div>
+      <button class="btn btn-ghost btn-sm btn-icon" onclick="clearBartenderChat()" title="New conversation">↻</button>
+    </div>
+
+    <div id="ask-suggestions" class="chip-row" style="margin-bottom:8px;">
+      <button class="chip" onclick="askBartender('What am I missing from a well-stocked home bar?')">What am I missing?</button>
+      <button class="chip" onclick="askBartender('What do I need to buy to make a margarita?')">Make a margarita?</button>
+      <button class="chip" onclick="askBartender('Pour me something using egg white.')">Drink with egg white</button>
+      <button class="chip" onclick="askBartender('What classic cocktails can I make right now with what I have?')">Classics I can make</button>
+      <button class="chip" onclick="askBartender('Suggest a smoked Old Fashioned variation using my smoker.')">Use my smoker</button>
+      <button class="chip" onclick="askBartender('Pair a cocktail with a steak dinner.')">Pair with steak</button>
+    </div>
+
+    <div id="ask-thread" class="ask-thread"></div>
+
+    <div class="ask-composer">
+      <textarea id="ask-input" rows="1" placeholder="Ask the bartender…" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendBartender()}" oninput="autoGrow(this)"></textarea>
+      <button class="btn btn-primary btn-icon" id="ask-send-btn" onclick="sendBartender()" title="Send">↑</button>
+    </div>
+  </section>
+
   <!-- ─── SETTINGS ─── -->
   <section id="tab-settings" class="tab-panel">
     <div class="h-row">
@@ -987,7 +1169,7 @@
   <div class="bottom-nav-inner">
     <button class="nav-btn active" data-tab="home" onclick="goTo('home')"><span class="ico">🏠</span><span class="lbl">Home</span></button>
     <button class="nav-btn" data-tab="bar" onclick="goTo('bar')"><span class="ico">🥃</span><span class="lbl">Bar</span></button>
-    <button class="nav-btn center" onclick="openMixModal()"><span class="ico">✨</span><span class="lbl">Mix</span></button>
+    <button class="nav-btn center" data-tab="ask" onclick="goTo('ask')"><span class="ico">💬</span><span class="lbl">Ask</span></button>
     <button class="nav-btn" data-tab="buy" onclick="goTo('buy')"><span class="ico">🛒</span><span class="lbl">Buy</span></button>
     <button class="nav-btn" data-tab="history" onclick="goTo('history')"><span class="ico">📜</span><span class="lbl">Made</span></button>
     <button class="nav-btn" data-tab="settings" onclick="goTo('settings')"><span class="ico">⚙</span><span class="lbl">Settings</span></button>
@@ -998,7 +1180,7 @@
 <div class="modal-bg" id="modal-add">
   <div class="modal">
     <div class="modal-head">
-      <h2>Add a bottle</h2>
+      <h2 id="ab-modal-title">Add a bottle</h2>
       <button class="modal-close" onclick="closeModal('modal-add')">×</button>
     </div>
     <div class="field-row">
@@ -1008,40 +1190,48 @@
     <div class="field-grid field-row">
       <div>
         <label class="field-label">Category</label>
-        <select id="ab-category">
+        <select id="ab-category" onchange="onCategoryChange()">
           <option value="spirit">Spirit</option>
           <option value="liqueur">Liqueur</option>
           <option value="wine_vermouth">Wine / Vermouth</option>
           <option value="mixer">Mixer</option>
           <option value="bitter">Bitter</option>
           <option value="garnish">Garnish</option>
-          <option value="tool">Tool</option>
+          <option value="tool">Tool / Equipment</option>
         </select>
       </div>
       <div>
-        <label class="field-label">Subcategory</label>
-        <input type="text" class="text-input" id="ab-sub" placeholder="bourbon, gin…" />
+        <label class="field-label">Type</label>
+        <input type="text" class="text-input" id="ab-sub" placeholder="bourbon, gin, mezcal…" />
       </div>
     </div>
     <div class="field-grid field-row">
-      <div>
-        <label class="field-label">ABV %</label>
+      <div id="ab-field-abv">
+        <label class="field-label">Alcohol % (ABV)</label>
         <input type="number" class="text-input" id="ab-abv" placeholder="40" />
+        <span class="help-text">e.g. 40 vodka, 45 bourbon, 12 wine</span>
       </div>
-      <div>
-        <label class="field-label">Bottle ml</label>
+      <div id="ab-field-vol">
+        <label class="field-label">Bottle size</label>
         <input type="number" class="text-input" id="ab-vol" value="750" />
+        <span class="help-text">in ml — 750 = standard, 1000 = 1L</span>
       </div>
     </div>
     <div class="field-grid field-row">
-      <div>
-        <label class="field-label">Remaining %</label>
+      <div id="ab-field-rem">
+        <label class="field-label">How full?</label>
         <input type="number" class="text-input" id="ab-rem" value="100" min="0" max="100" />
+        <span class="help-text">% full — 100 unopened, 50 half, 0 empty</span>
       </div>
-      <div>
-        <label class="field-label">Emoji</label>
-        <input type="text" class="text-input" id="ab-emoji" placeholder="🥃" />
+      <div id="ab-field-qty">
+        <label class="field-label">How many?</label>
+        <input type="number" class="text-input" id="ab-qty" value="1" min="1" max="20" />
+        <span class="help-text">multiple bottles of the same thing</span>
       </div>
+    </div>
+    <div class="field-row">
+      <label class="field-label">Emoji</label>
+      <input type="text" class="text-input" id="ab-emoji" placeholder="🥃" />
     </div>
     <div class="field-row">
       <label class="field-label">Notes</label>
@@ -1133,11 +1323,23 @@
       <input type="text" class="text-input" id="pf-name" />
     </div>
     <div class="field-row">
-      <label class="field-label">Loves <span style="font-weight:500;color:var(--whisper);text-transform:none;letter-spacing:0;">(comma-separated)</span></label>
+      <label class="field-label" style="display:flex;justify-content:space-between;align-items:center;">
+        <span>Loves <span style="font-weight:500;color:var(--whisper);text-transform:none;letter-spacing:0;">(comma-separated)</span></span>
+        <span style="display:flex;gap:8px;">
+          <a href="#" onclick="event.preventDefault();document.getElementById('pf-loves').value=''" style="font-size:10px;font-weight:700;letter-spacing:0.06em;">Clear</a>
+          <a href="#" onclick="event.preventDefault();document.getElementById('pf-loves').value=DEFAULT_DB.user_profile.loves.join(', ')" style="font-size:10px;font-weight:700;letter-spacing:0.06em;">Defaults</a>
+        </span>
+      </label>
       <input type="text" class="text-input" id="pf-loves" />
     </div>
     <div class="field-row">
-      <label class="field-label">Avoid <span style="font-weight:500;color:var(--whisper);text-transform:none;letter-spacing:0;">(comma-separated)</span></label>
+      <label class="field-label" style="display:flex;justify-content:space-between;align-items:center;">
+        <span>Avoid <span style="font-weight:500;color:var(--whisper);text-transform:none;letter-spacing:0;">(comma-separated)</span></span>
+        <span style="display:flex;gap:8px;">
+          <a href="#" onclick="event.preventDefault();document.getElementById('pf-avoid').value=''" style="font-size:10px;font-weight:700;letter-spacing:0.06em;">Clear</a>
+          <a href="#" onclick="event.preventDefault();document.getElementById('pf-avoid').value=DEFAULT_DB.user_profile.avoid.join(', ')" style="font-size:10px;font-weight:700;letter-spacing:0.06em;">Defaults</a>
+        </span>
+      </label>
       <input type="text" class="text-input" id="pf-avoid" />
     </div>
     <div class="field-grid field-row">
@@ -1166,6 +1368,9 @@
     <div class="field-row">
       <label class="field-label">Notes</label>
       <textarea id="pf-notes" placeholder="Anything I should know about your taste…"></textarea>
+    </div>
+    <div style="text-align:center;margin-top:6px;">
+      <a href="#" onclick="event.preventDefault();resetProfileFields()" style="font-size:11.5px;color:var(--ruby);font-weight:600;">↺ Reset all profile fields to defaults</a>
     </div>
     <div class="modal-actions">
       <button class="btn btn-ghost btn-block" onclick="closeModal('modal-profile')">Cancel</button>
@@ -1204,7 +1409,7 @@
 // ── CONFIG ─────────────────────────────────────────────────────────────
 // ═══════════════════════════════════════════════════════════════════════
 
-const APP_VERSION = 'v1.0';
+const APP_VERSION = 'v1.1';
 const SUPABASE_URL = 'https://qdhqkcsfslkbhxtogjfp.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_bmapexcRWmRzsRvbqIJCpw_XnWaMCZL';
 const CONNECT_TIMEOUT_MS = 8000;
@@ -1261,7 +1466,12 @@ function defaultBar() {
     // Garnishes
     { id: uid('b'), name: 'Lemons',           category: 'garnish', subcategory: 'citrus', abv: null, volume_ml: 0, remaining_pct: 100, emoji: '🍋', notes: '', favorite: false, added_at: t },
     { id: uid('b'), name: 'Oranges',          category: 'garnish', subcategory: 'citrus', abv: null, volume_ml: 0, remaining_pct: 100, emoji: '🍊', notes: '', favorite: false, added_at: t },
-    { id: uid('b'), name: 'Luxardo cherries', category: 'garnish', subcategory: 'cocktail cherry', abv: null, volume_ml: 0, remaining_pct: 80, emoji: '🍒', notes: 'The good ones. Don\'t skimp.', favorite: false, added_at: t }
+    { id: uid('b'), name: 'Luxardo cherries', category: 'garnish', subcategory: 'cocktail cherry', abv: null, volume_ml: 0, remaining_pct: 80, emoji: '🍒', notes: 'The good ones. Don\'t skimp.', favorite: false, added_at: t },
+
+    // Tools / equipment — used by AI to suggest techniques
+    { id: uid('b'), name: 'Cocktail smoker kit', category: 'tool', subcategory: 'smoker', abv: null, volume_ml: 0, remaining_pct: 100, emoji: '💨', notes: 'Smoking gun + wood chips (oak, hickory, cherry).', favorite: false, added_at: t },
+    { id: uid('b'), name: 'Mixing set',          category: 'tool', subcategory: 'bar kit', abv: null, volume_ml: 0, remaining_pct: 100, emoji: '🍸', notes: 'Boston shaker, mixing glass, jigger, Hawthorne strainer, fine strainer, bar spoon.', favorite: false, added_at: t },
+    { id: uid('b'), name: 'Lewis bag & mallet',  category: 'tool', subcategory: 'crushed ice', abv: null, volume_ml: 0, remaining_pct: 100, emoji: '🧊', notes: 'For crushed/pebble ice (juleps, cobblers, swizzles).', favorite: false, added_at: t }
   ];
 }
 
@@ -1279,7 +1489,8 @@ const DEFAULT_DB = {
     bar: [],
     to_buy: [],
     drinks_made: [],
-    favorites: []
+    favorites: [],
+    bartender_chat: []
   }
 };
 
@@ -1297,10 +1508,11 @@ function normalizeDB(data) {
   out.user_profile = { ...fresh.user_profile, ...(data.user_profile || {}) };
   out.state        = { ...fresh.state, ...(data.state || {}) };
 
-  if (!Array.isArray(out.state.bar))         out.state.bar = [];
-  if (!Array.isArray(out.state.to_buy))      out.state.to_buy = [];
-  if (!Array.isArray(out.state.drinks_made)) out.state.drinks_made = [];
-  if (!Array.isArray(out.state.favorites))   out.state.favorites = [];
+  if (!Array.isArray(out.state.bar))            out.state.bar = [];
+  if (!Array.isArray(out.state.to_buy))         out.state.to_buy = [];
+  if (!Array.isArray(out.state.drinks_made))    out.state.drinks_made = [];
+  if (!Array.isArray(out.state.favorites))      out.state.favorites = [];
+  if (!Array.isArray(out.state.bartender_chat)) out.state.bartender_chat = [];
 
   // Per-bar-item field defaults
   out.state.bar = out.state.bar.map(b => ({
@@ -1311,6 +1523,7 @@ function normalizeDB(data) {
     abv: b.abv ?? null,
     volume_ml: typeof b.volume_ml === 'number' ? b.volume_ml : 750,
     remaining_pct: typeof b.remaining_pct === 'number' ? b.remaining_pct : 100,
+    quantity: typeof b.quantity === 'number' && b.quantity > 0 ? b.quantity : 1,
     emoji: b.emoji || '🍾',
     image_url: b.image_url ?? null,
     notes: b.notes ?? '',
@@ -1491,6 +1704,7 @@ let photoDraft = [];
 let currentRecipe = null;
 let mixState = { mood: null, freeText: '', count: 1, strength: '', complexity: 'classic' };
 let makeDraft = null;
+let currentTab = 'home';
 
 // ═══════════════════════════════════════════════════════════════════════
 // ── HELPERS ────────────────────────────────────────────────────────────
@@ -1536,12 +1750,20 @@ function toggleEl(el) { el.classList.toggle('on'); el.classList.toggle('off'); }
 // ═══════════════════════════════════════════════════════════════════════
 
 function goTo(tab) {
+  currentTab = tab;
   document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
   document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
   document.getElementById('tab-' + tab).classList.add('active');
   const navBtn = document.querySelector(`.nav-btn[data-tab="${tab}"]`);
   if (navBtn) navBtn.classList.add('active');
   window.scrollTo({ top: 0, behavior: 'smooth' });
+  if (tab === 'ask') {
+    setTimeout(() => {
+      const inp = document.getElementById('ask-input');
+      if (inp) inp.focus();
+      scrollAskToBottom();
+    }, 200);
+  }
 }
 
 function openModal(id) { document.getElementById(id).classList.add('open'); }
@@ -1667,11 +1889,12 @@ function renderBar() {
     const volBar = isPercentItem ? `
       <div class="vol-bar-wrap"><div class="vol-bar-fill ${low ? 'low' : ''}" style="width:${Math.max(0,Math.min(100,b.remaining_pct))}%"></div></div>
     ` : '';
+    const qty = b.quantity && b.quantity > 1 ? `<span class="qty-badge">×${b.quantity}</span>` : '';
     return `
       <div class="bar-item ${b.favorite ? 'fav' : ''} ${low ? 'low' : ''}">
         <div class="bar-emoji">${b.emoji || '🍾'}</div>
         <div class="bar-info" onclick="openBarDetail('${b.id}')">
-          <div class="bar-name">${escapeHtml(b.name)} ${b.favorite ? '<span class="star">★</span>' : ''}</div>
+          <div class="bar-name">${escapeHtml(b.name)} ${qty} ${b.favorite ? '<span class="star">★</span>' : ''}</div>
           <div class="bar-meta">${subtag}${abvtag}${isPercentItem ? `<span style="color:var(--whisper);">${Math.round((b.remaining_pct/100)*b.volume_ml)} ml left</span>` : ''}</div>
           ${volBar}
         </div>
@@ -1732,7 +1955,19 @@ function openBarDetail(id) {
       <span class="tag">${categoryLabel(b.category)}</span>
       ${b.subcategory ? `<span class="tag">${escapeHtml(b.subcategory)}</span>` : ''}
       ${b.abv != null ? `<span class="tag brass">${b.abv}% ABV</span>` : ''}
+      ${b.quantity > 1 ? `<span class="tag brass">×${b.quantity} bottles</span>` : ''}
       ${b.favorite ? `<span class="tag brass">⭐ favorite</span>` : ''}
+    </div>
+
+    <div class="card card-soft" style="margin-bottom:14px;">
+      <div style="display:flex;justify-content:space-between;align-items:center;">
+        <strong style="font-size:13px;color:var(--whisper);letter-spacing:0.06em;text-transform:uppercase;">Quantity</strong>
+        <div class="vol-control" style="margin:0;">
+          <button class="qty" onclick="bumpQty('${b.id}', -1)">−</button>
+          <span style="font-family:'Playfair Display',serif;font-size:22px;color:var(--brass-glow);min-width:48px;text-align:center;font-weight:700;">×${b.quantity || 1}</span>
+          <button class="qty" onclick="bumpQty('${b.id}', 1)">+</button>
+        </div>
+      </div>
     </div>
 
     ${isPercentItem ? `
@@ -1775,6 +2010,15 @@ async function toggleFavRefresh(id) {
 async function markRanOut(id) {
   const b = db.state.bar.find(x => x.id === id);
   if (!b) return;
+  if ((b.quantity || 1) > 1) {
+    b.quantity = (b.quantity || 1) - 1;
+    b.remaining_pct = 100;
+    closeModal('modal-detail');
+    renderAll();
+    await saveDB();
+    showToast(`Opened next ${b.name} (${b.quantity} left)`);
+    return;
+  }
   b.remaining_pct = 0;
   if (!db.state.to_buy.find(t => t.name.toLowerCase() === b.name.toLowerCase())) {
     db.state.to_buy.push({ id: uid('tb'), name: b.name, qty: 1, checked: false, added_at: Date.now() });
@@ -1785,19 +2029,51 @@ async function markRanOut(id) {
   showToast(`${b.name} added to To Buy`);
 }
 
-function openAddBottleModal() {
+async function bumpQty(id, delta) {
+  const b = db.state.bar.find(x => x.id === id);
+  if (!b) return;
+  b.quantity = Math.max(1, (b.quantity || 1) + delta);
+  renderAll();
+  await saveDB();
+  openBarDetail(id);
+}
+
+function openAddBottleModal(prefill) {
   ['ab-name','ab-sub','ab-abv','ab-emoji','ab-notes'].forEach(id => document.getElementById(id).value = '');
   document.getElementById('ab-vol').value = 750;
   document.getElementById('ab-rem').value = 100;
+  document.getElementById('ab-qty').value = 1;
   document.getElementById('ab-category').value = 'spirit';
+  if (prefill) {
+    if (prefill.name) document.getElementById('ab-name').value = prefill.name;
+    if (prefill.category) document.getElementById('ab-category').value = prefill.category;
+    if (prefill.subcategory) document.getElementById('ab-sub').value = prefill.subcategory;
+    if (prefill.emoji) document.getElementById('ab-emoji').value = prefill.emoji;
+    if (typeof prefill.abv === 'number') document.getElementById('ab-abv').value = prefill.abv;
+  }
+  onCategoryChange();
+  document.getElementById('ab-modal-title').textContent = prefill ? `Add ${prefill.name || 'bottle'}` : 'Add a bottle';
   const f = document.getElementById('ab-fav'); f.classList.remove('on'); f.classList.add('off');
   openModal('modal-add');
-  setTimeout(() => document.getElementById('ab-name').focus(), 200);
+  setTimeout(() => {
+    const focusEl = prefill?.name ? document.getElementById('ab-vol') : document.getElementById('ab-name');
+    focusEl.focus();
+  }, 200);
+}
+
+function onCategoryChange() {
+  const cat = document.getElementById('ab-category').value;
+  const isVolumed = cat !== 'garnish' && cat !== 'tool';
+  const isAlcohol = ['spirit','liqueur','wine_vermouth','bitter'].includes(cat);
+  document.getElementById('ab-field-abv').style.display = isAlcohol ? '' : 'none';
+  document.getElementById('ab-field-vol').style.display = isVolumed ? '' : 'none';
+  document.getElementById('ab-field-rem').style.display = isVolumed ? '' : 'none';
 }
 
 async function saveBottle() {
   const name = document.getElementById('ab-name').value.trim();
   if (!name) { showToast('Add a name first'); return; }
+  const qty = Math.max(1, parseInt(document.getElementById('ab-qty').value, 10) || 1);
   const item = {
     id: uid('b'),
     name,
@@ -1806,6 +2082,7 @@ async function saveBottle() {
     abv: parseFloat(document.getElementById('ab-abv').value) || null,
     volume_ml: parseInt(document.getElementById('ab-vol').value, 10) || 750,
     remaining_pct: Math.max(0, Math.min(100, parseInt(document.getElementById('ab-rem').value, 10) || 100)),
+    quantity: qty,
     emoji: document.getElementById('ab-emoji').value.trim() || '🍾',
     notes: document.getElementById('ab-notes').value.trim(),
     favorite: document.getElementById('ab-fav').classList.contains('on'),
@@ -1815,7 +2092,7 @@ async function saveBottle() {
   closeModal('modal-add');
   renderAll();
   await saveDB();
-  showToast(`Added ${item.name}`);
+  showToast(`Added ${item.name}${qty > 1 ? ` ×${qty}` : ''}`);
 }
 
 // ═══════════════════════════════════════════════════════════════════════
@@ -2372,6 +2649,18 @@ function openProfileModal() {
   openModal('modal-profile');
 }
 
+function resetProfileFields() {
+  if (!confirm('Reset all profile fields to defaults? This will not save until you click Save.')) return;
+  const d = DEFAULT_DB.user_profile;
+  document.getElementById('pf-name').value = d.name;
+  document.getElementById('pf-loves').value = d.loves.join(', ');
+  document.getElementById('pf-avoid').value = d.avoid.join(', ');
+  document.getElementById('pf-strength').value = d.preferred_strength;
+  document.getElementById('pf-skill').value = d.skill_level;
+  document.getElementById('pf-glass').value = d.default_glassware;
+  document.getElementById('pf-notes').value = d.notes;
+}
+
 async function saveProfile() {
   db.user_profile = {
     ...db.user_profile,
@@ -2483,28 +2772,54 @@ function hardReload() {
 // ── OPENAI (proxied via Supabase ai_call) ─────────────────────────────
 // ═══════════════════════════════════════════════════════════════════════
 
-async function callOpenAI(payload) {
+const AI_TIMEOUT_MS = 75000;
+const AI_MAX_ATTEMPTS = 2;
+
+async function callOpenAI(payload, opts = {}) {
   if (!sbClient) {
     const err = new Error('Supabase client not loaded');
     err.code = 'NO_AI';
     throw err;
   }
-  const { data, error } = await sbClient.rpc('ai_call', { payload });
-  if (error) {
-    if (error.code === 'PGRST202' || error.message?.includes('ai_call')) {
-      const e = new Error('AI proxy not deployed');
-      e.code = 'NO_AI';
+  const maxAttempts = opts.maxAttempts ?? AI_MAX_ATTEMPTS;
+  const timeoutMs = opts.timeoutMs ?? AI_TIMEOUT_MS;
+
+  let lastErr;
+  for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+    try {
+      const result = await Promise.race([
+        sbClient.rpc('ai_call', { payload }),
+        new Promise((_, rej) => setTimeout(() => rej(Object.assign(new Error('AI request timed out'), { _timeout: true })), timeoutMs))
+      ]);
+      const { data, error } = result;
+      if (error) {
+        if (error.code === 'PGRST202' || error.message?.includes('ai_call')) {
+          const e = new Error('AI proxy not deployed');
+          e.code = 'NO_AI';
+          throw e;
+        }
+        throw new Error(error.message);
+      }
+      if (data?.error) {
+        const detail = data.detail?.error?.message || JSON.stringify(data.detail || {});
+        throw new Error(`${data.error} — ${detail}`);
+      }
+      const content = data?.choices?.[0]?.message?.content;
+      if (!content) throw new Error('Empty AI response');
+      return content;
+    } catch (e) {
+      lastErr = e;
+      if (e.code === 'NO_AI') throw e;
+      const retriable = e._timeout || /timeout|network|fetch|aborted|503|504|520|522|524/i.test(e.message || '');
+      if (attempt < maxAttempts && retriable) {
+        console.warn(`AI attempt ${attempt} failed (${e.message}); retrying…`);
+        await new Promise(r => setTimeout(r, 600 * attempt));
+        continue;
+      }
       throw e;
     }
-    throw new Error(error.message);
   }
-  if (data?.error) {
-    const detail = data.detail?.error?.message || JSON.stringify(data.detail || {});
-    throw new Error(`${data.error} — ${detail}`);
-  }
-  const content = data?.choices?.[0]?.message?.content;
-  if (!content) throw new Error('Empty AI response');
-  return content;
+  throw lastErr;
 }
 
 function extractJSON(text) {
@@ -2552,8 +2867,11 @@ async function openaiCreateCocktail({ profile, bar, recent_drinks, mood, notes, 
     .filter(b => b.category !== 'tool')
     .map(b => {
       const remMl = Math.round((b.remaining_pct/100) * b.volume_ml);
-      return `- [${b.id}] ${b.name} (${b.subcategory || b.category}${b.abv != null ? ', ' + b.abv + '%' : ''}${b.volume_ml ? ', ~' + remMl + 'ml left' : ''})`;
+      const qty = (b.quantity || 1) > 1 ? ` ×${b.quantity}` : '';
+      return `- [${b.id}] ${b.name}${qty} (${b.subcategory || b.category}${b.abv != null ? ', ' + b.abv + '%' : ''}${b.volume_ml ? ', ~' + remMl + 'ml left' : ''})`;
     }).join('\n');
+  const toolsList = bar.filter(b => b.category === 'tool')
+    .map(t => `- ${t.name}${t.notes ? ' — ' + t.notes : ''}`).join('\n') || '(no special tools)';
   const recentList = (recent_drinks || []).map(d => `- ${d.name}`).join('\n') || '(none)';
 
   const userPrompt = `NELSON'S PROFILE:
@@ -2565,6 +2883,9 @@ async function openaiCreateCocktail({ profile, bar, recent_drinks, mood, notes, 
 
 CURRENT BAR (use ONLY these — bracketed code is the bar_id):
 ${barList}
+
+TOOLS / EQUIPMENT AVAILABLE (techniques you may use):
+${toolsList}
 
 RECENT DRINKS (avoid repetition):
 ${recentList}
@@ -2585,6 +2906,7 @@ RULES:
 5. Include a one-sentence sensory descriptor (tagline) capturing the vibe.
 6. Include 1–2 sentences of history/lore for the drink.
 7. If a classic name fits, use it (e.g. "Old Fashioned"); otherwise give it a fitting evocative name.
+8. Feel free to use the available TOOLS — e.g. smoke the glass, mix in a mixing glass, crush ice with the Lewis bag — and include that as a step.
 
 Return JSON in EXACTLY this shape:
 {
@@ -2609,6 +2931,73 @@ Return JSON in EXACTLY this shape:
     messages: [
       { role: 'system', content: "You are Nelson's personal cocktail consultant. You design ONE perfect drink at a time using only what's in his bar. You ALWAYS respond with valid JSON only." },
       { role: 'user', content: userPrompt }
+    ]
+  });
+  return extractJSON(text);
+}
+
+async function openaiBartender({ profile, bar, recent_drinks, history, message }) {
+  const barList = bar
+    .filter(b => b.category !== 'tool')
+    .map(b => {
+      const remMl = Math.round((b.remaining_pct/100) * b.volume_ml);
+      const qty = (b.quantity || 1) > 1 ? ` ×${b.quantity}` : '';
+      return `- [${b.id}] ${b.name}${qty} (${b.subcategory || b.category}${b.abv != null ? ', ' + b.abv + '%' : ''}${b.volume_ml ? ', ~' + remMl + 'ml left' : ''})`;
+    }).join('\n');
+  const toolsList = bar.filter(b => b.category === 'tool')
+    .map(t => `- ${t.name}${t.notes ? ' — ' + t.notes : ''}`).join('\n') || '(no special tools)';
+  const recentList = (recent_drinks || []).slice(0, 8).map(d => `- ${d.name}`).join('\n') || '(none)';
+
+  const systemPrompt = `You are Nelson's personal bartender — warm, knowledgeable, witty, with the soul of an old speakeasy host. You know exactly what's on his shelf, what tools he owns, what he loves, and what he avoids.
+
+You ALWAYS respond with valid JSON in this exact shape:
+{
+  "message": "Conversational reply to Nelson. Markdown-light: line breaks ok, no bold/italic. Keep it warm but concise.",
+  "recipe": null OR { full cocktail recipe },
+  "shopping": [] OR [ {"name":"Cointreau","category":"liqueur","subcategory":"orange liqueur","why":"backbone of a margarita","emoji":"🍊","abv":40} ],
+  "follow_ups": ["short quick-reply 1", "short quick-reply 2", "short quick-reply 3"]
+}
+
+When he asks for a drink and you can make it from his bar → return a full "recipe" (same shape as the cocktail tool: name, tagline, glass, ice, garnish, ingredients[{name, ml, oz, bar_id}], method, steps[], history, estimated_abv_pct, complexity).
+When he asks "what am I missing" or "what do I need for X" → list items in "shopping" (each with name, category, subcategory, why, emoji, abv if alcohol).
+You may include BOTH a recipe AND shopping (e.g. recipe with substitutions plus what would make it perfect).
+"follow_ups" should be 2–4 short clickable replies that move the conversation forward.
+
+Use ONLY ingredients in the bar for recipes; reference by bar_id. Use his TOOLS (smoker, mixing set, Lewis bag etc.) freely — mention them in steps when relevant. Match his loves; avoid his avoid list. Never invent bar ingredients.`;
+
+  const historyMsgs = (history || []).slice(-10).map(h => ({
+    role: h.role,
+    content: h.role === 'assistant' ? (h.content || h.message || '') : (h.content || '')
+  }));
+
+  const contextPrompt = `NELSON'S PROFILE:
+- Loves: ${(profile.loves || []).join(', ')}
+- Avoid: ${(profile.avoid || []).join(', ')}
+- Preferred strength: ${profile.preferred_strength}
+- Skill level: ${profile.skill_level}
+- Default glassware: ${profile.default_glassware}
+${profile.notes ? '- Notes: ' + profile.notes : ''}
+
+CURRENT BAR:
+${barList}
+
+TOOLS / EQUIPMENT:
+${toolsList}
+
+RECENT DRINKS:
+${recentList}
+
+NELSON SAYS: ${message}`;
+
+  const text = await callOpenAI({
+    model: 'gpt-4o',
+    max_tokens: 2200,
+    temperature: 0.7,
+    response_format: { type: 'json_object' },
+    messages: [
+      { role: 'system', content: systemPrompt },
+      ...historyMsgs,
+      { role: 'user', content: contextPrompt }
     ]
   });
   return extractJSON(text);
@@ -2642,12 +3031,245 @@ function renderAll() {
   for (const [name, fn] of [
     ['home',     renderHome],
     ['bar',      renderBar],
+    ['ask',      renderAsk],
     ['buy',      renderBuy],
     ['history',  renderHistory],
     ['settings', renderSettings]
   ]) {
     try { fn(); } catch (e) { console.error(`render ${name} failed:`, e); }
   }
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+// ── BARTENDER CHAT ─────────────────────────────────────────────────────
+// ═══════════════════════════════════════════════════════════════════════
+
+const BARTENDER_PROGRESS_LINES = [
+  'Studying your shelf…',
+  'Reaching for the right bottle…',
+  'Stirring some ideas…',
+  'Tasting the thought…',
+  'Cracking the ice…',
+  'Polishing a glass while I think…',
+  'Almost there — patience pays in pours.'
+];
+let bartenderBusy = false;
+
+function renderAsk() {
+  const thread = document.getElementById('ask-thread');
+  if (!thread) return;
+  const msgs = db.state.bartender_chat || [];
+  if (msgs.length === 0) {
+    thread.innerHTML = `
+      <div class="msg assistant">
+        <div class="msg-eyebrow"><span class="dot"></span>The Bartender</div>
+        <div class="msg-body">Evening, Nelson. The shelf's stocked and the ice is sharp. What are we drinking — or do you need a list?</div>
+      </div>`;
+    return;
+  }
+  thread.innerHTML = msgs.map((m, i) => renderBartenderMessage(m, i)).join('');
+}
+
+function renderBartenderMessage(m, i) {
+  if (m.role === 'user') {
+    return `<div class="msg user">${escapeHtml(m.content)}</div>`;
+  }
+  const meta = m.meta || {};
+  const recipeCard = meta.recipe ? renderInlineRecipe(meta.recipe, i) : '';
+  const shoppingCards = (meta.shopping || []).map((s, si) => renderShoppingCard(s, i, si)).join('');
+  const followUps = (meta.follow_ups || []).length
+    ? `<div class="followups">${meta.follow_ups.map(f => `<button class="chip" onclick="askBartender(${JSON.stringify(f).replace(/"/g, '&quot;')})">${escapeHtml(f)}</button>`).join('')}</div>`
+    : '';
+  return `
+    <div class="msg assistant">
+      <div class="msg-eyebrow"><span class="dot"></span>The Bartender</div>
+      <div class="msg-body">${escapeHtml(m.content || '')}</div>
+      ${recipeCard}
+      ${shoppingCards}
+      ${followUps}
+    </div>`;
+}
+
+function renderInlineRecipe(r, msgIdx) {
+  const ings = (r.ingredients || []).map(i => `<div style="font-size:12.5px;color:var(--ink);">• ${escapeHtml(i.name)} — <span style="color:var(--brass-glow);font-weight:600;">${i.ml}ml</span> <span style="color:var(--whisper);">(${i.oz}oz)</span></div>`).join('');
+  return `
+    <div class="inline-card recipe-mini">
+      <div class="ic-title">${escapeHtml(r.name || 'Cocktail')}</div>
+      ${r.tagline ? `<div class="ic-tagline">"${escapeHtml(r.tagline)}"</div>` : ''}
+      <div class="ic-meta">
+        ${r.glass ? `<span class="tag">${escapeHtml(r.glass)}</span>` : ''}
+        ${r.method ? `<span class="tag">${escapeHtml(r.method)}</span>` : ''}
+        ${r.estimated_abv_pct ? `<span class="tag brass">≈ ${r.estimated_abv_pct}% ABV</span>` : ''}
+      </div>
+      <div style="margin:8px 0;">${ings}</div>
+      <div class="ic-actions">
+        <button class="btn btn-primary btn-sm" onclick="makeBartenderDrink(${msgIdx})">🥃 Make this</button>
+      </div>
+    </div>`;
+}
+
+function renderShoppingCard(s, msgIdx, sIdx) {
+  return `
+    <div class="shopping-card">
+      <div style="font-size:24px;">${s.emoji || '🍾'}</div>
+      <div class="sc-info">
+        <div class="sc-name">${escapeHtml(s.name)}</div>
+        ${s.why ? `<div class="sc-why">${escapeHtml(s.why)}</div>` : ''}
+      </div>
+      <div class="sc-actions">
+        <button class="btn btn-primary btn-sm" onclick="bartenderIHaveIt(${msgIdx},${sIdx})" title="I already have it">I have it</button>
+        <button class="btn btn-ghost btn-sm" onclick="bartenderAddToBuy(${msgIdx},${sIdx})" title="Add to To Buy list">+ To Buy</button>
+      </div>
+    </div>`;
+}
+
+function autoGrow(el) {
+  el.style.height = 'auto';
+  el.style.height = Math.min(140, el.scrollHeight) + 'px';
+}
+
+function clearBartenderChat() {
+  if (!confirm('Start a fresh conversation? This clears the current chat.')) return;
+  db.state.bartender_chat = [];
+  renderAsk();
+  saveDB();
+}
+
+async function sendBartender() {
+  const input = document.getElementById('ask-input');
+  const text = input.value.trim();
+  if (!text) return;
+  input.value = '';
+  autoGrow(input);
+  await askBartender(text);
+}
+
+async function askBartender(text) {
+  if (bartenderBusy) { showToast('Hang on — bartender is still pouring…'); return; }
+  if (currentTab !== 'ask') goTo('ask');
+  bartenderBusy = true;
+  document.getElementById('ask-send-btn').disabled = true;
+
+  db.state.bartender_chat = db.state.bartender_chat || [];
+  db.state.bartender_chat.push({ role: 'user', content: text, ts: Date.now() });
+  renderAsk();
+  scrollAskToBottom();
+
+  // Typing indicator
+  const thread = document.getElementById('ask-thread');
+  const typingId = 'typing-' + Date.now();
+  const typing = document.createElement('div');
+  typing.id = typingId;
+  typing.className = 'msg assistant';
+  typing.innerHTML = `
+    <div class="msg-eyebrow"><span class="dot"></span>The Bartender</div>
+    <div class="msg-typing"><span></span><span></span><span></span></div>
+    <div class="msg-typing-text" id="${typingId}-text">${BARTENDER_PROGRESS_LINES[0]}</div>`;
+  thread.appendChild(typing);
+  scrollAskToBottom();
+
+  let lineIdx = 0;
+  const progressTimer = setInterval(() => {
+    lineIdx = (lineIdx + 1) % BARTENDER_PROGRESS_LINES.length;
+    const el = document.getElementById(typingId + '-text');
+    if (el) el.textContent = BARTENDER_PROGRESS_LINES[lineIdx];
+  }, 4500);
+
+  try {
+    const reply = await openaiBartender({
+      profile: db.user_profile,
+      bar: db.state.bar,
+      recent_drinks: db.state.drinks_made,
+      history: db.state.bartender_chat.slice(0, -1),
+      message: text
+    });
+
+    db.state.bartender_chat.push({
+      role: 'assistant',
+      content: reply.message || '',
+      meta: {
+        recipe: reply.recipe || null,
+        shopping: Array.isArray(reply.shopping) ? reply.shopping : [],
+        follow_ups: Array.isArray(reply.follow_ups) ? reply.follow_ups : []
+      },
+      ts: Date.now()
+    });
+    // Trim to last 60 messages to keep payload manageable
+    if (db.state.bartender_chat.length > 60) {
+      db.state.bartender_chat = db.state.bartender_chat.slice(-60);
+    }
+    renderAsk();
+    await saveDB();
+  } catch (e) {
+    console.error('Bartender error:', e);
+    db.state.bartender_chat.push({
+      role: 'assistant',
+      content: e.code === 'NO_AI'
+        ? "I can't reach the bartender's brain right now — the AI proxy isn't deployed."
+        : `Sorry — that pour didn't land. (${e.message || 'Unknown error'}) Try again.`,
+      meta: { follow_ups: ['Try again', 'What can I make right now?'] },
+      ts: Date.now()
+    });
+    renderAsk();
+    await saveDB();
+  } finally {
+    clearInterval(progressTimer);
+    bartenderBusy = false;
+    document.getElementById('ask-send-btn').disabled = false;
+    scrollAskToBottom();
+  }
+}
+
+function scrollAskToBottom() {
+  setTimeout(() => {
+    const thread = document.getElementById('ask-thread');
+    if (thread) {
+      const last = thread.lastElementChild;
+      if (last) last.scrollIntoView({ behavior: 'smooth', block: 'end' });
+    }
+  }, 50);
+}
+
+function bartenderIHaveIt(msgIdx, sIdx) {
+  const m = db.state.bartender_chat[msgIdx];
+  const s = m?.meta?.shopping?.[sIdx];
+  if (!s) return;
+  openAddBottleModal({
+    name: s.name,
+    category: s.category || 'spirit',
+    subcategory: s.subcategory || '',
+    emoji: s.emoji || '🍾',
+    abv: typeof s.abv === 'number' ? s.abv : null
+  });
+}
+
+async function bartenderAddToBuy(msgIdx, sIdx) {
+  const m = db.state.bartender_chat[msgIdx];
+  const s = m?.meta?.shopping?.[sIdx];
+  if (!s) return;
+  if (db.state.to_buy.find(t => t.name.toLowerCase() === s.name.toLowerCase())) {
+    showToast(`${s.name} already in To Buy`);
+    return;
+  }
+  db.state.to_buy.push({
+    id: uid('tb'),
+    name: s.name,
+    qty: 1,
+    checked: false,
+    why: s.why || '',
+    added_at: Date.now()
+  });
+  await saveDB();
+  renderAll();
+  showToast(`Added ${s.name} to To Buy`);
+}
+
+function makeBartenderDrink(msgIdx) {
+  const m = db.state.bartender_chat[msgIdx];
+  const r = m?.meta?.recipe;
+  if (!r) return;
+  currentRecipe = r;
+  openMakeFlow();
 }
 
 // ═══════════════════════════════════════════════════════════════════════
