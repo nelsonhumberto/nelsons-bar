@@ -107,6 +107,21 @@
     .brand-text h1 .amp { font-style: italic; color: var(--brass); margin: 0 2px; }
     .brand-text p { font-size: 10.5px; color: var(--whisper); margin-top: 4px; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; }
     .brand-text .ver { font-size: 9px; color: var(--smoke); opacity: 0.7; margin-left: 5px; font-weight: 700; letter-spacing: 0.04em; }
+    .topbar-actions { display: flex; align-items: center; gap: 10px; }
+    .topbar-gear {
+      background: var(--bg-card);
+      border: 1px solid rgba(255,255,255,0.08);
+      color: var(--ink);
+      width: 36px; height: 36px;
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer;
+      font-size: 16px;
+      transition: all 0.15s;
+      padding: 0;
+    }
+    .topbar-gear:hover { background: var(--brass-soft); color: var(--brass-glow); border-color: var(--brass-line); }
+    .topbar-gear:active { transform: scale(0.95); }
 
     .sync-pill {
       display: flex; align-items: center; gap: 7px;
@@ -448,8 +463,8 @@
       -webkit-backdrop-filter: blur(14px);
     }
     .bottom-nav-inner {
-      max-width: 720px; margin: 0 auto;
-      display: grid; grid-template-columns: repeat(6, 1fr); gap: 4px;
+      max-width: 560px; margin: 0 auto;
+      display: grid; grid-template-columns: repeat(5, 1fr); gap: 4px;
       background: var(--bg-card);
       border: 1px solid rgba(255,255,255,0.06);
       border-radius: 28px;
@@ -966,9 +981,12 @@
         <p>A speakeasy of one</p>
       </div>
     </div>
-    <div class="sync-pill syncing" id="sync-pill">
-      <span class="sync-dot"></span>
-      <span id="sync-label">Loading</span>
+    <div class="topbar-actions">
+      <div class="sync-pill syncing" id="sync-pill">
+        <span class="sync-dot"></span>
+        <span id="sync-label">Loading</span>
+      </div>
+      <button class="topbar-gear" onclick="goTo('settings')" aria-label="Settings" title="Settings">⚙</button>
     </div>
   </div>
 </header>
@@ -1172,7 +1190,6 @@
     <button class="nav-btn center" data-tab="ask" onclick="goTo('ask')"><span class="ico">💬</span><span class="lbl">Ask</span></button>
     <button class="nav-btn" data-tab="buy" onclick="goTo('buy')"><span class="ico">🛒</span><span class="lbl">Buy</span></button>
     <button class="nav-btn" data-tab="history" onclick="goTo('history')"><span class="ico">📜</span><span class="lbl">Made</span></button>
-    <button class="nav-btn" data-tab="settings" onclick="goTo('settings')"><span class="ico">⚙</span><span class="lbl">Settings</span></button>
   </div>
 </nav>
 
@@ -1409,7 +1426,7 @@
 // ── CONFIG ─────────────────────────────────────────────────────────────
 // ═══════════════════════════════════════════════════════════════════════
 
-const APP_VERSION = 'v1.1';
+const APP_VERSION = 'v1.2';
 const SUPABASE_URL = 'https://qdhqkcsfslkbhxtogjfp.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_bmapexcRWmRzsRvbqIJCpw_XnWaMCZL';
 const CONNECT_TIMEOUT_MS = 8000;
@@ -2772,54 +2789,28 @@ function hardReload() {
 // ── OPENAI (proxied via Supabase ai_call) ─────────────────────────────
 // ═══════════════════════════════════════════════════════════════════════
 
-const AI_TIMEOUT_MS = 75000;
-const AI_MAX_ATTEMPTS = 2;
-
-async function callOpenAI(payload, opts = {}) {
+async function callOpenAI(payload) {
   if (!sbClient) {
     const err = new Error('Supabase client not loaded');
     err.code = 'NO_AI';
     throw err;
   }
-  const maxAttempts = opts.maxAttempts ?? AI_MAX_ATTEMPTS;
-  const timeoutMs = opts.timeoutMs ?? AI_TIMEOUT_MS;
-
-  let lastErr;
-  for (let attempt = 1; attempt <= maxAttempts; attempt++) {
-    try {
-      const result = await Promise.race([
-        sbClient.rpc('ai_call', { payload }),
-        new Promise((_, rej) => setTimeout(() => rej(Object.assign(new Error('AI request timed out'), { _timeout: true })), timeoutMs))
-      ]);
-      const { data, error } = result;
-      if (error) {
-        if (error.code === 'PGRST202' || error.message?.includes('ai_call')) {
-          const e = new Error('AI proxy not deployed');
-          e.code = 'NO_AI';
-          throw e;
-        }
-        throw new Error(error.message);
-      }
-      if (data?.error) {
-        const detail = data.detail?.error?.message || JSON.stringify(data.detail || {});
-        throw new Error(`${data.error} — ${detail}`);
-      }
-      const content = data?.choices?.[0]?.message?.content;
-      if (!content) throw new Error('Empty AI response');
-      return content;
-    } catch (e) {
-      lastErr = e;
-      if (e.code === 'NO_AI') throw e;
-      const retriable = e._timeout || /timeout|network|fetch|aborted|503|504|520|522|524/i.test(e.message || '');
-      if (attempt < maxAttempts && retriable) {
-        console.warn(`AI attempt ${attempt} failed (${e.message}); retrying…`);
-        await new Promise(r => setTimeout(r, 600 * attempt));
-        continue;
-      }
+  const { data, error } = await sbClient.rpc('ai_call', { payload });
+  if (error) {
+    if (error.code === 'PGRST202' || error.message?.includes('ai_call')) {
+      const e = new Error('AI proxy not deployed');
+      e.code = 'NO_AI';
       throw e;
     }
+    throw new Error(error.message);
   }
-  throw lastErr;
+  if (data?.error) {
+    const detail = data.detail?.error?.message || JSON.stringify(data.detail || {});
+    throw new Error(`${data.error} — ${detail}`);
+  }
+  const content = data?.choices?.[0]?.message?.content;
+  if (!content) throw new Error('Empty AI response');
+  return content;
 }
 
 function extractJSON(text) {
