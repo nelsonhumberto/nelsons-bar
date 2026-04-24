@@ -5,7 +5,7 @@
 //   - Static assets: network-first with cache fallback for offline use.
 //   - Supabase + AI APIs: pass through, never touched.
 
-const CACHE_VERSION = 'nelsons-bar-v1.2';
+const CACHE_VERSION = 'nelsons-bar-v1.3';
 const STATIC_ASSETS = [
   './manifest.json',
   './icon.svg',

@@ -1175,6 +1175,14 @@
       </div>
     </div>
 
+    <div class="card">
+      <div class="card-title">🕒 Snapshots & Recovery</div>
+      <p style="font-size:12.5px;color:var(--whisper);margin-bottom:12px;line-height:1.55;">Every save creates a snapshot in the cloud. If something gets wiped, you can restore.</p>
+      <div style="display:flex;flex-direction:column;gap:8px;">
+        <button class="btn btn-primary btn-block" onclick="openSnapshotsModal()">🔍 View &amp; restore snapshots</button>
+      </div>
+    </div>
+
     <div class="card card-soft" style="text-align:center;">
       <p style="font-size:11.5px;color:var(--whisper);font-weight:600;letter-spacing:0.05em;">Nelson's Bar · <span id="ver-tag-2">v1.0</span></p>
     </div>
@@ -1412,6 +1420,32 @@
   </div>
 </div>
 
+<!-- ─── MODAL: Snapshots & Recovery ─── -->
+<div class="modal-bg" id="modal-snapshots">
+  <div class="modal" style="max-width:520px;">
+    <div class="modal-head">
+      <h2>Snapshots & Recovery</h2>
+      <button class="modal-close" onclick="closeModal('modal-snapshots')">×</button>
+    </div>
+    <p style="font-size:12.5px;color:var(--whisper);margin-bottom:12px;line-height:1.55;">
+      Each row is a saved version of your bar. Tap <b>Preview</b> to see what's inside, then <b>Restore</b> to roll back. Restoring saves a new snapshot first, so it's safe to undo.
+    </p>
+    <div style="display:flex;gap:8px;margin-bottom:10px;">
+      <button class="btn btn-ghost btn-sm" onclick="loadSnapshotsList()">↻ Refresh</button>
+      <span id="snap-summary" style="font-size:12px;color:var(--whisper);align-self:center;"></span>
+    </div>
+    <div id="snap-list" style="max-height:380px;overflow-y:auto;display:flex;flex-direction:column;gap:6px;"></div>
+    <div id="snap-preview" style="margin-top:12px;display:none;">
+      <div style="font-size:12px;color:var(--whisper);font-weight:600;margin-bottom:6px;">Preview</div>
+      <pre id="snap-preview-body" style="background:#0e0e10;color:#cfcfcf;padding:10px;border-radius:8px;font-size:11px;max-height:200px;overflow:auto;"></pre>
+      <div class="modal-actions" style="margin-top:8px;">
+        <button class="btn btn-ghost btn-block" onclick="document.getElementById('snap-preview').style.display='none';">Close preview</button>
+        <button class="btn btn-primary btn-block" id="snap-restore-btn" onclick="restoreSelectedSnapshot()">↺ Restore this snapshot</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <!-- Install banner + toast -->
 <div class="install-banner" id="install-banner">
   <span>📲 Install Nelson's Bar?</span>
@@ -1426,13 +1460,20 @@
 // ── CONFIG ─────────────────────────────────────────────────────────────
 // ═══════════════════════════════════════════════════════════════════════
 
-const APP_VERSION = 'v1.2';
+const APP_VERSION = 'v1.3';
 const SUPABASE_URL = 'https://qdhqkcsfslkbhxtogjfp.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_bmapexcRWmRzsRvbqIJCpw_XnWaMCZL';
 const CONNECT_TIMEOUT_MS = 8000;
 const SAVE_TIMEOUT_MS    = 8000;
 const DB_ROW_ID = 'nelson';
 const LS_KEY    = 'nelsons_bar_db_v1';
+const LS_LOCAL_SNAPS_KEY = 'nelsons_bar_local_snapshots_v1';
+const LOCAL_SNAPSHOT_LIMIT = 30;
+
+// Race-safety: until we've actually pulled cloud state at least once, we MUST
+// NOT push our (possibly default-seed) local state up — that's how the bar
+// got wiped in v1.2.
+let cloudLoaded = false;
 
 console.log("Nelson's Bar", APP_VERSION);
 
@@ -1593,6 +1634,7 @@ function loadFromLocal() {
     if (!raw) {
       const fresh = JSON.parse(JSON.stringify(DEFAULT_DB));
       fresh.state.bar = defaultBar();
+      fresh.__seed = true;
       return fresh;
     }
     return normalizeDB(JSON.parse(raw));
@@ -1600,8 +1642,40 @@ function loadFromLocal() {
     console.warn('localStorage corrupt, resetting:', e);
     const fresh = JSON.parse(JSON.stringify(DEFAULT_DB));
     fresh.state.bar = defaultBar();
+    fresh.__seed = true;
     return fresh;
   }
+}
+
+// Heuristic: does this look like the freshly-seeded default bar (no real user
+// data yet)? Used so we never overwrite a user's real bar with seed data.
+function looksLikeSeedBar(stateObj) {
+  try {
+    const bar = stateObj?.bar || [];
+    const seed = defaultBar();
+    if (bar.length === 0) return true;
+    if (bar.length !== seed.length) return false;
+    const sigOf = (b) => `${(b.name||'').trim().toLowerCase()}|${b.category||''}|${b.subcategory||''}`;
+    const seedSigs = new Set(seed.map(sigOf));
+    return bar.every(b => seedSigs.has(sigOf(b)));
+  } catch { return false; }
+}
+
+function pushLocalSnapshot(dbObj, reason) {
+  try {
+    const raw = localStorage.getItem(LS_LOCAL_SNAPS_KEY);
+    const arr = raw ? JSON.parse(raw) : [];
+    arr.unshift({ ts: new Date().toISOString(), reason: reason || 'save', data: dbObj });
+    while (arr.length > LOCAL_SNAPSHOT_LIMIT) arr.pop();
+    localStorage.setItem(LS_LOCAL_SNAPS_KEY, JSON.stringify(arr));
+  } catch (e) { console.warn('local snapshot push failed', e); }
+}
+
+function getLocalSnapshots() {
+  try {
+    const raw = localStorage.getItem(LS_LOCAL_SNAPS_KEY);
+    return raw ? JSON.parse(raw) : [];
+  } catch { return []; }
 }
 
 function saveToLocal(data) {
@@ -1641,7 +1715,33 @@ async function loadDB() {
   setSyncStatus('syncing', 'Syncing');
   try {
     const remote = await loadFromSupabase();
+
+    // Smart merge: if cloud looks like the seed defaults but our local has a
+    // real (non-seed) bar with more bottles, prefer local and PUSH IT UP
+    // instead of clobbering the device. This is the safety net for the v1.2
+    // wipe bug.
+    const local = loadFromLocal();
+    const localBar = local.state?.bar || [];
+    const remoteBar = remote.state?.bar || [];
+    const remoteIsSeed = looksLikeSeedBar(remote.state);
+    const localIsSeed  = !!local.__seed || looksLikeSeedBar(local.state);
+
+    if (remoteIsSeed && !localIsSeed && localBar.length > remoteBar.length) {
+      console.warn('[recover] Cloud looks like seed defaults; local has real data. Restoring from device.');
+      cloudLoaded = true;
+      try {
+        await saveToSupabase(local);
+        setSyncStatus('synced', 'Restored from device');
+        showToast('✓ Restored bar from this device — cloud was reset');
+      } catch (e) {
+        setSyncStatus('offline', 'Local only');
+      }
+      return local;
+    }
+
     saveToLocal(remote);
+    pushLocalSnapshot(remote, 'cloud-load');
+    cloudLoaded = true;
     setSyncStatus('synced', 'Synced');
     return remote;
   } catch (e) {
@@ -1651,6 +1751,7 @@ async function loadDB() {
         try {
           const local = loadFromLocal();
           await saveToSupabase(local);
+          cloudLoaded = true;
           setSyncStatus('synced', 'Synced');
           return local;
         } catch { /* fall through */ }
@@ -1666,7 +1767,16 @@ async function loadDB() {
 
 async function saveDB() {
   saveToLocal(db);
+  pushLocalSnapshot(db, 'save');
   if (!sbClient) return;
+  if (!cloudLoaded) {
+    // CRITICAL: never push local up before we've successfully loaded cloud
+    // at least once. Otherwise a fresh-browser default-seed state can wipe
+    // the user's real bar.
+    console.warn('[guard] saveDB called before cloud load completed; skipping cloud push');
+    setSyncStatus('syncing', 'Waiting for cloud…');
+    return;
+  }
   setSyncStatus('syncing', 'Saving');
   try {
     await saveToSupabase(db);
@@ -1685,8 +1795,21 @@ function subscribeToChanges() {
       (payload) => {
         const remote = payload.new.data;
         if (JSON.stringify(remote) !== JSON.stringify(db)) {
-          db = normalizeDB(remote);
+          const normalizedRemote = normalizeDB(remote);
+          // Refuse to clobber a real bar with an incoming seed-default state.
+          const remoteIsSeed = looksLikeSeedBar(normalizedRemote.state);
+          const localIsSeed  = looksLikeSeedBar(db.state);
+          const localBigger  = (db.state?.bar?.length || 0) > (normalizedRemote.state?.bar?.length || 0);
+          if (remoteIsSeed && !localIsSeed && localBigger) {
+            console.warn('[guard] Incoming realtime update looks like seed defaults; ignoring to protect local data.');
+            showToast('⚠ Ignored a sync that would have wiped your bar');
+            // Push our (better) copy back up so cloud is healed.
+            saveToSupabase(db).catch(() => {});
+            return;
+          }
+          db = normalizedRemote;
           saveToLocal(db);
+          pushLocalSnapshot(db, 'realtime');
           renderAll();
           setSyncStatus('synced', 'Live sync');
           showToast('📲 Updated from another device');
@@ -2731,6 +2854,129 @@ async function resetDB() {
   renderAll();
   await saveDB();
   showToast('Reset complete');
+}
+
+// ─── Snapshots & recovery ─────────────────────────────────────────────
+let _selectedSnapshot = null;
+
+function openSnapshotsModal() {
+  _selectedSnapshot = null;
+  document.getElementById('snap-preview').style.display = 'none';
+  document.getElementById('snap-list').innerHTML = '<div style="font-size:13px;color:var(--whisper);">Loading…</div>';
+  document.getElementById('snap-summary').textContent = '';
+  openModal('modal-snapshots');
+  loadSnapshotsList();
+}
+
+async function loadSnapshotsList() {
+  const listEl = document.getElementById('snap-list');
+  const sumEl  = document.getElementById('snap-summary');
+  listEl.innerHTML = '<div style="font-size:13px;color:var(--whisper);">Loading…</div>';
+  let cloudSnaps = [];
+  try {
+    if (sbClient) {
+      const { data, error } = await sbClient
+        .from('bar_state_snapshots')
+        .select('id, created_at, bottle_count')
+        .eq('state_id', DB_ROW_ID)
+        .order('created_at', { ascending: false })
+        .limit(100);
+      if (error) throw error;
+      cloudSnaps = data || [];
+    }
+  } catch (e) {
+    console.warn('snapshot list failed', e);
+  }
+  const localSnaps = getLocalSnapshots();
+  sumEl.textContent = `${cloudSnaps.length} cloud · ${localSnaps.length} on device`;
+
+  if (cloudSnaps.length === 0 && localSnaps.length === 0) {
+    listEl.innerHTML = '<div style="font-size:13px;color:var(--whisper);">No snapshots yet. Saves you make from now on will appear here.</div>';
+    return;
+  }
+
+  const rows = [];
+  cloudSnaps.forEach(s => rows.push({
+    src: 'cloud', id: s.id, ts: s.created_at, bottles: s.bottle_count
+  }));
+  localSnaps.forEach((s, i) => rows.push({
+    src: 'device', id: 'L' + i, ts: s.ts, bottles: (s.data?.state?.bar?.length || 0), reason: s.reason, _idx: i
+  }));
+  rows.sort((a, b) => (a.ts < b.ts ? 1 : -1));
+
+  listEl.innerHTML = rows.map(r => {
+    const d = new Date(r.ts);
+    const when = d.toLocaleString();
+    const tag  = r.src === 'cloud'
+      ? `<span class="tag" style="background:#234;color:#9cf;">☁ cloud #${r.id}</span>`
+      : `<span class="tag" style="background:#243;color:#9fc;">📱 device</span>`;
+    return `
+      <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;background:#1b1b1f;padding:9px 11px;border-radius:8px;border:1px solid #2a2a30;">
+        <div style="min-width:0;">
+          <div style="font-size:13px;font-weight:600;">${r.bottles} bottles</div>
+          <div style="font-size:11px;color:var(--whisper);">${escapeHtml(when)} ${tag}</div>
+        </div>
+        <div style="display:flex;gap:6px;flex-shrink:0;">
+          <button class="btn btn-ghost btn-sm" onclick="previewSnapshot('${r.src}','${r.id}')">Preview</button>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+async function previewSnapshot(src, id) {
+  let dataObj = null;
+  try {
+    if (src === 'cloud') {
+      const { data, error } = await sbClient
+        .from('bar_state_snapshots')
+        .select('id, created_at, data')
+        .eq('id', Number(id))
+        .single();
+      if (error) throw error;
+      dataObj = { meta: { src, id: data.id, ts: data.created_at }, data: data.data };
+    } else {
+      const localSnaps = getLocalSnapshots();
+      const idx = Number(String(id).replace(/^L/, ''));
+      const s = localSnaps[idx];
+      if (!s) throw new Error('not found');
+      dataObj = { meta: { src, id, ts: s.ts, reason: s.reason }, data: s.data };
+    }
+  } catch (e) {
+    showToast('Preview failed: ' + e.message);
+    return;
+  }
+  _selectedSnapshot = dataObj;
+  const bar = dataObj.data?.state?.bar || [];
+  const drinks = dataObj.data?.state?.drinks_made || [];
+  const buy = dataObj.data?.state?.to_buy || [];
+  const summary = `${bar.length} bottles · ${buy.length} to buy · ${drinks.length} drinks made\n\nBottles:\n` +
+    bar.map(b => `  • ${b.name} (${b.category}${b.subcategory ? ' / ' + b.subcategory : ''})`).join('\n');
+  document.getElementById('snap-preview-body').textContent = summary;
+  document.getElementById('snap-preview').style.display = 'block';
+  document.getElementById('snap-restore-btn').textContent = `↺ Restore this snapshot (${bar.length} bottles)`;
+}
+
+async function restoreSelectedSnapshot() {
+  if (!_selectedSnapshot) return;
+  const bar = _selectedSnapshot.data?.state?.bar || [];
+  if (!confirm(`Restore the bar to this snapshot (${bar.length} bottles)?\n\nA new snapshot of the current state is saved first, so this is reversible.`)) return;
+  try {
+    pushLocalSnapshot(db, 'pre-restore');
+    if (cloudLoaded && sbClient) {
+      try { await saveToSupabase(db); } catch {}
+    }
+    db = normalizeDB(_selectedSnapshot.data);
+    saveToLocal(db);
+    renderAll();
+    if (cloudLoaded && sbClient) {
+      try { await saveToSupabase(db); } catch (e) { console.warn('restore save failed', e); }
+    }
+    closeModal('modal-snapshots');
+    showToast(`✓ Restored — ${bar.length} bottles`);
+  } catch (e) {
+    showToast('Restore failed: ' + e.message);
+  }
 }
 
 async function forceResync() {
