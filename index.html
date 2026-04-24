@@ -29,10 +29,10 @@
       --brass-soft: rgba(200, 155, 60, 0.14);
       --brass-line: rgba(200, 155, 60, 0.30);
       --copper:     #b66f3c;
-      --smoke:      #6e7585;
+      --smoke:      #8891a0;
       --ink:        #f0e9d8;
       --ink-strong: #fff5e0;
-      --whisper:    #9aa0ad;
+      --whisper:    #b0b5bf;
       --ruby:       #c4374f;
       --ruby-soft:  rgba(196, 55, 79, 0.18);
       --absinthe:   #7fb069;
@@ -393,10 +393,13 @@
     .vol-bar-fill {
       height: 100%;
       background: linear-gradient(90deg, var(--brass), var(--brass-glow));
-      border-radius: 50px; transition: width 0.4s;
+      border-radius: 50px; transition: width 0.4s, background 0.3s, box-shadow 0.3s;
       box-shadow: 0 0 10px rgba(245, 198, 98, 0.5);
     }
-    .vol-bar-fill.low { background: linear-gradient(90deg, var(--ruby), #d4536a); box-shadow: 0 0 8px rgba(196, 55, 79, 0.4); }
+    .vol-bar-fill.full { background: linear-gradient(90deg, #4f9b4a, var(--absinthe)); box-shadow: 0 0 10px rgba(127, 176, 105, 0.55); }
+    .vol-bar-fill.mid  { background: linear-gradient(90deg, var(--brass), var(--brass-glow)); box-shadow: 0 0 10px rgba(245, 198, 98, 0.5); }
+    .vol-bar-fill.warn { background: linear-gradient(90deg, var(--copper), #e08a4a); box-shadow: 0 0 10px rgba(224, 138, 74, 0.5); }
+    .vol-bar-fill.low  { background: linear-gradient(90deg, var(--ruby), #d4536a); box-shadow: 0 0 8px rgba(196, 55, 79, 0.45); }
 
     .bar-actions { display: flex; align-items: center; gap: 4px; flex-shrink: 0; }
     .icon-btn {
@@ -810,6 +813,186 @@
       background: var(--bg-card);
     }
     .photo-confirm-row input.text-input { padding: 7px 10px; font-size: 13px; }
+    .photo-confirm-row .pc-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr 1fr 1fr;
+      gap: 6px;
+      margin-top: 8px;
+    }
+    .photo-confirm-row .pc-field { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+    .photo-confirm-row .pc-label {
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      color: var(--whisper);
+    }
+    .photo-confirm-row .pc-field .text-input,
+    .photo-confirm-row .pc-field select.text-input {
+      padding: 6px;
+      font-size: 11px;
+      width: 100%;
+      box-sizing: border-box;
+    }
+
+    /* ── Bottle dossier (AI info card in detail modal) ──────────────── */
+    .dossier {
+      background: linear-gradient(180deg, rgba(200,155,60,0.06), rgba(255,255,255,0.015));
+      border: 1px solid rgba(200,155,60,0.18);
+      border-radius: var(--r-md);
+      padding: 14px;
+      margin-bottom: 14px;
+    }
+    .dossier-head {
+      display: flex; justify-content: space-between; align-items: center;
+      margin-bottom: 10px; gap: 10px;
+    }
+    .dossier-head h3 {
+      margin: 0;
+      font-family: 'Playfair Display', serif;
+      font-size: 16px;
+      color: var(--brass-glow);
+      letter-spacing: 0.02em;
+    }
+    .dossier-head .refresh-btn {
+      background: transparent;
+      border: 1px solid rgba(200,155,60,0.3);
+      color: var(--brass-glow);
+      border-radius: 50px;
+      padding: 4px 10px;
+      font-size: 11px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .dossier-head .refresh-btn:hover { background: rgba(200,155,60,0.1); }
+    .dossier-head .refresh-btn:disabled { opacity: 0.5; cursor: wait; }
+    .dossier-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px 14px;
+      margin-bottom: 12px;
+    }
+    .dossier-field { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+    .dossier-field .lbl {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--whisper);
+    }
+    .dossier-field .val {
+      font-size: 13px;
+      color: var(--ink);
+      line-height: 1.4;
+      word-wrap: break-word;
+    }
+    .dossier-field .val.muted { color: var(--smoke); font-style: italic; }
+    .dossier-section { margin-top: 10px; }
+    .dossier-section .lbl {
+      display: block;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--whisper);
+      margin-bottom: 6px;
+    }
+    .dossier-chips { display: flex; flex-wrap: wrap; gap: 5px; }
+    .dossier-chips .chip {
+      background: rgba(200,155,60,0.1);
+      border: 1px solid rgba(200,155,60,0.2);
+      color: var(--ink);
+      border-radius: 50px;
+      padding: 3px 10px;
+      font-size: 11.5px;
+    }
+    .dossier-prose { font-size: 13px; line-height: 1.55; color: var(--ink); }
+    .dossier-fact {
+      background: rgba(0,0,0,0.25);
+      border-left: 3px solid var(--brass);
+      padding: 10px 14px;
+      border-radius: 0 8px 8px 0;
+      font-family: 'Playfair Display', serif;
+      font-style: italic;
+      font-size: 13px;
+      line-height: 1.55;
+      color: var(--ink);
+      margin-top: 10px;
+    }
+    .dossier-loading {
+      display: flex; align-items: center; gap: 10px;
+      padding: 14px 4px;
+      color: var(--whisper);
+      font-size: 13px;
+    }
+    .dossier-loading .spin {
+      width: 14px; height: 14px;
+      border: 2px solid rgba(245,198,98,0.25);
+      border-top-color: var(--brass-glow);
+      border-radius: 50%;
+      animation: dossier-spin 0.9s linear infinite;
+    }
+    @keyframes dossier-spin { to { transform: rotate(360deg); } }
+    @keyframes skel-shimmer {
+      0% { background-position: -200px 0; }
+      100% { background-position: 200px 0; }
+    }
+    .skel-line {
+      background: linear-gradient(90deg, rgba(255,255,255,0.04) 25%, rgba(255,255,255,0.08) 50%, rgba(255,255,255,0.04) 75%);
+      background-size: 200px 100%;
+      animation: skel-shimmer 1.4s infinite linear;
+      border-radius: 6px;
+      margin-bottom: 8px;
+    }
+    .skel-chip {
+      width: 60px; height: 26px;
+      background: linear-gradient(90deg, rgba(255,255,255,0.04) 25%, rgba(255,255,255,0.08) 50%, rgba(255,255,255,0.04) 75%);
+      background-size: 200px 100%;
+      animation: skel-shimmer 1.4s infinite linear;
+      border-radius: 50px;
+    }
+    .skel-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px 14px; }
+
+    /* ── Sticky action footer inside modals ─────────────────────── */
+    .modal-sticky-footer {
+      position: sticky;
+      bottom: -24px;
+      background: linear-gradient(0deg, var(--bg-card) 70%, transparent);
+      padding: 18px 0 4px;
+      margin-top: 12px;
+      z-index: 2;
+    }
+    .dossier-error {
+      color: var(--ruby);
+      font-size: 12.5px;
+      padding: 6px 0;
+    }
+    .dossier-meta {
+      font-size: 10.5px;
+      color: var(--smoke);
+      text-align: right;
+      margin-top: 8px;
+      letter-spacing: 0.02em;
+    }
+    .price-pill {
+      display: inline-flex; align-items: center; gap: 6px;
+      background: rgba(127, 176, 105, 0.12);
+      border: 1px solid rgba(127, 176, 105, 0.3);
+      color: var(--absinthe);
+      border-radius: 50px;
+      padding: 4px 12px;
+      font-size: 13px;
+      font-weight: 700;
+      font-family: 'Playfair Display', serif;
+    }
+    .price-pill .tier {
+      font-family: 'Inter', sans-serif;
+      font-weight: 500;
+      font-size: 10.5px;
+      color: var(--whisper);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
 
     /* ── Bartender chat ──────────────────────────────────────────── */
     .ask-thread {
@@ -970,6 +1153,83 @@
     a { color: var(--brass-glow); }
     code { background: rgba(255,255,255,0.06); padding: 1px 6px; border-radius: 4px; font-size: 12px; color: var(--brass-glow); }
     hr.divider { border: none; border-top: 1px solid rgba(255,255,255,0.06); margin: 18px 0; }
+
+    /* ── Long-press action sheet ────────────────────────────────── */
+    .action-sheet-bg {
+      position: fixed; inset: 0; z-index: 1100;
+      background: rgba(0,0,0,0.5);
+      opacity: 0; pointer-events: none;
+      transition: opacity 0.2s;
+    }
+    .action-sheet-bg.open { opacity: 1; pointer-events: auto; }
+    .action-sheet {
+      position: fixed; bottom: 0; left: 0; right: 0; z-index: 1101;
+      background: var(--bg-card);
+      border-radius: var(--r-xl) var(--r-xl) 0 0;
+      padding: 14px 20px calc(14px + var(--safe-bottom));
+      transform: translateY(100%);
+      transition: transform 0.25s ease;
+    }
+    .action-sheet-bg.open .action-sheet { transform: translateY(0); }
+    .action-sheet-handle {
+      width: 36px; height: 4px;
+      background: rgba(255,255,255,0.15);
+      border-radius: 4px;
+      margin: 0 auto 12px;
+    }
+    .action-sheet h3 {
+      font-size: 15px;
+      margin-bottom: 12px;
+      color: var(--ink-strong);
+    }
+    .action-sheet-btn {
+      display: flex; align-items: center; gap: 12px;
+      width: 100%;
+      background: transparent;
+      border: none;
+      color: var(--ink);
+      padding: 14px 4px;
+      font-size: 15px;
+      text-align: left;
+      cursor: pointer;
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+      font-family: inherit;
+    }
+    .action-sheet-btn:last-child { border-bottom: none; }
+    .action-sheet-btn:active { background: rgba(255,255,255,0.03); }
+    .action-sheet-btn.danger { color: var(--ruby); }
+    .action-sheet-btn .as-ico { font-size: 20px; width: 28px; text-align: center; }
+
+    /* ── Swipe-to-delete ─────────────────────────────────────────── */
+    .swipe-wrap {
+      position: relative;
+      overflow: hidden;
+    }
+    .swipe-underlay {
+      position: absolute; inset: 0;
+      display: flex; align-items: center; justify-content: flex-end;
+      padding-right: 20px;
+      background: var(--ruby);
+      color: #fff;
+      font-weight: 700;
+      font-size: 13px;
+    }
+    .swipe-content {
+      position: relative;
+      background: var(--bg-card);
+      transition: transform 0.2s ease;
+      z-index: 1;
+    }
+    .swipe-content.swiping { transition: none; }
+
+    /* ── Reduced motion ──────────────────────────────────────────── */
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+      }
+    }
   </style>
 </head>
 <body>
@@ -980,7 +1240,7 @@
     <div class="brand">
       <div class="brand-mark">🥃</div>
       <div class="brand-text">
-        <h1>Nelson's<span class="amp"> &amp; </span>Bar<span class="ver" id="ver-tag">v1.0</span></h1>
+        <h1>Nelson's<span class="amp"> &amp; </span>Bar<span class="ver" id="ver-tag"></span></h1>
         <p>A speakeasy of one</p>
       </div>
     </div>
@@ -1002,6 +1262,8 @@
       <div class="hero-eyebrow">Tonight's pour</div>
       <h2 id="home-greeting">A drink, <em>perfectly yours.</em></h2>
       <p>Tell me how you feel — I'll find something from the shelf that fits the night.</p>
+      <div id="home-stats-line" style="font-size:12px;color:var(--whisper);margin-top:6px;font-weight:500;letter-spacing:0.02em;"></div>
+      <div id="tonights-pour-slot" style="margin-top:12px;"></div>
       <div class="hero-actions">
         <button class="btn btn-primary" onclick="openMixModal()">✨ Pour something</button>
         <button class="btn btn-ghost" onclick="goTo('bar')">View the bar</button>
@@ -1045,14 +1307,22 @@
       <button class="btn btn-outline btn-sm" onclick="openAddBottleModal()">＋ Add</button>
     </div>
 
-    <button class="photo-tile" onclick="document.getElementById('photo-input').click()">
-      <div class="pt-icon">📷</div>
-      <div class="pt-text">
-        <strong>Snap a bottle or shelf</strong>
-        <span>AI catalogs everything it sees</span>
-      </div>
-      <span style="font-size:18px; color:var(--brass);">→</span>
-    </button>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:4px;">
+      <button class="photo-tile" onclick="startPhotoMode('single')">
+        <div class="pt-icon">📷</div>
+        <div class="pt-text">
+          <strong>One bottle</strong>
+          <span>Quick-add a single bottle</span>
+        </div>
+      </button>
+      <button class="photo-tile" onclick="startPhotoMode('shelf')">
+        <div class="pt-icon">🪞</div>
+        <div class="pt-text">
+          <strong>Whole shelf</strong>
+          <span>Scan all visible bottles</span>
+        </div>
+      </button>
+    </div>
     <input type="file" id="photo-input" accept="image/*" capture="environment" style="display:none" onchange="handleBarPhoto(event)" />
 
     <div class="chip-row" id="bar-filter-chips">
@@ -1063,6 +1333,7 @@
       <button class="chip" onclick="setBarFilter('mixer', this)">Mixers</button>
       <button class="chip" onclick="setBarFilter('bitter', this)">Bitters</button>
       <button class="chip" onclick="setBarFilter('garnish', this)">Garnishes</button>
+      <button class="chip" onclick="setBarFilter('tool', this)">Tools</button>
       <button class="chip" onclick="setBarFilter('low', this)">Running low</button>
       <button class="chip" onclick="setBarFilter('fav', this)">⭐ Favorites</button>
     </div>
@@ -1084,6 +1355,8 @@
       <input type="text" class="text-input" id="buy-input" placeholder="Add to shopping list…" onkeydown="if(event.key==='Enter')addBuyItem()" />
       <button class="btn btn-primary" onclick="addBuyItem()">＋</button>
     </div>
+    <button class="btn btn-ghost btn-sm btn-block" style="margin-bottom:10px;" onclick="smartShoppingSuggestions()" id="smart-shop-btn">✨ What's missing from my bar?</button>
+    <div id="smart-shop-results"></div>
 
     <div id="buy-list" class="item-list"></div>
   </section>
@@ -1187,7 +1460,7 @@
     </div>
 
     <div class="card card-soft" style="text-align:center;">
-      <p style="font-size:11.5px;color:var(--whisper);font-weight:600;letter-spacing:0.05em;">Nelson's Bar · <span id="ver-tag-2">v1.0</span></p>
+      <p style="font-size:11.5px;color:var(--whisper);font-weight:600;letter-spacing:0.05em;">Nelson's Bar · <span id="ver-tag-2"></span></p>
     </div>
   </section>
 
@@ -1196,11 +1469,11 @@
 <!-- ─── BOTTOM NAV ─── -->
 <nav class="bottom-nav">
   <div class="bottom-nav-inner">
-    <button class="nav-btn active" data-tab="home" onclick="goTo('home')"><span class="ico">🏠</span><span class="lbl">Home</span></button>
-    <button class="nav-btn" data-tab="bar" onclick="goTo('bar')"><span class="ico">🥃</span><span class="lbl">Bar</span></button>
-    <button class="nav-btn center" data-tab="ask" onclick="goTo('ask')"><span class="ico">💬</span><span class="lbl">Ask</span></button>
-    <button class="nav-btn" data-tab="buy" onclick="goTo('buy')"><span class="ico">🛒</span><span class="lbl">Buy</span></button>
-    <button class="nav-btn" data-tab="history" onclick="goTo('history')"><span class="ico">📜</span><span class="lbl">Made</span></button>
+    <button class="nav-btn active" data-tab="home" onclick="goTo('home')" aria-label="Home"><span class="ico">🏠</span><span class="lbl">Home</span></button>
+    <button class="nav-btn" data-tab="bar" onclick="goTo('bar')" aria-label="Bar"><span class="ico">🥃</span><span class="lbl">Bar</span></button>
+    <button class="nav-btn center" data-tab="ask" onclick="goTo('ask')" aria-label="Ask the bartender"><span class="ico">💬</span><span class="lbl">Ask</span></button>
+    <button class="nav-btn" data-tab="buy" onclick="goTo('buy')" aria-label="To buy list"><span class="ico">🛒</span><span class="lbl">Buy</span></button>
+    <button class="nav-btn" data-tab="history" onclick="goTo('history')" aria-label="Drinks made"><span class="ico">📜</span><span class="lbl">Made</span></button>
   </div>
 </nav>
 
@@ -1260,6 +1533,11 @@
     <div class="field-row">
       <label class="field-label">Emoji</label>
       <input type="text" class="text-input" id="ab-emoji" placeholder="🥃" />
+    </div>
+    <div class="field-row">
+      <label class="field-label">Bottle photo (optional)</label>
+      <input type="file" id="ab-photo" accept="image/*" capture="environment" onchange="previewBottlePhoto(event)" style="font-size:13px;color:var(--whisper);" />
+      <div id="ab-photo-preview" style="margin-top:8px;"></div>
     </div>
     <div class="field-row">
       <label class="field-label">Notes</label>
@@ -1453,7 +1731,44 @@
 <div class="install-banner" id="install-banner">
   <span>📲 Install Nelson's Bar?</span>
   <button onclick="triggerInstall()">Install</button>
-  <button class="x" onclick="document.getElementById('install-banner').classList.remove('show')">×</button>
+  <button class="x" onclick="document.getElementById('install-banner').classList.remove('show');localStorage.setItem('nb_install_dismissed','1')">×</button>
+</div>
+
+<!-- ─── Action Sheet (long-press) ─── -->
+<div class="action-sheet-bg" id="action-sheet-bg" onclick="closeActionSheet()">
+  <div class="action-sheet" onclick="event.stopPropagation()">
+    <div class="action-sheet-handle"></div>
+    <h3 id="as-title"></h3>
+    <div id="as-actions"></div>
+  </div>
+</div>
+
+<!-- ─── MODAL: Themed Confirm / Info ─── -->
+<div class="modal-bg" id="modal-confirm">
+  <div class="modal" style="max-width:380px;">
+    <div class="modal-head">
+      <h2 id="confirm-title">Confirm</h2>
+      <button class="modal-close" onclick="resolveConfirm(false)">×</button>
+    </div>
+    <p id="confirm-body" style="font-size:13.5px;color:var(--ink);line-height:1.6;margin-bottom:18px;white-space:pre-line;"></p>
+    <div class="modal-actions">
+      <button class="btn btn-ghost btn-block" onclick="resolveConfirm(false)">Cancel</button>
+      <button class="btn btn-primary btn-block" id="confirm-ok-btn" onclick="resolveConfirm(true)">OK</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-bg" id="modal-info">
+  <div class="modal" style="max-width:380px;">
+    <div class="modal-head">
+      <h2 id="info-title">Info</h2>
+      <button class="modal-close" onclick="closeModal('modal-info')">×</button>
+    </div>
+    <div id="info-body" style="font-size:13.5px;color:var(--ink);line-height:1.6;margin-bottom:14px;white-space:pre-line;"></div>
+    <div class="modal-actions">
+      <button class="btn btn-primary btn-block" onclick="closeModal('modal-info')">Got it</button>
+    </div>
+  </div>
 </div>
 
 <div class="toast" id="toast"></div>
@@ -1463,7 +1778,7 @@
 // ── CONFIG ─────────────────────────────────────────────────────────────
 // ═══════════════════════════════════════════════════════════════════════
 
-const APP_VERSION = 'v1.3.1';
+const APP_VERSION = 'v2.0.0';
 const SUPABASE_URL = 'https://qdhqkcsfslkbhxtogjfp.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_bmapexcRWmRzsRvbqIJCpw_XnWaMCZL';
 const CONNECT_TIMEOUT_MS = 8000;
@@ -1479,6 +1794,11 @@ const LOCAL_SNAPSHOT_LIMIT = 30;
 let cloudLoaded = false;
 
 console.log("Nelson's Bar", APP_VERSION);
+// Fill version tags synchronously to avoid flash of empty/wrong version
+try {
+  document.getElementById('ver-tag').textContent = APP_VERSION;
+  document.getElementById('ver-tag-2').textContent = APP_VERSION;
+} catch (_) {}
 
 let sbClient = null;
 try {
@@ -1590,6 +1910,7 @@ function normalizeDB(data) {
     notes: b.notes ?? '',
     favorite: !!b.favorite,
     added_at: b.added_at ?? Date.now(),
+    ai_info: (b.ai_info && typeof b.ai_info === 'object') ? b.ai_info : null,
     ...b
   }));
 
@@ -1886,6 +2207,15 @@ function categoryLabel(c) {
   })[c] || c;
 }
 
+// Volume fill tier → CSS class (drives the green/brass/copper/ruby gradients).
+function fillTierClass(pct) {
+  const p = Math.max(0, Math.min(100, Number(pct) || 0));
+  if (p >= 70) return 'full';
+  if (p >= 40) return 'mid';
+  if (p >= 25) return 'warn';
+  return 'low';
+}
+
 function toggleEl(el) { el.classList.toggle('on'); el.classList.toggle('off'); }
 
 // ═══════════════════════════════════════════════════════════════════════
@@ -1909,11 +2239,59 @@ function goTo(tab) {
   }
 }
 
-function openModal(id) { document.getElementById(id).classList.add('open'); }
-function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+let _modalTrigger = null;
+
+function openModal(id) {
+  _modalTrigger = document.activeElement;
+  const el = document.getElementById(id);
+  el.classList.add('open');
+  document.body.style.overflow = 'hidden';
+  const first = el.querySelector('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])');
+  if (first) setTimeout(() => first.focus(), 80);
+}
+
+function closeModal(id) {
+  document.getElementById(id).classList.remove('open');
+  const anyOpen = document.querySelector('.modal-bg.open');
+  if (!anyOpen) document.body.style.overflow = '';
+  if (_modalTrigger && typeof _modalTrigger.focus === 'function') {
+    try { _modalTrigger.focus(); } catch (_) {}
+    _modalTrigger = null;
+  }
+}
 
 document.querySelectorAll('.modal-bg').forEach(bg => {
+  bg.setAttribute('role', 'dialog');
+  bg.setAttribute('aria-modal', 'true');
   bg.addEventListener('click', (e) => { if (e.target === bg) bg.classList.remove('open'); });
+});
+
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') {
+    const open = [...document.querySelectorAll('.modal-bg.open')];
+    if (open.length) {
+      const top = open[open.length - 1];
+      if (top.id === 'modal-confirm') { resolveConfirm(false); return; }
+      top.classList.remove('open');
+      const anyOpen = document.querySelector('.modal-bg.open');
+      if (!anyOpen) document.body.style.overflow = '';
+      if (_modalTrigger && typeof _modalTrigger.focus === 'function') {
+        try { _modalTrigger.focus(); } catch (_) {}
+        _modalTrigger = null;
+      }
+    }
+  }
+  if (e.key === 'Tab') {
+    const open = [...document.querySelectorAll('.modal-bg.open')];
+    if (!open.length) return;
+    const modal = open[open.length - 1].querySelector('.modal');
+    if (!modal) return;
+    const focusable = [...modal.querySelectorAll('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])')].filter(el => el.offsetParent !== null);
+    if (!focusable.length) return;
+    const first = focusable[0], last = focusable[focusable.length - 1];
+    if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+    else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+  }
 });
 
 // ═══════════════════════════════════════════════════════════════════════
@@ -1956,6 +2334,13 @@ function renderHome() {
   }
   document.getElementById('stat-fav').textContent = favName;
 
+  const runningLow = bar.filter(b => (b.category === 'spirit' || b.category === 'liqueur' || b.category === 'wine_vermouth' || b.category === 'bitter') && b.remaining_pct < 25).length;
+  const bottleCount = bar.filter(b => b.category !== 'tool').length;
+  const lastDrink = drinks.slice().sort((a,b) => new Date(b.made_at) - new Date(a.made_at))[0];
+  const statsLine = `${bottleCount} bottles${runningLow ? ' · ' + runningLow + ' running low' : ''}${lastDrink ? ' · last pour: ' + lastDrink.name : ''}`;
+  document.getElementById('home-stats-line').textContent = statsLine;
+  loadTonightsPour();
+
   // Most recent drink
   const recentWrap = document.getElementById('home-recent-wrap');
   const recent = drinks.slice().sort((a,b) => new Date(b.made_at) - new Date(a.made_at))[0];
@@ -1981,6 +2366,48 @@ function greeting() {
   if (h < 17) return 'Good afternoon';
   if (h < 21) return 'Good evening';
   return 'Tonight';
+}
+
+let _tonightsPourLoading = false;
+async function loadTonightsPour() {
+  const slot = document.getElementById('tonights-pour-slot');
+  if (!slot) return;
+  const bar = db.state.bar.filter(b => b.category !== 'tool');
+  if (bar.length < 5) { slot.innerHTML = ''; return; }
+
+  const today = new Date().toISOString().slice(0, 10);
+  const barHash = bar.map(b => b.id).sort().join(',').slice(0, 80);
+  const cacheKey = `nb_tonight_${today}_${barHash.length}`;
+  const cached = localStorage.getItem(cacheKey);
+  if (cached) {
+    try {
+      const data = JSON.parse(cached);
+      slot.innerHTML = `<div style="background:rgba(200,155,60,0.08);border:1px solid rgba(200,155,60,0.15);border-radius:12px;padding:10px 14px;cursor:pointer;" onclick="openMixModal()">
+        <div style="font-size:11px;color:var(--brass);font-weight:700;letter-spacing:0.06em;text-transform:uppercase;">Tonight's suggestion</div>
+        <div style="font-family:'Playfair Display',serif;font-size:16px;color:var(--ink-strong);margin-top:4px;">${data.emoji || '🥃'} ${escapeHtml(data.suggestion)}</div>
+        <div style="font-size:12px;color:var(--whisper);margin-top:3px;">${escapeHtml(data.reason || '')}</div>
+      </div>`;
+      return;
+    } catch {}
+  }
+
+  if (_tonightsPourLoading) return;
+  _tonightsPourLoading = true;
+  try {
+    const result = await openaiTonightsPour(db.user_profile, db.state.bar, db.state.drinks_made);
+    if (result?.suggestion) {
+      localStorage.setItem(cacheKey, JSON.stringify(result));
+      slot.innerHTML = `<div style="background:rgba(200,155,60,0.08);border:1px solid rgba(200,155,60,0.15);border-radius:12px;padding:10px 14px;cursor:pointer;" onclick="openMixModal()">
+        <div style="font-size:11px;color:var(--brass);font-weight:700;letter-spacing:0.06em;text-transform:uppercase;">Tonight's suggestion</div>
+        <div style="font-family:'Playfair Display',serif;font-size:16px;color:var(--ink-strong);margin-top:4px;">${result.emoji || '🥃'} ${escapeHtml(result.suggestion)}</div>
+        <div style="font-size:12px;color:var(--whisper);margin-top:3px;">${escapeHtml(result.reason || '')}</div>
+      </div>`;
+    }
+  } catch (e) {
+    console.warn('Tonight\'s pour failed:', e);
+  } finally {
+    _tonightsPourLoading = false;
+  }
 }
 
 function stars(n) {
@@ -2015,39 +2442,45 @@ function renderBar() {
   const list = document.getElementById('bar-list');
 
   if (items.length === 0) {
+    const isFiltered = barFilter !== 'all';
     list.innerHTML = `
       <div class="empty-state">
-        <div class="empty-emoji">🥃</div>
-        <h3>Nothing here yet</h3>
-        <p>Snap a photo or add a bottle manually.</p>
+        <div class="empty-emoji" style="font-size:48px;">🥃</div>
+        <h3>${isFiltered ? 'Nothing matches this filter' : 'Your bar is empty'}</h3>
+        <p>${isFiltered ? 'Try a different filter or add some bottles.' : 'Snap a photo of your bottles or add one manually to get started.'}</p>
+        ${isFiltered ? '' : '<button class="btn btn-primary" style="margin-top:12px;" onclick="openAddBottleModal()">＋ Add your first bottle</button>'}
       </div>`;
     return;
   }
 
   list.innerHTML = items.map(b => {
     const isPercentItem = b.category !== 'garnish' && b.category !== 'mixer' && b.category !== 'tool';
-    const low = isPercentItem && b.remaining_pct < 25;
+    const tier = fillTierClass(b.remaining_pct);
+    const low = isPercentItem && tier === 'low';
     const subtag = b.subcategory ? `<span class="tag">${escapeHtml(b.subcategory)}</span>` : '';
     const abvtag = b.abv != null ? `<span class="tag brass">${b.abv}%</span>` : '';
     const volBar = isPercentItem ? `
-      <div class="vol-bar-wrap"><div class="vol-bar-fill ${low ? 'low' : ''}" style="width:${Math.max(0,Math.min(100,b.remaining_pct))}%"></div></div>
+      <div class="vol-bar-wrap"><div class="vol-bar-fill ${tier}" style="width:${Math.max(0,Math.min(100,b.remaining_pct))}%"></div></div>
     ` : '';
     const qty = b.quantity && b.quantity > 1 ? `<span class="qty-badge">×${b.quantity}</span>` : '';
     return `
-      <div class="bar-item ${b.favorite ? 'fav' : ''} ${low ? 'low' : ''}">
-        <div class="bar-emoji">${b.emoji || '🍾'}</div>
-        <div class="bar-info" onclick="openBarDetail('${b.id}')">
-          <div class="bar-name">${escapeHtml(b.name)} ${qty} ${b.favorite ? '<span class="star">★</span>' : ''}</div>
-          <div class="bar-meta">${subtag}${abvtag}${isPercentItem ? `<span style="color:var(--whisper);">${Math.round((b.remaining_pct/100)*b.volume_ml)} ml left</span>` : ''}</div>
-          ${volBar}
-        </div>
-        <div class="bar-actions">
-          ${isPercentItem ? `
-            <button class="icon-btn" onclick="bumpRem('${b.id}', -10)" title="−10%">−</button>
-            <button class="icon-btn" onclick="bumpRem('${b.id}', 10)" title="+10%">+</button>
-          ` : ''}
-          <button class="icon-btn fav ${b.favorite ? 'on' : ''}" onclick="toggleFav('${b.id}')" title="Favorite">★</button>
-          <button class="icon-btn danger" onclick="deleteBottle('${b.id}')" title="Delete">×</button>
+      <div class="swipe-wrap">
+        <div class="swipe-underlay">Delete</div>
+        <div class="swipe-content bar-item ${b.favorite ? 'fav' : ''} ${low ? 'low' : ''}" data-swipe-id="${b.id}">
+          ${b.image_url ? `<img src="${b.image_url}" style="width:36px;height:36px;object-fit:cover;border-radius:50%;border:1px solid var(--brass-line);flex-shrink:0;" alt="" />` : `<div class="bar-emoji">${b.emoji || '🍾'}</div>`}
+          <div class="bar-info" onclick="openBarDetail('${b.id}')">
+            <div class="bar-name">${escapeHtml(b.name)} ${qty} ${b.favorite ? '<span class="star">★</span>' : ''}</div>
+            <div class="bar-meta">${subtag}${abvtag}${isPercentItem ? `<span style="color:var(--whisper);">${Math.round((b.remaining_pct/100)*b.volume_ml)} ml left</span>` : ''}</div>
+            ${volBar}
+          </div>
+          <div class="bar-actions">
+            ${isPercentItem ? `
+              <button class="icon-btn" onclick="bumpRem('${b.id}', -10)" title="−10%" aria-label="Decrease volume 10%">−</button>
+              <button class="icon-btn" onclick="bumpRem('${b.id}', 10)" title="+10%" aria-label="Increase volume 10%">+</button>
+            ` : ''}
+            <button class="icon-btn fav ${b.favorite ? 'on' : ''}" onclick="toggleFav('${b.id}')" title="Favorite" aria-label="${b.favorite ? 'Remove favorite' : 'Mark favorite'}">★</button>
+            <button class="icon-btn danger" onclick="deleteBottle('${b.id}')" title="Delete" aria-label="Delete ${escapeAttr(b.name)}">×</button>
+          </div>
         </div>
       </div>`;
   }).join('');
@@ -2056,6 +2489,7 @@ function renderBar() {
 async function bumpRem(id, delta) {
   const b = db.state.bar.find(x => x.id === id);
   if (!b) return;
+  haptic('tap');
   b.remaining_pct = Math.max(0, Math.min(100, (b.remaining_pct || 0) + delta));
   if (b.remaining_pct === 0) {
     if (!db.state.to_buy.find(t => t.name.toLowerCase() === b.name.toLowerCase())) {
@@ -2078,7 +2512,9 @@ async function toggleFav(id) {
 async function deleteBottle(id) {
   const b = db.state.bar.find(x => x.id === id);
   if (!b) return;
-  if (!confirm(`Remove ${b.name} from your bar?`)) return;
+  const ok = await showConfirm({ title: 'Remove bottle?', body: `Remove ${b.name} from your bar?`, confirmLabel: 'Remove', danger: true });
+  if (!ok) return;
+  haptic('warn');
   db.state.bar = db.state.bar.filter(x => x.id !== id);
   renderAll();
   await saveDB();
@@ -2119,7 +2555,7 @@ function openBarDetail(id) {
           <strong style="font-size:13px;color:var(--whisper);letter-spacing:0.06em;text-transform:uppercase;">Volume</strong>
           <span style="font-family:'Playfair Display',serif;color:var(--brass-glow);font-size:18px;font-weight:700;">${Math.round((b.remaining_pct/100)*b.volume_ml)} / ${b.volume_ml} ml</span>
         </div>
-        <div class="vol-bar-wrap" style="height:8px;"><div class="vol-bar-fill" style="width:${b.remaining_pct}%"></div></div>
+        <div class="vol-bar-wrap" style="height:8px;"><div class="vol-bar-fill ${fillTierClass(b.remaining_pct)}" style="width:${b.remaining_pct}%"></div></div>
         <div class="vol-control" style="margin-top:14px;justify-content:center;">
           <button class="qty" onclick="bumpRemAndRefresh('${b.id}', -25)">−25%</button>
           <button class="qty" onclick="bumpRemAndRefresh('${b.id}', -10)">−10</button>
@@ -2132,14 +2568,164 @@ function openBarDetail(id) {
 
     ${b.notes ? `<div class="lore-block">${escapeHtml(b.notes)}</div>` : ''}
 
-    <div style="display:flex;flex-direction:column;gap:8px;margin-top:16px;">
-      <button class="btn btn-primary btn-block" onclick="closeModal('modal-detail');openMixModalWith(['${b.id}'])">✨ Mix with this</button>
-      <button class="btn btn-ghost btn-block" onclick="toggleFavRefresh('${b.id}')">${b.favorite ? '★ Unfavorite' : '★ Favorite'}</button>
-      <button class="btn btn-ghost btn-block" onclick="markRanOut('${b.id}')">⏷ Mark ran out</button>
-      <button class="btn btn-danger btn-block" onclick="deleteBottle('${b.id}');closeModal('modal-detail')">🗑 Remove from bar</button>
+    <div id="bottle-dossier-slot"></div>
+
+    <div class="modal-sticky-footer">
+      <div style="display:flex;flex-direction:column;gap:8px;">
+        <button class="btn btn-primary btn-block" onclick="closeModal('modal-detail');openMixModalWith(['${b.id}'])">✨ Mix with this</button>
+        <button class="btn btn-ghost btn-block" onclick="toggleFavRefresh('${b.id}')">${b.favorite ? '★ Unfavorite' : '★ Favorite'}</button>
+        <button class="btn btn-ghost btn-block" onclick="markRanOut('${b.id}')">⏷ Mark ran out</button>
+        <button class="btn btn-danger btn-block" onclick="deleteBottle('${b.id}');closeModal('modal-detail')">🗑 Remove from bar</button>
+      </div>
     </div>
   `;
   openModal('modal-detail');
+  if (b.category !== 'tool') {
+    renderBottleDossier(b);
+    if (!b.ai_info) loadBottleDossier(b.id);
+  }
+}
+
+function escapeHtmlSafe(v) {
+  if (v == null) return '';
+  return escapeHtml(String(v));
+}
+
+function renderBottleDossier(b) {
+  const slot = document.getElementById('bottle-dossier-slot');
+  if (!slot) return;
+  const info = b.ai_info;
+
+  if (!info) {
+    slot.innerHTML = `
+      <div class="dossier">
+        <div class="dossier-head">
+          <h3>📖 About this bottle</h3>
+          <button class="refresh-btn" onclick="loadBottleDossier('${b.id}')">Look it up</button>
+        </div>
+        <div style="font-size:12.5px;color:var(--whisper);">Tap "Look it up" for tasting notes, price range, classic cocktails, and more.</div>
+      </div>`;
+    return;
+  }
+
+  if (info.__loading) {
+    slot.innerHTML = `
+      <div class="dossier">
+        <div class="dossier-head"><h3>📖 About this bottle</h3></div>
+        <div class="dossier-loading"><div class="spin"></div> Researching ${escapeHtml(b.name)}…</div>
+        <div class="skel-grid" style="margin-top:10px;">
+          <div class="skel-line" style="width:65%;height:12px;"></div>
+          <div class="skel-line" style="width:50%;height:12px;"></div>
+          <div class="skel-line" style="width:80%;height:12px;"></div>
+          <div class="skel-line" style="width:45%;height:12px;"></div>
+        </div>
+        <div style="display:flex;gap:6px;margin-top:12px;">
+          <div class="skel-chip"></div><div class="skel-chip"></div><div class="skel-chip"></div>
+        </div>
+      </div>`;
+    return;
+  }
+
+  if (info.__error) {
+    slot.innerHTML = `
+      <div class="dossier">
+        <div class="dossier-head">
+          <h3>📖 About this bottle</h3>
+          <button class="refresh-btn" onclick="loadBottleDossier('${b.id}')">Try again</button>
+        </div>
+        <div class="dossier-error">${escapeHtml(info.__error)}</div>
+      </div>`;
+    return;
+  }
+
+  const price = info.price_usd_estimate;
+  const priceHtml = price && (price.low != null || price.high != null) ? `
+    <span class="price-pill">
+      💵 $${price.low ?? '?'}${price.high != null && price.high !== price.low ? '–$' + price.high : ''}
+      ${price.tier ? `<span class="tier">${escapeHtml(price.tier)}</span>` : ''}
+    </span>` : '<span class="val muted">unknown</span>';
+
+  const fields = [
+    ['Producer',  info.producer],
+    ['Region',    [info.region, info.country].filter(Boolean).join(', ') || null],
+    ['Age',       info.age_statement],
+    ['Best served', info.best_served]
+  ];
+
+  const fieldsHtml = fields.map(([lbl, val]) => `
+    <div class="dossier-field">
+      <span class="lbl">${lbl}</span>
+      <span class="val ${val ? '' : 'muted'}">${val ? escapeHtmlSafe(val) : 'unknown'}</span>
+    </div>`).join('');
+
+  const chipsBlock = (lbl, arr) => {
+    if (!Array.isArray(arr) || arr.length === 0) return '';
+    return `
+      <div class="dossier-section">
+        <span class="lbl">${lbl}</span>
+        <div class="dossier-chips">${arr.map(x => `<span class="chip">${escapeHtmlSafe(x)}</span>`).join('')}</div>
+      </div>`;
+  };
+
+  const proseBlock = (lbl, txt) => {
+    if (!txt) return '';
+    return `
+      <div class="dossier-section">
+        <span class="lbl">${lbl}</span>
+        <div class="dossier-prose">${escapeHtmlSafe(txt)}</div>
+      </div>`;
+  };
+
+  const noseTaste = [
+    info.aroma  ? `<strong>Nose:</strong> ${escapeHtmlSafe(info.aroma)}`   : '',
+    info.palate ? `<strong>Palate:</strong> ${escapeHtmlSafe(info.palate)}` : '',
+    info.finish ? `<strong>Finish:</strong> ${escapeHtmlSafe(info.finish)}` : ''
+  ].filter(Boolean).join('<br>');
+
+  const fetched = info.fetched_at ? new Date(info.fetched_at).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' }) : '';
+
+  slot.innerHTML = `
+    <div class="dossier">
+      <div class="dossier-head">
+        <h3>📖 About this bottle</h3>
+        <button class="refresh-btn" onclick="loadBottleDossier('${b.id}')">↻ Refresh</button>
+      </div>
+
+      <div style="margin-bottom:12px;">
+        <span class="lbl" style="display:block;font-size:10px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;color:var(--whisper);margin-bottom:4px;">Typical price (750ml US)</span>
+        ${priceHtml}
+        ${price?.note ? `<div style="font-size:11px;color:var(--smoke);margin-top:4px;font-style:italic;">${escapeHtmlSafe(price.note)}</div>` : ''}
+      </div>
+
+      <div class="dossier-grid">${fieldsHtml}</div>
+
+      ${proseBlock('How it\'s made', info.production)}
+      ${chipsBlock('Flavor profile', info.flavor_profile)}
+      ${noseTaste ? `<div class="dossier-section"><span class="lbl">Tasting notes</span><div class="dossier-prose">${noseTaste}</div></div>` : ''}
+      ${chipsBlock('Classic cocktails', info.classic_cocktails)}
+      ${chipsBlock('Pairs well with', info.food_pairings)}
+      ${chipsBlock('Similar bottles', info.similar_to)}
+      ${info.awards_or_notable ? proseBlock('Notable', info.awards_or_notable) : ''}
+      ${info.fun_fact ? `<div class="dossier-fact">${escapeHtmlSafe(info.fun_fact)}</div>` : ''}
+      ${fetched ? `<div class="dossier-meta">AI lookup · ${fetched}</div>` : ''}
+    </div>`;
+}
+
+async function loadBottleDossier(id) {
+  const b = db.state.bar.find(x => x.id === id);
+  if (!b) return;
+  b.ai_info = { __loading: true };
+  renderBottleDossier(b);
+  try {
+    const info = await openaiBottleInfo(b);
+    b.ai_info = info;
+    renderBottleDossier(b);
+    await saveDB();
+  } catch (e) {
+    console.error('bottle dossier failed:', e);
+    b.ai_info = { __error: e.message || 'Lookup failed' };
+    renderBottleDossier(b);
+  }
 }
 
 async function bumpRemAndRefresh(id, delta) {
@@ -2166,6 +2752,7 @@ async function markRanOut(id) {
   if (!db.state.to_buy.find(t => t.name.toLowerCase() === b.name.toLowerCase())) {
     db.state.to_buy.push({ id: uid('tb'), name: b.name, qty: 1, checked: false, added_at: Date.now() });
   }
+  haptic('warn');
   closeModal('modal-detail');
   renderAll();
   await saveDB();
@@ -2182,7 +2769,10 @@ async function bumpQty(id, delta) {
 }
 
 function openAddBottleModal(prefill) {
+  _bottlePhotoDataUrl = null;
   ['ab-name','ab-sub','ab-abv','ab-emoji','ab-notes'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('ab-photo-preview').innerHTML = '';
+  document.getElementById('ab-photo').value = '';
   document.getElementById('ab-vol').value = 750;
   document.getElementById('ab-rem').value = 100;
   document.getElementById('ab-qty').value = 1;
@@ -2213,6 +2803,17 @@ function onCategoryChange() {
   document.getElementById('ab-field-rem').style.display = isVolumed ? '' : 'none';
 }
 
+let _bottlePhotoDataUrl = null;
+
+async function previewBottlePhoto(event) {
+  const file = event.target.files[0];
+  if (!file) { _bottlePhotoDataUrl = null; return; }
+  try {
+    _bottlePhotoDataUrl = await resizeImage(file, 400);
+    document.getElementById('ab-photo-preview').innerHTML = `<img src="${_bottlePhotoDataUrl}" style="width:60px;height:60px;object-fit:cover;border-radius:10px;border:1px solid var(--brass-line);" />`;
+  } catch { _bottlePhotoDataUrl = null; }
+}
+
 async function saveBottle() {
   const name = document.getElementById('ab-name').value.trim();
   if (!name) { showToast('Add a name first'); return; }
@@ -2227,10 +2828,12 @@ async function saveBottle() {
     remaining_pct: Math.max(0, Math.min(100, parseInt(document.getElementById('ab-rem').value, 10) || 100)),
     quantity: qty,
     emoji: document.getElementById('ab-emoji').value.trim() || '🍾',
+    image_url: _bottlePhotoDataUrl || null,
     notes: document.getElementById('ab-notes').value.trim(),
     favorite: document.getElementById('ab-fav').classList.contains('on'),
     added_at: Date.now()
   };
+  _bottlePhotoDataUrl = null;
   db.state.bar.push(item);
   closeModal('modal-add');
   renderAll();
@@ -2242,6 +2845,13 @@ async function saveBottle() {
 // ── PHOTO → BOTTLES ────────────────────────────────────────────────────
 // ═══════════════════════════════════════════════════════════════════════
 
+let _photoMode = 'shelf';
+
+function startPhotoMode(mode) {
+  _photoMode = mode;
+  document.getElementById('photo-input').click();
+}
+
 async function handleBarPhoto(event) {
   const file = event.target.files[0];
   if (!file) return;
@@ -2251,6 +2861,10 @@ async function handleBarPhoto(event) {
     const items = await openaiPhotoToBar(dataUrl);
     photoDraft = items;
     renderPhotoOutput();
+    const headerEl = document.querySelector('#modal-photo .modal-head h2');
+    if (headerEl) {
+      headerEl.textContent = photoDraft.length === 1 ? 'Detected 1 bottle' : `Detected ${photoDraft.length} bottles`;
+    }
     openModal('modal-photo');
   } catch (e) {
     console.error(e);
@@ -2290,13 +2904,29 @@ function renderPhotoOutput() {
       <input class="text-input em-input" value="${escapeAttr(it.emoji || '🍾')}" oninput="photoDraft[${i}].emoji=this.value" />
       <div>
         <input class="text-input" value="${escapeAttr(it.name || '')}" oninput="photoDraft[${i}].name=this.value" placeholder="Name" />
-        <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:6px;margin-top:6px;">
-          <select class="text-input" style="padding:6px;font-size:11px;" onchange="photoDraft[${i}].category=this.value">
-            ${['spirit','liqueur','wine_vermouth','mixer','bitter','garnish'].map(c => `<option value="${c}" ${it.category===c?'selected':''}>${categoryLabel(c)}</option>`).join('')}
-          </select>
-          <input class="text-input" style="padding:6px;font-size:11px;" value="${escapeAttr(it.subcategory || '')}" placeholder="sub" oninput="photoDraft[${i}].subcategory=this.value" />
-          <input type="number" class="text-input" style="padding:6px;font-size:11px;" value="${it.abv ?? ''}" placeholder="ABV%" oninput="photoDraft[${i}].abv=parseFloat(this.value)||null" />
-          <input type="number" class="text-input" style="padding:6px;font-size:11px;" value="${it.remaining_pct ?? 100}" placeholder="rem%" oninput="photoDraft[${i}].remaining_pct=parseInt(this.value)||100" />
+        <div class="pc-grid">
+          <div class="pc-field">
+            <span class="pc-label">Category</span>
+            <select class="text-input" onchange="photoDraft[${i}].category=this.value">
+              ${['spirit','liqueur','wine_vermouth','mixer','bitter','garnish'].map(c => `<option value="${c}" ${it.category===c?'selected':''}>${categoryLabel(c)}</option>`).join('')}
+            </select>
+          </div>
+          <div class="pc-field">
+            <span class="pc-label">Type</span>
+            <input class="text-input" value="${escapeAttr(it.subcategory || '')}" placeholder="e.g. bourbon" oninput="photoDraft[${i}].subcategory=this.value" />
+          </div>
+          <div class="pc-field">
+            <span class="pc-label">ABV %</span>
+            <input type="number" class="text-input" value="${it.abv ?? ''}" placeholder="45" oninput="photoDraft[${i}].abv=parseFloat(this.value)||null" />
+          </div>
+          <div class="pc-field">
+            <span class="pc-label">Size (ml)</span>
+            <input type="number" class="text-input" value="${it.volume_ml ?? 750}" placeholder="750" oninput="photoDraft[${i}].volume_ml=parseInt(this.value)||750" />
+          </div>
+          <div class="pc-field">
+            <span class="pc-label">Fill %</span>
+            <input type="number" class="text-input" value="${it.remaining_pct ?? 100}" placeholder="100" oninput="photoDraft[${i}].remaining_pct=parseInt(this.value)||100" />
+          </div>
         </div>
       </div>
       <button class="icon-btn danger" onclick="photoDraft.splice(${i},1);renderPhotoOutput()">×</button>
@@ -2340,9 +2970,9 @@ function renderBuy() {
   if (items.length === 0) {
     list.innerHTML = `
       <div class="empty-state">
-        <div class="empty-emoji">🛒</div>
-        <h3>Nothing to buy</h3>
-        <p>Empty bottles auto-show here.</p>
+        <div class="empty-emoji" style="font-size:48px;">🛒</div>
+        <h3>Shopping list is clear</h3>
+        <p>When you run out of a bottle, it'll appear here automatically. You can also add items manually above.</p>
       </div>`;
     return;
   }
@@ -2351,9 +2981,13 @@ function renderBuy() {
       <div class="check-circle"></div>
       <div class="buy-info">
         <div class="buy-name">${escapeHtml(b.name)}</div>
-        ${b.qty && b.qty > 1 ? `<div class="buy-qty">×${b.qty}</div>` : ''}
       </div>
-      <button class="icon-btn danger" onclick="event.stopPropagation();deleteBuy('${b.id}')">×</button>
+      <div style="display:flex;align-items:center;gap:4px;" onclick="event.stopPropagation();">
+        <button class="icon-btn" onclick="bumpBuyQty('${b.id}',-1)" aria-label="Decrease quantity">−</button>
+        <span style="font-size:13px;font-weight:700;color:var(--brass-glow);min-width:24px;text-align:center;">×${b.qty || 1}</span>
+        <button class="icon-btn" onclick="bumpBuyQty('${b.id}',1)" aria-label="Increase quantity">+</button>
+      </div>
+      <button class="icon-btn danger" onclick="event.stopPropagation();deleteBuy('${b.id}')" aria-label="Delete">×</button>
     </div>
   `).join('');
 }
@@ -2382,10 +3016,18 @@ async function deleteBuy(id) {
   await saveDB();
 }
 
+async function bumpBuyQty(id, delta) {
+  const b = db.state.to_buy.find(x => x.id === id);
+  if (!b) return;
+  b.qty = Math.max(1, (b.qty || 1) + delta);
+  renderAll();
+  await saveDB();
+}
+
 function copyBuyList() {
-  const items = db.state.to_buy.filter(b => !b.checked);
+  const items = db.state.to_buy;
   if (items.length === 0) { showToast('Nothing to copy'); return; }
-  const text = "🛒 BAR SHOPPING LIST\n\n" + items.map(b => `• ${b.name}${b.qty>1?` (×${b.qty})`:''}`).join('\n');
+  const text = "🛒 BAR SHOPPING LIST\n\n" + items.map(b => `${b.checked ? '☑' : '☐'} ${b.name}${b.qty>1?` (×${b.qty})`:''}`).join('\n');
   navigator.clipboard.writeText(text).then(() => showToast('Copied to clipboard'));
 }
 
@@ -2423,9 +3065,10 @@ function renderHistory() {
   if (filtered.length === 0) {
     list.innerHTML = `
       <div class="empty-state">
-        <div class="empty-emoji">📜</div>
-        <h3>${all.length === 0 ? 'No drinks yet' : 'Nothing matches'}</h3>
-        <p>${all.length === 0 ? 'Tap the ✨ Mix button to make one.' : 'Try a different filter.'}</p>
+        <div class="empty-emoji" style="font-size:48px;">📜</div>
+        <h3>${all.length === 0 ? 'No drinks poured yet' : 'Nothing matches this filter'}</h3>
+        <p>${all.length === 0 ? 'Mix your first cocktail and it\'ll show up here with full history.' : 'Try a different filter.'}</p>
+        ${all.length === 0 ? '<button class="btn btn-primary" style="margin-top:12px;" onclick="openMixModal()">✨ Pour something</button>' : ''}
       </div>`;
     return;
   }
@@ -2487,12 +3130,21 @@ async function toggleHistFav(id) {
   const d = db.state.drinks_made.find(x => x.id === id);
   if (!d) return;
   d.favorite = !d.favorite;
+  if (d.favorite && d.recipe) {
+    const favRecipe = { ...d.recipe, favorited_at: new Date().toISOString(), drink_id: d.id };
+    if (!db.state.favorites.find(f => f.name === favRecipe.name)) {
+      db.state.favorites.push(favRecipe);
+    }
+  } else if (!d.favorite && d.recipe) {
+    db.state.favorites = db.state.favorites.filter(f => f.name !== d.recipe.name);
+  }
   renderAll();
   await saveDB();
   openHistDetail(id);
 }
 async function deleteHist(id) {
-  if (!confirm('Remove this drink from history?')) return;
+  const ok = await showConfirm({ title: 'Remove drink?', body: 'Remove this drink from history?', confirmLabel: 'Remove', danger: true });
+  if (!ok) return;
   db.state.drinks_made = db.state.drinks_made.filter(x => x.id !== id);
   closeModal('modal-hist-detail');
   renderAll();
@@ -2503,7 +3155,9 @@ function makeAgain(id) {
   if (!d || !d.recipe) return;
   closeModal('modal-hist-detail');
   currentRecipe = d.recipe;
+  document.getElementById('mix-modal-title').textContent = ' ';
   showRecipe(d.recipe);
+  openModal('modal-mix');
 }
 
 // ═══════════════════════════════════════════════════════════════════════
@@ -2573,6 +3227,14 @@ function renderMixStep2() {
   const body = document.getElementById('mix-modal-body');
   body.innerHTML = `
     <div class="field-row">
+      <label class="field-label">How many drinks?</label>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;">
+        ${[[1,'1'],[2,'2'],[4,'4 (batch)']].map(([n,l]) => `
+          <button class="chip ${mixState.count === n ? 'active' : ''}" onclick="mixState.count=${n};renderMixStep2()">${l}</button>
+        `).join('')}
+      </div>
+    </div>
+    <div class="field-row">
       <label class="field-label">Strength</label>
       <div style="display:flex;gap:8px;flex-wrap:wrap;">
         ${['light','medium','spirit-forward'].map(s => `
@@ -2602,6 +3264,13 @@ async function generateRecipe() {
     <div class="gen-loading">
       <div class="spinner"></div>
       <p>Studying your shelf…</p>
+    </div>
+    <div style="padding:0 4px;margin-top:18px;">
+      <div class="skel-line" style="width:55%;height:22px;margin:0 auto 12px;"></div>
+      <div class="skel-line" style="width:80%;height:10px;margin:0 auto 18px;"></div>
+      <div class="skel-line" style="width:100%;height:14px;"></div>
+      <div class="skel-line" style="width:90%;height:14px;"></div>
+      <div class="skel-line" style="width:70%;height:14px;"></div>
     </div>
   `;
 
@@ -2659,14 +3328,19 @@ function showRecipe(recipe) {
         ${recipe.ice ? `<div class="meta-pill"><strong>Ice</strong>${escapeHtml(recipe.ice)}</div>` : ''}
         ${recipe.garnish ? `<div class="meta-pill"><strong>Garnish</strong>${escapeHtml(recipe.garnish)}</div>` : ''}
         ${recipe.estimated_abv_pct ? `<div class="meta-pill"><strong>ABV</strong>~${recipe.estimated_abv_pct}%</div>` : ''}
+        ${(() => {
+          const cost = estimateDrinkCost(recipe);
+          return cost !== null ? `<div class="meta-pill"><strong>Cost</strong>≈ $${cost.toFixed(2)}</div>` : '';
+        })()}
       </div>
       <div class="recipe-section-label">Build</div>
       ${ings}
       <div class="recipe-section-label">Method</div>
       <ol class="step-list">${(recipe.steps || []).map(s => `<li>${escapeHtml(s)}</li>`).join('')}</ol>
       ${recipe.history ? `<div class="lore-block">${escapeHtml(recipe.history)}</div>` : ''}
-      <div class="recipe-actions">
+      <div class="recipe-actions modal-sticky-footer">
         <button class="btn btn-primary" onclick="openMakeFlow()">🥃 Make this</button>
+        <button class="btn btn-ghost" onclick="shareRecipeCard()">📤 Share</button>
         <button class="btn btn-ghost" onclick="renderMixStep1();document.getElementById('mix-modal-title').textContent='What\\'s the mood?'">↺ Try again</button>
       </div>
     </div>
@@ -2681,9 +3355,46 @@ async function suggestSub(name) {
       showToast('No good sub in your bar');
       return;
     }
-    alert(`Sub for ${name}:\n\n${sub.substitute}\n\n${sub.rationale}\n\nAdjustment: ${sub.adjustment || 'none'}`);
+    const barMatch = db.state.bar.find(b => b.name.toLowerCase() === sub.substitute.toLowerCase());
+    const swapBtn = barMatch && currentRecipe ? `<button class="btn btn-primary btn-block" style="margin-top:14px;" onclick="swapIngredient('${escapeAttr(name)}','${escapeAttr(sub.substitute)}','${barMatch.id}');closeModal('modal-info')">Swap into recipe</button>` : '';
+    document.getElementById('info-title').textContent = `Sub for ${name}`;
+    document.getElementById('info-body').innerHTML = `
+      <div style="font-family:'Playfair Display',serif;font-size:18px;color:var(--brass-glow);margin-bottom:8px;">${escapeHtml(sub.substitute)}</div>
+      <div style="font-size:13px;color:var(--ink);line-height:1.6;margin-bottom:8px;">${escapeHtml(sub.rationale)}</div>
+      ${sub.adjustment ? `<div style="font-size:12px;color:var(--whisper);font-style:italic;">Adjustment: ${escapeHtml(sub.adjustment)}</div>` : ''}
+      ${swapBtn}
+    `;
+    openModal('modal-info');
   } catch (e) {
     showToast('Sub error: ' + e.message);
+  }
+}
+
+function estimateDrinkCost(recipe) {
+  if (!recipe?.ingredients) return null;
+  let total = 0;
+  let foundAny = false;
+  recipe.ingredients.forEach(i => {
+    const b = db.state.bar.find(x => x.id === i.bar_id) || db.state.bar.find(x => x.name.toLowerCase() === (i.name || '').toLowerCase());
+    if (!b || !b.ai_info?.price_usd_estimate || !b.volume_ml) return;
+    const price = b.ai_info.price_usd_estimate;
+    const avgPrice = (price.low != null && price.high != null) ? (price.low + price.high) / 2 : (price.low || price.high || null);
+    if (avgPrice == null) return;
+    const costPerMl = avgPrice / b.volume_ml;
+    total += costPerMl * (i.ml || 0);
+    foundAny = true;
+  });
+  return foundAny ? total : null;
+}
+
+function swapIngredient(oldName, newName, barId) {
+  if (!currentRecipe) return;
+  const ing = currentRecipe.ingredients.find(i => i.name.toLowerCase() === oldName.toLowerCase());
+  if (ing) {
+    ing.name = newName;
+    ing.bar_id = barId;
+    showRecipe(currentRecipe);
+    showToast(`Swapped ${oldName} → ${newName}`);
   }
 }
 
@@ -2755,8 +3466,15 @@ async function confirmMakeDrink() {
     recipe: currentRecipe
   };
   db.state.drinks_made.unshift(drink);
+  if (drink.favorite && currentRecipe) {
+    const favRecipe = { ...currentRecipe, favorited_at: new Date().toISOString(), drink_id: drink.id };
+    if (!db.state.favorites.find(f => f.name === favRecipe.name)) {
+      db.state.favorites.push(favRecipe);
+    }
+  }
   closeModal('modal-make');
   closeModal('modal-mix');
+  haptic('success');
   goTo('history');
   renderAll();
   await saveDB();
@@ -2792,8 +3510,9 @@ function openProfileModal() {
   openModal('modal-profile');
 }
 
-function resetProfileFields() {
-  if (!confirm('Reset all profile fields to defaults? This will not save until you click Save.')) return;
+async function resetProfileFields() {
+  const ok = await showConfirm({ title: 'Reset profile?', body: 'Reset all profile fields to defaults? This will not save until you click Save.', confirmLabel: 'Reset' });
+  if (!ok) return;
   const d = DEFAULT_DB.user_profile;
   document.getElementById('pf-name').value = d.name;
   document.getElementById('pf-loves').value = d.loves.join(', ');
@@ -2846,12 +3565,13 @@ async function importDB() {
     await saveDB();
     showToast('Imported');
   } catch {
-    alert('Invalid JSON');
+    showInfo('Import failed', 'The pasted text is not valid JSON. Export from another device and paste the raw output.');
   }
 }
 
 async function resetDB() {
-  if (!confirm('Reset everything to defaults? This wipes your bar, history, and to-buy list.')) return;
+  const ok = await showConfirm({ title: 'Reset everything?', body: 'This wipes your bar, history, and to-buy list. This is not reversible.', confirmLabel: 'Reset', danger: true });
+  if (!ok) return;
   db = JSON.parse(JSON.stringify(DEFAULT_DB));
   db.state.bar = defaultBar();
   renderAll();
@@ -2963,7 +3683,8 @@ async function previewSnapshot(src, id) {
 async function restoreSelectedSnapshot() {
   if (!_selectedSnapshot) return;
   const bar = _selectedSnapshot.data?.state?.bar || [];
-  if (!confirm(`Restore the bar to this snapshot (${bar.length} bottles)?\n\nA new snapshot of the current state is saved first, so this is reversible.`)) return;
+  const ok = await showConfirm({ title: 'Restore snapshot?', body: `Restore the bar to this snapshot (${bar.length} bottles)?\n\nA new snapshot of the current state is saved first, so this is reversible.`, confirmLabel: 'Restore' });
+  if (!ok) return;
   try {
     pushLocalSnapshot(db, 'pre-restore');
     if (cloudLoaded && sbClient) {
@@ -3010,7 +3731,8 @@ async function forceResync() {
 }
 
 async function clearLocalCache() {
-  if (!confirm('Wipe ALL local data and re-download from cloud?')) return;
+  const ok = await showConfirm({ title: 'Clear local cache?', body: 'Wipe ALL local data and re-download from cloud?', confirmLabel: 'Clear', danger: true });
+  if (!ok) return;
   try {
     localStorage.removeItem(LS_KEY);
     if ('caches' in window) {
@@ -3100,6 +3822,58 @@ Return ONLY the JSON object.` }
   });
   const parsed = extractJSON(text);
   return Array.isArray(parsed) ? parsed : (parsed.items || []);
+}
+
+// Fetch a richer bottle dossier (price estimate, region, distillery, tasting notes, etc.)
+// Cached on the bottle object as `ai_info` so we don't re-query on every detail open.
+async function openaiBottleInfo(b) {
+  const ctx = [
+    `Name: ${b.name}`,
+    b.subcategory ? `Type: ${b.subcategory}` : '',
+    `Category: ${b.category}`,
+    b.abv != null ? `ABV: ${b.abv}%` : '',
+    b.volume_ml ? `Bottle size: ${b.volume_ml}ml` : '',
+    b.notes ? `User notes: ${b.notes}` : ''
+  ].filter(Boolean).join('\n');
+
+  const text = await callOpenAI({
+    model: 'gpt-4o',
+    max_tokens: 900,
+    temperature: 0.3,
+    response_format: { type: 'json_object' },
+    messages: [
+      { role: 'system', content: 'You are a spirits and bar-ingredient expert. Return concise, factual information. NEVER invent product details — if uncertain, set the field to null. Respond with valid JSON only.' },
+      { role: 'user', content: `Give me a reference card for this bottle:
+
+${ctx}
+
+Return JSON in EXACTLY this shape (use null for any field you genuinely don't know — do not guess prices for obscure bottles):
+
+{
+  "producer": "Distillery / brand / parent company",
+  "country": "Country of origin",
+  "region": "Region or appellation (e.g. Kentucky, Jalisco, Islay)",
+  "age_statement": "Age statement if any (e.g. '12 years', 'NAS', null)",
+  "production": "1-sentence on how it's made (mash bill / agave / botanicals / base / aging vessel)",
+  "price_usd_estimate": { "low": 25, "high": 35, "tier": "value | mid | premium | luxury", "note": "typical 750ml US retail; varies by market" },
+  "flavor_profile": ["3-6 short tasting notes, e.g. caramel", "vanilla", "oak"],
+  "aroma": "1-sentence nose description",
+  "palate": "1-sentence palate description",
+  "finish": "1-sentence finish description",
+  "best_served": "Neat | On the rocks | In cocktails | Chilled — pick the most apt",
+  "classic_cocktails": ["Old Fashioned", "Manhattan", "Whiskey Sour"],
+  "food_pairings": ["dark chocolate", "smoked meats", "aged cheddar"],
+  "fun_fact": "1-2 sentence interesting/historical fact",
+  "awards_or_notable": "Brief mention of notable awards or critical scores, or null",
+  "similar_to": ["1-3 comparable bottles for substitution"]
+}
+
+Return ONLY the JSON object.` }
+    ]
+  });
+  const parsed = extractJSON(text);
+  parsed.fetched_at = Date.now();
+  return parsed;
 }
 
 async function openaiCreateCocktail({ profile, bar, recent_drinks, mood, notes, count, strength, complexity, focus }) {
@@ -3243,6 +4017,95 @@ NELSON SAYS: ${message}`;
   return extractJSON(text);
 }
 
+async function openaiTonightsPour(profile, bar, recent) {
+  const barShort = bar.filter(b => b.category !== 'tool').map(b => b.name + ' (' + (b.subcategory || b.category) + ')').join(', ');
+  const recentShort = (recent || []).slice(0, 5).map(d => d.name).join(', ') || 'none';
+  const text = await callOpenAI({
+    model: 'gpt-4o-mini',
+    max_tokens: 200,
+    temperature: 0.9,
+    response_format: { type: 'json_object' },
+    messages: [
+      { role: 'system', content: 'You are a concise cocktail advisor. Respond with valid JSON only.' },
+      { role: 'user', content: `Based on Nelson's bar and profile, suggest ONE drink for tonight in JSON:
+Profile loves: ${(profile.loves || []).join(', ')}
+Bar: ${barShort}
+Recent (avoid repeats): ${recentShort}
+Time: ${new Date().toLocaleTimeString()} on ${new Date().toLocaleDateString(undefined, { weekday: 'long' })}
+
+{"suggestion":"Drink name","reason":"One-sentence why it fits the moment","emoji":"🥃"}` }
+    ]
+  });
+  return extractJSON(text);
+}
+
+async function openaiSmartShopping(profile, bar, recentDrinks) {
+  const barList = bar.filter(b => b.category !== 'tool').map(b => `${b.name} (${b.subcategory || b.category})`).join(', ');
+  const recentList = (recentDrinks || []).slice(0, 8).map(d => d.name).join(', ') || 'none';
+  const text = await callOpenAI({
+    model: 'gpt-4o-mini',
+    max_tokens: 600,
+    temperature: 0.7,
+    response_format: { type: 'json_object' },
+    messages: [
+      { role: 'system', content: 'You suggest bottles to fill gaps in a home bar. Respond with valid JSON only.' },
+      { role: 'user', content: `Nelson's bar currently has: ${barList}
+He loves: ${(profile.loves || []).join(', ')}
+He avoids: ${(profile.avoid || []).join(', ')}
+Recent drinks: ${recentList}
+
+Suggest 3 bottles that would most improve his bar. Focus on gaps — categories he's missing, or bottles that unlock many new cocktails. Return JSON:
+{"suggestions":[{"name":"Bottle name","category":"spirit","subcategory":"type","emoji":"🍾","why":"One-sentence reason this fills a gap"}]}` }
+    ]
+  });
+  return extractJSON(text);
+}
+
+async function smartShoppingSuggestions() {
+  const btn = document.getElementById('smart-shop-btn');
+  const results = document.getElementById('smart-shop-results');
+  btn.disabled = true;
+  btn.textContent = '✨ Thinking…';
+  results.innerHTML = '';
+  try {
+    const data = await openaiSmartShopping(db.user_profile, db.state.bar, db.state.drinks_made);
+    const suggestions = data.suggestions || [];
+    if (!suggestions.length) { results.innerHTML = '<p style="color:var(--whisper);font-size:13px;">Your bar looks well-stocked!</p>'; return; }
+    results.innerHTML = suggestions.map((s, i) => `
+      <div class="card card-soft" style="padding:12px;margin-bottom:8px;">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:10px;">
+          <div style="flex:1;">
+            <div style="font-weight:700;font-size:14px;color:var(--ink-strong);">${s.emoji || '🍾'} ${escapeHtml(s.name)}</div>
+            <div style="font-size:12px;color:var(--whisper);margin-top:3px;">${escapeHtml(s.category || '')} · ${escapeHtml(s.subcategory || '')}</div>
+            <div style="font-size:12.5px;color:var(--ink);margin-top:6px;line-height:1.5;">${escapeHtml(s.why || '')}</div>
+          </div>
+          <button class="btn btn-primary btn-sm" onclick="addSmartSuggestionToBuy(${i})" style="flex-shrink:0;">＋ Buy</button>
+        </div>
+      </div>
+    `).join('');
+    results._suggestions = suggestions;
+  } catch (e) {
+    results.innerHTML = `<p style="color:var(--ruby);font-size:13px;">${escapeHtml(e.message)}</p>`;
+  } finally {
+    btn.disabled = false;
+    btn.textContent = '✨ What\'s missing from my bar?';
+  }
+}
+
+async function addSmartSuggestionToBuy(idx) {
+  const results = document.getElementById('smart-shop-results');
+  const s = results._suggestions?.[idx];
+  if (!s) return;
+  if (db.state.to_buy.find(t => t.name.toLowerCase() === s.name.toLowerCase())) {
+    showToast(`${s.name} already in list`);
+    return;
+  }
+  db.state.to_buy.push({ id: uid('tb'), name: s.name, qty: 1, checked: false, added_at: Date.now() });
+  renderAll();
+  await saveDB();
+  showToast(`Added ${s.name} to To Buy`);
+}
+
 async function openaiSuggestSub(missingName, bar) {
   const barList = bar.filter(b => b.category !== 'tool').map(b => `- ${b.name} (${b.subcategory || b.category})`).join('\n');
   const text = await callOpenAI({
@@ -3277,6 +4140,203 @@ function renderAll() {
     ['settings', renderSettings]
   ]) {
     try { fn(); } catch (e) { console.error(`render ${name} failed:`, e); }
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+// ── HAPTICS ────────────────────────────────────────────────────────────
+// ═══════════════════════════════════════════════════════════════════════
+
+function haptic(type) {
+  if (!navigator.vibrate) return;
+  const patterns = { tap: [10], success: [10, 40, 20], warn: [30, 20, 30] };
+  try { navigator.vibrate(patterns[type] || [10]); } catch (_) {}
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+// ── ACTION SHEET (long-press) ─────────────────────────────────────────
+// ═══════════════════════════════════════════════════════════════════════
+
+function openActionSheet(title, actions) {
+  document.getElementById('as-title').textContent = title;
+  document.getElementById('as-actions').innerHTML = actions.map(a =>
+    `<button class="action-sheet-btn ${a.danger ? 'danger' : ''}" onclick="closeActionSheet();${a.onclick}">
+       <span class="as-ico">${a.icon}</span> ${escapeHtml(a.label)}
+     </button>`
+  ).join('');
+  document.getElementById('action-sheet-bg').classList.add('open');
+  haptic('tap');
+}
+
+function closeActionSheet() {
+  document.getElementById('action-sheet-bg').classList.remove('open');
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+// ── LONG-PRESS ON BAR ROWS ────────────────────────────────────────────
+// ═══════════════════════════════════════════════════════════════════════
+
+let _lpTimer = null;
+let _lpMoved = false;
+
+function setupLongPress() {
+  const list = document.getElementById('bar-list');
+  if (!list) return;
+
+  list.addEventListener('pointerdown', (e) => {
+    const row = e.target.closest('.bar-item');
+    if (!row || e.target.closest('.icon-btn') || e.target.closest('.bar-actions')) return;
+    const id = row.querySelector('.bar-info')?.getAttribute('onclick')?.match(/openBarDetail\('(.+?)'\)/)?.[1];
+    if (!id) return;
+    _lpMoved = false;
+    _lpTimer = setTimeout(() => {
+      if (_lpMoved) return;
+      e.preventDefault();
+      const b = db.state.bar.find(x => x.id === id);
+      if (!b) return;
+      const isPercentItem = b.category !== 'garnish' && b.category !== 'mixer' && b.category !== 'tool';
+      const actions = [
+        { icon: '📋', label: 'View details', onclick: `openBarDetail('${id}')` },
+        ...(isPercentItem ? [{ icon: '⏷', label: 'Mark ran out', onclick: `markRanOut('${id}')` }] : []),
+        ...(isPercentItem ? [{ icon: '➖', label: '−25% volume', onclick: `bumpRem('${id}',-25)` }] : []),
+        { icon: b.favorite ? '★' : '☆', label: b.favorite ? 'Unfavorite' : 'Mark favorite', onclick: `toggleFav('${id}')` },
+        { icon: '🗑', label: 'Remove from bar', onclick: `deleteBottle('${id}')`, danger: true }
+      ];
+      openActionSheet(b.name, actions);
+    }, 500);
+  });
+
+  list.addEventListener('pointermove', () => { _lpMoved = true; clearTimeout(_lpTimer); });
+  list.addEventListener('pointerup', () => clearTimeout(_lpTimer));
+  list.addEventListener('pointercancel', () => clearTimeout(_lpTimer));
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+// ── SWIPE-TO-DELETE ───────────────────────────────────────────────────
+// ═══════════════════════════════════════════════════════════════════════
+
+function setupSwipe(listSelector, getItemId, onDelete) {
+  const list = document.querySelector(listSelector);
+  if (!list) return;
+  let startX = 0, currentX = 0, swiping = null, threshold = 80;
+
+  list.addEventListener('pointerdown', (e) => {
+    const row = e.target.closest('.swipe-content');
+    if (!row || e.target.closest('.icon-btn') || e.target.closest('button') || e.target.closest('input')) return;
+    startX = e.clientX;
+    currentX = 0;
+    swiping = row;
+    row.classList.add('swiping');
+    row.setPointerCapture(e.pointerId);
+  });
+
+  list.addEventListener('pointermove', (e) => {
+    if (!swiping) return;
+    const dx = e.clientX - startX;
+    currentX = Math.min(0, dx);
+    swiping.style.transform = `translateX(${currentX}px)`;
+  });
+
+  list.addEventListener('pointerup', (e) => {
+    if (!swiping) return;
+    swiping.classList.remove('swiping');
+    if (Math.abs(currentX) > threshold) {
+      swiping.style.transform = `translateX(-100%)`;
+      const id = swiping.dataset.swipeId;
+      if (id) setTimeout(() => onDelete(id), 200);
+    } else {
+      swiping.style.transform = '';
+    }
+    swiping = null;
+  });
+
+  list.addEventListener('pointercancel', () => {
+    if (swiping) { swiping.classList.remove('swiping'); swiping.style.transform = ''; swiping = null; }
+  });
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+// ── RECIPE SHARE CARD ─────────────────────────────────────────────────
+// ═══════════════════════════════════════════════════════════════════════
+
+async function shareRecipeCard() {
+  if (!currentRecipe) return;
+  const r = currentRecipe;
+  const W = 600, lineH = 24;
+  const ings = r.ingredients || [];
+  const H = 280 + ings.length * lineH;
+  const c = document.createElement('canvas');
+  c.width = W; c.height = H;
+  const ctx = c.getContext('2d');
+
+  ctx.fillStyle = '#0e0f14';
+  ctx.fillRect(0, 0, W, H);
+
+  ctx.strokeStyle = '#c89b3c';
+  ctx.lineWidth = 2;
+  ctx.strokeRect(16, 16, W - 32, H - 32);
+
+  ctx.fillStyle = '#c89b3c';
+  ctx.font = '600 12px Inter, sans-serif';
+  ctx.letterSpacing = '2px';
+  ctx.fillText((r.complexity || 'cocktail').toUpperCase() + '  ·  ' + (r.method || 'served').toUpperCase(), 40, 52);
+
+  ctx.fillStyle = '#fff5e0';
+  ctx.font = '700 28px Playfair Display, Georgia, serif';
+  ctx.fillText(r.name || 'Drink', 40, 90);
+
+  if (r.tagline) {
+    ctx.fillStyle = '#b0b5bf';
+    ctx.font = 'italic 14px Playfair Display, Georgia, serif';
+    ctx.fillText('"' + r.tagline.slice(0, 70) + '"', 40, 118);
+  }
+
+  let y = 148;
+  const meta = [];
+  if (r.glass) meta.push('Glass: ' + r.glass);
+  if (r.ice) meta.push('Ice: ' + r.ice);
+  if (r.garnish) meta.push('Garnish: ' + r.garnish);
+  if (r.estimated_abv_pct) meta.push('~' + r.estimated_abv_pct + '% ABV');
+  ctx.fillStyle = '#8891a0';
+  ctx.font = '500 11px Inter, sans-serif';
+  ctx.fillText(meta.join('  ·  '), 40, y);
+  y += 28;
+
+  ctx.fillStyle = '#c89b3c';
+  ctx.font = '700 10px Inter, sans-serif';
+  ctx.fillText('BUILD', 40, y);
+  y += 18;
+
+  ings.forEach(i => {
+    ctx.fillStyle = '#f0e9d8';
+    ctx.font = '400 13px Inter, sans-serif';
+    ctx.fillText(`• ${i.name}`, 40, y);
+    ctx.fillStyle = '#f5c662';
+    ctx.font = '600 13px Inter, sans-serif';
+    const amtText = `${i.ml ?? '—'}ml · ${i.oz ?? '—'}oz`;
+    ctx.fillText(amtText, W - 40 - ctx.measureText(amtText).width, y);
+    y += lineH;
+  });
+
+  y += 8;
+  ctx.fillStyle = '#8891a0';
+  ctx.font = '500 10px Inter, sans-serif';
+  ctx.fillText("Nelson's Bar", 40, H - 30);
+
+  try {
+    const blob = await new Promise(resolve => c.toBlob(resolve, 'image/png'));
+    const file = new File([blob], 'cocktail.png', { type: 'image/png' });
+    if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
+      await navigator.share({ title: r.name, text: r.tagline || '', files: [file] });
+    } else {
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url; a.download = (r.name || 'cocktail').replace(/\s+/g, '_') + '.png'; a.click();
+      URL.revokeObjectURL(url);
+      showToast('Downloaded recipe card');
+    }
+  } catch (e) {
+    if (e.name !== 'AbortError') showToast('Share failed: ' + e.message);
   }
 }
 
@@ -3368,8 +4428,9 @@ function autoGrow(el) {
   el.style.height = Math.min(140, el.scrollHeight) + 'px';
 }
 
-function clearBartenderChat() {
-  if (!confirm('Start a fresh conversation? This clears the current chat.')) return;
+async function clearBartenderChat() {
+  const ok = await showConfirm({ title: 'New conversation?', body: 'Start fresh? This clears the current chat.', confirmLabel: 'Clear' });
+  if (!ok) return;
   db.state.bartender_chat = [];
   renderAsk();
   saveDB();
@@ -3516,6 +4577,32 @@ function makeBartenderDrink(msgIdx) {
 // ── TOAST ──────────────────────────────────────────────────────────────
 // ═══════════════════════════════════════════════════════════════════════
 
+// ─── Themed confirm / info (replaces native alert/confirm) ────────────
+let _confirmResolve = null;
+
+function showConfirm({ title, body, confirmLabel, danger }) {
+  return new Promise(resolve => {
+    _confirmResolve = resolve;
+    document.getElementById('confirm-title').textContent = title || 'Confirm';
+    document.getElementById('confirm-body').textContent = body || '';
+    const btn = document.getElementById('confirm-ok-btn');
+    btn.textContent = confirmLabel || 'OK';
+    btn.className = `btn btn-block ${danger ? 'btn-danger' : 'btn-primary'}`;
+    openModal('modal-confirm');
+  });
+}
+
+function resolveConfirm(val) {
+  closeModal('modal-confirm');
+  if (_confirmResolve) { _confirmResolve(val); _confirmResolve = null; }
+}
+
+function showInfo(title, body) {
+  document.getElementById('info-title').textContent = title || 'Info';
+  document.getElementById('info-body').textContent = body || '';
+  openModal('modal-info');
+}
+
 function showToast(msg) {
   const t = document.getElementById('toast');
   t.textContent = msg;
@@ -3542,7 +4629,8 @@ const isStandalone = window.navigator.standalone || window.matchMedia('(display-
 window.addEventListener('beforeinstallprompt', (e) => {
   e.preventDefault();
   deferredInstallPrompt = e;
-  if (!isStandalone) document.getElementById('install-banner').classList.add('show');
+  const dismissed = localStorage.getItem('nb_install_dismissed');
+  if (!isStandalone && !dismissed) document.getElementById('install-banner').classList.add('show');
   refreshInstallCard();
 });
 
@@ -3564,11 +4652,11 @@ async function triggerInstall() {
     deferredInstallPrompt = null;
     refreshInstallCard();
   } else if (isIOS) {
-    alert('On iOS:\n\n1. Tap the Share button (square with arrow up)\n2. Scroll down and tap "Add to Home Screen"\n3. Tap "Add"');
+    showInfo('Install on iOS', '1. Tap the Share button (square with arrow up)\n2. Scroll down and tap "Add to Home Screen"\n3. Tap "Add"');
   } else if (isAndroid) {
-    alert('On Android:\n\n1. Tap the Chrome menu (⋮ in top right)\n2. Tap "Install app" or "Add to Home screen"\n3. Tap "Install"\n\nThe app will appear in your App Drawer.');
+    showInfo('Install on Android', '1. Tap the Chrome menu (⋮ in top right)\n2. Tap "Install app" or "Add to Home screen"\n3. Tap "Install"\n\nThe app will appear in your App Drawer.');
   } else {
-    alert("Look for the install icon (⊕) in your browser's address bar.");
+    showInfo('Install', "Look for the install icon (⊕) in your browser's address bar.");
   }
 }
 
@@ -3607,8 +4695,6 @@ function refreshInstallCard() {
 
 (async () => {
   try {
-    document.getElementById('ver-tag').textContent = APP_VERSION;
-    document.getElementById('ver-tag-2').textContent = APP_VERSION;
     db = normalizeDB(db);
     renderAll();
   } catch (e) {
@@ -3630,6 +4716,20 @@ function refreshInstallCard() {
   }
 
   try { refreshInstallCard(); } catch (e) { console.warn(e); }
+
+  setupLongPress();
+  setupSwipe('#bar-list', id => id, async (id) => {
+    haptic('warn');
+    db.state.bar = db.state.bar.filter(x => x.id !== id);
+    renderAll();
+    await saveDB();
+    showToast('Removed');
+  });
+  setupSwipe('#buy-list', id => id, async (id) => {
+    db.state.to_buy = db.state.to_buy.filter(x => x.id !== id);
+    renderAll();
+    await saveDB();
+  });
 })();
 </script>
 </body>
