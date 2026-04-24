@@ -486,7 +486,7 @@
     .nav-btn.active { color: var(--brass-glow); background: var(--brass-soft); }
     .nav-btn.center {
       position: relative;
-      transform: translateY(-14px);
+      transform: translateY(-8px);
       background: linear-gradient(135deg, var(--brass-glow), var(--brass) 70%, var(--copper));
       color: #1a1308;
       border-radius: 50%;
@@ -494,9 +494,12 @@
       box-shadow: 0 6px 22px rgba(200, 155, 60, 0.55), inset 0 1px 0 rgba(255,255,255,0.3);
       margin: 0 auto;
       padding: 0;
+      gap: 1px;
+      justify-content: center;
+      align-self: center;
     }
-    .nav-btn.center .ico { font-size: 22px; }
-    .nav-btn.center .lbl { font-size: 9px; margin-top: 0; }
+    .nav-btn.center .ico { font-size: 20px; line-height: 1; }
+    .nav-btn.center .lbl { font-size: 8.5px; margin: 0; line-height: 1; }
     .nav-btn.center.active { background: linear-gradient(135deg, var(--brass-glow), var(--brass)); }
 
     /* ── Modal ───────────────────────────────────────────────────── */
@@ -1460,7 +1463,7 @@
 // ── CONFIG ─────────────────────────────────────────────────────────────
 // ═══════════════════════════════════════════════════════════════════════
 
-const APP_VERSION = 'v1.3';
+const APP_VERSION = 'v1.3.1';
 const SUPABASE_URL = 'https://qdhqkcsfslkbhxtogjfp.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_bmapexcRWmRzsRvbqIJCpw_XnWaMCZL';
 const CONNECT_TIMEOUT_MS = 8000;
