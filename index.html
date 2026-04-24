@@ -834,6 +834,21 @@
       width: 100%;
       box-sizing: border-box;
     }
+    .pc-multi-badge {
+      position: absolute;
+      top: -6px;
+      right: 32px;
+      background: var(--amber);
+      color: var(--obsidian);
+      font-size: 9px;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      padding: 2px 8px;
+      border-radius: 6px;
+      z-index: 1;
+    }
+    .photo-confirm-row { position: relative; }
 
     /* ── Bottle dossier (AI info card in detail modal) ──────────────── */
     .dossier {
@@ -1333,6 +1348,7 @@
       <button class="chip" onclick="setBarFilter('mixer', this)">Mixers</button>
       <button class="chip" onclick="setBarFilter('bitter', this)">Bitters</button>
       <button class="chip" onclick="setBarFilter('garnish', this)">Garnishes</button>
+      <button class="chip" onclick="setBarFilter('beer', this)">Beer</button>
       <button class="chip" onclick="setBarFilter('tool', this)">Tools</button>
       <button class="chip" onclick="setBarFilter('low', this)">Running low</button>
       <button class="chip" onclick="setBarFilter('fav', this)">⭐ Favorites</button>
@@ -1778,7 +1794,7 @@
 // ── CONFIG ─────────────────────────────────────────────────────────────
 // ═══════════════════════════════════════════════════════════════════════
 
-const APP_VERSION = 'v2.0.0';
+const APP_VERSION = 'v2.1.0';
 const SUPABASE_URL = 'https://qdhqkcsfslkbhxtogjfp.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_bmapexcRWmRzsRvbqIJCpw_XnWaMCZL';
 const CONNECT_TIMEOUT_MS = 8000;
@@ -1904,7 +1920,8 @@ function normalizeDB(data) {
     abv: b.abv ?? null,
     volume_ml: typeof b.volume_ml === 'number' ? b.volume_ml : 750,
     remaining_pct: typeof b.remaining_pct === 'number' ? b.remaining_pct : 100,
-    quantity: typeof b.quantity === 'number' && b.quantity > 0 ? b.quantity : 1,
+    is_multi_unit: !!b.is_multi_unit,
+    quantity: b.is_multi_unit ? (typeof b.quantity === 'number' ? b.quantity : 1) : (b.quantity ?? null),
     emoji: b.emoji || '🍾',
     image_url: b.image_url ?? null,
     notes: b.notes ?? '',
@@ -2203,7 +2220,7 @@ function dayBucket(iso) {
 function categoryLabel(c) {
   return ({
     spirit: 'Spirit', liqueur: 'Liqueur', wine_vermouth: 'Wine / Vermouth',
-    mixer: 'Mixer', bitter: 'Bitter', garnish: 'Garnish', tool: 'Tool'
+    mixer: 'Mixer', bitter: 'Bitter', garnish: 'Garnish', tool: 'Tool', beer: 'Beer'
   })[c] || c;
 }
 
@@ -2430,7 +2447,7 @@ function renderBar() {
   const all = db.state.bar;
   const items = all.filter(b => {
     if (barFilter === 'all') return true;
-    if (barFilter === 'low') return (b.category === 'spirit' || b.category === 'liqueur' || b.category === 'wine_vermouth' || b.category === 'bitter') && b.remaining_pct < 25;
+    if (barFilter === 'low') return b.is_multi_unit ? (b.quantity != null && b.quantity <= 2) : ((b.category === 'spirit' || b.category === 'liqueur' || b.category === 'wine_vermouth' || b.category === 'bitter') && b.remaining_pct < 25);
     if (barFilter === 'fav') return b.favorite;
     return b.category === barFilter;
   }).sort((a, b) => {
@@ -2438,7 +2455,7 @@ function renderBar() {
     return a.name.localeCompare(b.name);
   });
 
-  document.getElementById('bar-sub').textContent = `${all.length} bottles · ${all.filter(b => b.favorite).length} favorites`;
+  document.getElementById('bar-sub').textContent = `${all.length} items · ${all.filter(b => b.favorite).length} favorites`;
   const list = document.getElementById('bar-list');
 
   if (items.length === 0) {
@@ -2454,30 +2471,28 @@ function renderBar() {
   }
 
   list.innerHTML = items.map(b => {
-    const isPercentItem = b.category !== 'garnish' && b.category !== 'mixer' && b.category !== 'tool';
+    const multi = b.is_multi_unit;
+    const isPercentItem = !multi && b.category !== 'garnish' && b.category !== 'mixer' && b.category !== 'tool';
     const tier = fillTierClass(b.remaining_pct);
     const low = isPercentItem && tier === 'low';
+    const multiLow = multi && b.quantity != null && b.quantity <= 2;
     const subtag = b.subcategory ? `<span class="tag">${escapeHtml(b.subcategory)}</span>` : '';
     const abvtag = b.abv != null ? `<span class="tag brass">${b.abv}%</span>` : '';
     const volBar = isPercentItem ? `
       <div class="vol-bar-wrap"><div class="vol-bar-fill ${tier}" style="width:${Math.max(0,Math.min(100,b.remaining_pct))}%"></div></div>
     ` : '';
-    const qty = b.quantity && b.quantity > 1 ? `<span class="qty-badge">×${b.quantity}</span>` : '';
+    const qtyBadge = multi ? `<span class="qty-badge">×${b.quantity || 0}</span>` : '';
     return `
       <div class="swipe-wrap">
         <div class="swipe-underlay">Delete</div>
-        <div class="swipe-content bar-item ${b.favorite ? 'fav' : ''} ${low ? 'low' : ''}" data-swipe-id="${b.id}">
+        <div class="swipe-content bar-item ${b.favorite ? 'fav' : ''} ${low || multiLow ? 'low' : ''}" data-swipe-id="${b.id}">
           ${b.image_url ? `<img src="${b.image_url}" style="width:36px;height:36px;object-fit:cover;border-radius:50%;border:1px solid var(--brass-line);flex-shrink:0;" alt="" />` : `<div class="bar-emoji">${b.emoji || '🍾'}</div>`}
           <div class="bar-info" onclick="openBarDetail('${b.id}')">
-            <div class="bar-name">${escapeHtml(b.name)} ${qty} ${b.favorite ? '<span class="star">★</span>' : ''}</div>
-            <div class="bar-meta">${subtag}${abvtag}${isPercentItem ? `<span style="color:var(--whisper);">${Math.round((b.remaining_pct/100)*b.volume_ml)} ml left</span>` : ''}</div>
+            <div class="bar-name">${escapeHtml(b.name)} ${qtyBadge} ${b.favorite ? '<span class="star">★</span>' : ''}</div>
+            <div class="bar-meta">${subtag}${abvtag}${multi ? `<span style="color:var(--whisper);">${b.quantity || 0} left</span>` : (isPercentItem ? `<span style="color:var(--whisper);">${Math.round((b.remaining_pct/100)*b.volume_ml)} ml left</span>` : '')}</div>
             ${volBar}
           </div>
           <div class="bar-actions">
-            ${isPercentItem ? `
-              <button class="icon-btn" onclick="bumpRem('${b.id}', -10)" title="−10%" aria-label="Decrease volume 10%">−</button>
-              <button class="icon-btn" onclick="bumpRem('${b.id}', 10)" title="+10%" aria-label="Increase volume 10%">+</button>
-            ` : ''}
             <button class="icon-btn fav ${b.favorite ? 'on' : ''}" onclick="toggleFav('${b.id}')" title="Favorite" aria-label="${b.favorite ? 'Remove favorite' : 'Mark favorite'}">★</button>
             <button class="icon-btn danger" onclick="deleteBottle('${b.id}')" title="Delete" aria-label="Delete ${escapeAttr(b.name)}">×</button>
           </div>
@@ -2492,6 +2507,21 @@ async function bumpRem(id, delta) {
   haptic('tap');
   b.remaining_pct = Math.max(0, Math.min(100, (b.remaining_pct || 0) + delta));
   if (b.remaining_pct === 0) {
+    if (!db.state.to_buy.find(t => t.name.toLowerCase() === b.name.toLowerCase())) {
+      db.state.to_buy.push({ id: uid('tb'), name: b.name, qty: 1, checked: false, added_at: Date.now() });
+      showToast(`Added ${b.name} to To Buy`);
+    }
+  }
+  renderAll();
+  await saveDB();
+}
+
+async function bumpQty(id, delta) {
+  const b = db.state.bar.find(x => x.id === id);
+  if (!b) return;
+  haptic('tap');
+  b.quantity = Math.max(0, (b.quantity || 0) + delta);
+  if (b.quantity === 0) {
     if (!db.state.to_buy.find(t => t.name.toLowerCase() === b.name.toLowerCase())) {
       db.state.to_buy.push({ id: uid('tb'), name: b.name, qty: 1, checked: false, added_at: Date.now() });
       showToast(`Added ${b.name} to To Buy`);
@@ -2523,7 +2553,8 @@ async function deleteBottle(id) {
 function openBarDetail(id) {
   const b = db.state.bar.find(x => x.id === id);
   if (!b) return;
-  const isPercentItem = b.category !== 'garnish' && b.category !== 'mixer' && b.category !== 'tool';
+  const multi = b.is_multi_unit;
+  const isPercentItem = !multi && b.category !== 'garnish' && b.category !== 'mixer' && b.category !== 'tool';
   const body = document.getElementById('modal-detail-body');
   body.innerHTML = `
     <div class="modal-head">
@@ -2534,20 +2565,23 @@ function openBarDetail(id) {
       <span class="tag">${categoryLabel(b.category)}</span>
       ${b.subcategory ? `<span class="tag">${escapeHtml(b.subcategory)}</span>` : ''}
       ${b.abv != null ? `<span class="tag brass">${b.abv}% ABV</span>` : ''}
-      ${b.quantity > 1 ? `<span class="tag brass">×${b.quantity} bottles</span>` : ''}
+      ${multi ? `<span class="tag brass">📦 Multi-pack</span>` : ''}
       ${b.favorite ? `<span class="tag brass">⭐ favorite</span>` : ''}
     </div>
 
-    <div class="card card-soft" style="margin-bottom:14px;">
-      <div style="display:flex;justify-content:space-between;align-items:center;">
-        <strong style="font-size:13px;color:var(--whisper);letter-spacing:0.06em;text-transform:uppercase;">Quantity</strong>
-        <div class="vol-control" style="margin:0;">
-          <button class="qty" onclick="bumpQty('${b.id}', -1)">−</button>
-          <span style="font-family:'Playfair Display',serif;font-size:22px;color:var(--brass-glow);min-width:48px;text-align:center;font-weight:700;">×${b.quantity || 1}</span>
-          <button class="qty" onclick="bumpQty('${b.id}', 1)">+</button>
+    ${multi ? `
+      <div class="card card-soft" style="margin-bottom:14px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;">
+          <strong style="font-size:13px;color:var(--whisper);letter-spacing:0.06em;text-transform:uppercase;">In Stock</strong>
+          <div class="vol-control" style="margin:0;">
+            <button class="qty" onclick="bumpQtyAndRefresh('${b.id}', -1)">−</button>
+            <span style="font-family:'Playfair Display',serif;font-size:22px;color:var(--brass-glow);min-width:48px;text-align:center;font-weight:700;">${b.quantity || 0}</span>
+            <button class="qty" onclick="bumpQtyAndRefresh('${b.id}', 1)">+</button>
+          </div>
         </div>
+        <div style="font-size:12px;color:var(--smoke);margin-top:6px;">${b.volume_ml || 355} ml each</div>
       </div>
-    </div>
+    ` : ''}
 
     ${isPercentItem ? `
       <div class="card card-soft" style="margin-bottom:14px;">
@@ -2732,6 +2766,10 @@ async function bumpRemAndRefresh(id, delta) {
   await bumpRem(id, delta);
   openBarDetail(id);
 }
+async function bumpQtyAndRefresh(id, delta) {
+  await bumpQty(id, delta);
+  openBarDetail(id);
+}
 async function toggleFavRefresh(id) {
   await toggleFav(id);
   openBarDetail(id);
@@ -2739,16 +2777,11 @@ async function toggleFavRefresh(id) {
 async function markRanOut(id) {
   const b = db.state.bar.find(x => x.id === id);
   if (!b) return;
-  if ((b.quantity || 1) > 1) {
-    b.quantity = (b.quantity || 1) - 1;
-    b.remaining_pct = 100;
-    closeModal('modal-detail');
-    renderAll();
-    await saveDB();
-    showToast(`Opened next ${b.name} (${b.quantity} left)`);
-    return;
+  if (b.is_multi_unit) {
+    b.quantity = 0;
+  } else {
+    b.remaining_pct = 0;
   }
-  b.remaining_pct = 0;
   if (!db.state.to_buy.find(t => t.name.toLowerCase() === b.name.toLowerCase())) {
     db.state.to_buy.push({ id: uid('tb'), name: b.name, qty: 1, checked: false, added_at: Date.now() });
   }
@@ -2757,15 +2790,6 @@ async function markRanOut(id) {
   renderAll();
   await saveDB();
   showToast(`${b.name} added to To Buy`);
-}
-
-async function bumpQty(id, delta) {
-  const b = db.state.bar.find(x => x.id === id);
-  if (!b) return;
-  b.quantity = Math.max(1, (b.quantity || 1) + delta);
-  renderAll();
-  await saveDB();
-  openBarDetail(id);
 }
 
 function openAddBottleModal(prefill) {
@@ -2899,8 +2923,21 @@ function renderPhotoOutput() {
     out.innerHTML = `<p style="color:var(--whisper);text-align:center;padding:20px;">No bottles detected.</p>`;
     return;
   }
-  out.innerHTML = photoDraft.map((it, i) => `
+  out.innerHTML = photoDraft.map((it, i) => {
+    const multi = it.is_multi_unit;
+    const lastField = multi
+      ? `<div class="pc-field">
+            <span class="pc-label">How many?</span>
+            <input type="number" class="text-input" value="${it.quantity ?? 1}" min="1" placeholder="1" oninput="photoDraft[${i}].quantity=Math.max(1,parseInt(this.value)||1);photoDraft[${i}].remaining_pct=100" />
+          </div>`
+      : `<div class="pc-field">
+            <span class="pc-label">Fill %</span>
+            <input type="number" class="text-input" value="${it.remaining_pct ?? 100}" placeholder="100" oninput="photoDraft[${i}].remaining_pct=parseInt(this.value)||100" />
+          </div>`;
+    const categories = ['spirit','liqueur','wine_vermouth','mixer','bitter','garnish','beer'];
+    return `
     <div class="photo-confirm-row">
+      ${multi ? '<span class="pc-multi-badge">📦 Multi-pack</span>' : ''}
       <input class="text-input em-input" value="${escapeAttr(it.emoji || '🍾')}" oninput="photoDraft[${i}].emoji=this.value" />
       <div>
         <input class="text-input" value="${escapeAttr(it.name || '')}" oninput="photoDraft[${i}].name=this.value" placeholder="Name" />
@@ -2908,7 +2945,7 @@ function renderPhotoOutput() {
           <div class="pc-field">
             <span class="pc-label">Category</span>
             <select class="text-input" onchange="photoDraft[${i}].category=this.value">
-              ${['spirit','liqueur','wine_vermouth','mixer','bitter','garnish'].map(c => `<option value="${c}" ${it.category===c?'selected':''}>${categoryLabel(c)}</option>`).join('')}
+              ${categories.map(c => `<option value="${c}" ${it.category===c?'selected':''}>${categoryLabel(c)}</option>`).join('')}
             </select>
           </div>
           <div class="pc-field">
@@ -2923,15 +2960,12 @@ function renderPhotoOutput() {
             <span class="pc-label">Size (ml)</span>
             <input type="number" class="text-input" value="${it.volume_ml ?? 750}" placeholder="750" oninput="photoDraft[${i}].volume_ml=parseInt(this.value)||750" />
           </div>
-          <div class="pc-field">
-            <span class="pc-label">Fill %</span>
-            <input type="number" class="text-input" value="${it.remaining_pct ?? 100}" placeholder="100" oninput="photoDraft[${i}].remaining_pct=parseInt(this.value)||100" />
-          </div>
+          ${lastField}
         </div>
       </div>
       <button class="icon-btn danger" onclick="photoDraft.splice(${i},1);renderPhotoOutput()">×</button>
-    </div>
-  `).join('');
+    </div>`;
+  }).join('');
 }
 
 async function confirmPhotoAdd() {
@@ -2946,7 +2980,9 @@ async function confirmPhotoAdd() {
       subcategory: it.subcategory || '',
       abv: typeof it.abv === 'number' ? it.abv : null,
       volume_ml: typeof it.volume_ml === 'number' ? it.volume_ml : 750,
-      remaining_pct: typeof it.remaining_pct === 'number' ? it.remaining_pct : 100,
+      remaining_pct: it.is_multi_unit ? 100 : (typeof it.remaining_pct === 'number' ? it.remaining_pct : 100),
+      is_multi_unit: !!it.is_multi_unit,
+      quantity: it.is_multi_unit ? Math.max(1, parseInt(it.quantity) || 1) : null,
       emoji: it.emoji || '🍾',
       notes: it.notes || '',
       favorite: false,
@@ -2956,7 +2992,7 @@ async function confirmPhotoAdd() {
   closeModal('modal-photo');
   renderAll();
   await saveDB();
-  showToast(`Added ${photoDraft.length} bottle${photoDraft.length>1?'s':''}`);
+  showToast(`Added ${photoDraft.length} item${photoDraft.length>1?'s':''}`);
   photoDraft = [];
 }
 
@@ -3805,17 +3841,19 @@ async function openaiPhotoToBar(dataUrl) {
       { role: 'system', content: 'You are a vision assistant that catalogs spirits, liqueurs, mixers, bitters, and bar ingredients in photos. You ALWAYS respond with valid JSON only.' },
       { role: 'user', content: [
         { type: 'image_url', image_url: { url: dataUrl, detail: 'high' } },
-        { type: 'text', text: `Identify each distinct bottle / bar ingredient in this photo. Return JSON:
+        { type: 'text', text: `Identify each distinct bottle, can, or bar ingredient in this photo. Return JSON:
 
-{"items":[{"name":"Buffalo Trace Kentucky Straight Bourbon","category":"spirit","subcategory":"bourbon","abv":45,"volume_ml":750,"remaining_pct":80,"emoji":"🥃","notes":"One-line tasting note if you recognize the bottle."}]}
+{"items":[{"name":"Buffalo Trace Kentucky Straight Bourbon","category":"spirit","subcategory":"bourbon","abv":45,"volume_ml":750,"remaining_pct":80,"quantity":1,"is_multi_unit":false,"emoji":"🥃","notes":"One-line tasting note."}]}
 
 Rules:
-- category: spirit | liqueur | wine_vermouth | mixer | bitter | garnish
-- subcategory: gin / whiskey / bourbon / scotch / rye / rum / vodka / tequila / mezcal / brandy / etc.
+- category: spirit | liqueur | wine_vermouth | mixer | bitter | garnish | beer
+- subcategory: gin / whiskey / bourbon / scotch / rye / rum / vodka / tequila / mezcal / brandy / lager / IPA / pale ale / stout / seltzer / tonic / ginger beer / soda / etc.
 - abv: integer % alcohol; null for non-alcoholic mixers
-- volume_ml: 750/1000/700/375/200, best guess from label
-- remaining_pct: estimate from visible liquid level (50 if you can't see)
-- emoji: a single emoji
+- volume_ml: size of ONE unit (can=355, tallboy=473, bottle=330/500/750/1000)
+- is_multi_unit: true if the item is a can, small mixer bottle, or beer — these come in packs not as a single bottle with a fill level
+- quantity: if is_multi_unit=true, COUNT how many individual cans/bottles you can see in the photo. If you can't count them, use 1. For regular bottles, always 1.
+- remaining_pct: for regular bottles, estimate fill from visible liquid (50 if can't see). For multi-unit items (cans, small mixers), always 100.
+- emoji: a single emoji (🍺 for beer, 🥤 for soda/seltzer, etc.)
 Return ONLY the JSON object.` }
       ] }
     ]
@@ -4194,9 +4232,14 @@ function setupLongPress() {
       e.preventDefault();
       const b = db.state.bar.find(x => x.id === id);
       if (!b) return;
-      const isPercentItem = b.category !== 'garnish' && b.category !== 'mixer' && b.category !== 'tool';
+      const multi = b.is_multi_unit;
+      const isPercentItem = !multi && b.category !== 'garnish' && b.category !== 'mixer' && b.category !== 'tool';
       const actions = [
         { icon: '📋', label: 'View details', onclick: `openBarDetail('${id}')` },
+        ...(multi ? [
+          { icon: '➖', label: 'Use one (−1)', onclick: `bumpQty('${id}',-1)` },
+          { icon: '➕', label: 'Add one (+1)', onclick: `bumpQty('${id}',1)` }
+        ] : []),
         ...(isPercentItem ? [{ icon: '⏷', label: 'Mark ran out', onclick: `markRanOut('${id}')` }] : []),
         ...(isPercentItem ? [{ icon: '➖', label: '−25% volume', onclick: `bumpRem('${id}',-25)` }] : []),
         { icon: b.favorite ? '★' : '☆', label: b.favorite ? 'Unfavorite' : 'Mark favorite', onclick: `toggleFav('${id}')` },
