@@ -815,7 +815,7 @@
     .photo-confirm-row input.text-input { padding: 7px 10px; font-size: 13px; }
     .photo-confirm-row .pc-grid {
       display: grid;
-      grid-template-columns: 1fr 1fr 1fr 1fr 1fr;
+      grid-template-columns: repeat(auto-fill, minmax(70px, 1fr));
       gap: 6px;
       margin-top: 8px;
     }
@@ -849,6 +849,31 @@
       z-index: 1;
     }
     .photo-confirm-row { position: relative; }
+    .photo-confirm-row.pc-skipped {
+      opacity: 0.35;
+      pointer-events: auto;
+    }
+    .photo-confirm-row.pc-skipped .pc-grid,
+    .photo-confirm-row.pc-skipped .em-input { opacity: 0.5; pointer-events: none; }
+    .pc-dupe-notice {
+      width: 100%;
+      background: rgba(218,165,32,0.1);
+      border: 1px solid var(--brass-line);
+      border-radius: 8px;
+      padding: 8px 10px;
+      margin-bottom: 8px;
+      font-size: 12px;
+      color: var(--brass-glow);
+    }
+    .pc-dupe-actions {
+      display: flex;
+      gap: 6px;
+      margin-top: 6px;
+    }
+    .pc-dupe-actions .chip {
+      font-size: 11px;
+      padding: 3px 10px;
+    }
 
     /* ── Bottle dossier (AI info card in detail modal) ──────────────── */
     .dossier {
@@ -1921,7 +1946,7 @@ function normalizeDB(data) {
     volume_ml: typeof b.volume_ml === 'number' ? b.volume_ml : 750,
     remaining_pct: typeof b.remaining_pct === 'number' ? b.remaining_pct : 100,
     is_multi_unit: !!b.is_multi_unit,
-    quantity: b.is_multi_unit ? (typeof b.quantity === 'number' ? b.quantity : 1) : (b.quantity ?? null),
+    quantity: typeof b.quantity === 'number' ? b.quantity : 1,
     emoji: b.emoji || '🍾',
     image_url: b.image_url ?? null,
     notes: b.notes ?? '',
@@ -2481,7 +2506,7 @@ function renderBar() {
     const volBar = isPercentItem ? `
       <div class="vol-bar-wrap"><div class="vol-bar-fill ${tier}" style="width:${Math.max(0,Math.min(100,b.remaining_pct))}%"></div></div>
     ` : '';
-    const qtyBadge = multi ? `<span class="qty-badge">×${b.quantity || 0}</span>` : '';
+    const qtyBadge = (b.quantity || 1) > 1 ? `<span class="qty-badge">×${b.quantity}</span>` : '';
     return `
       <div class="swipe-wrap">
         <div class="swipe-underlay">Delete</div>
@@ -2569,19 +2594,17 @@ function openBarDetail(id) {
       ${b.favorite ? `<span class="tag brass">⭐ favorite</span>` : ''}
     </div>
 
-    ${multi ? `
-      <div class="card card-soft" style="margin-bottom:14px;">
-        <div style="display:flex;justify-content:space-between;align-items:center;">
-          <strong style="font-size:13px;color:var(--whisper);letter-spacing:0.06em;text-transform:uppercase;">In Stock</strong>
-          <div class="vol-control" style="margin:0;">
-            <button class="qty" onclick="bumpQtyAndRefresh('${b.id}', -1)">−</button>
-            <span style="font-family:'Playfair Display',serif;font-size:22px;color:var(--brass-glow);min-width:48px;text-align:center;font-weight:700;">${b.quantity || 0}</span>
-            <button class="qty" onclick="bumpQtyAndRefresh('${b.id}', 1)">+</button>
-          </div>
+    <div class="card card-soft" style="margin-bottom:14px;">
+      <div style="display:flex;justify-content:space-between;align-items:center;">
+        <strong style="font-size:13px;color:var(--whisper);letter-spacing:0.06em;text-transform:uppercase;">${multi ? 'In Stock' : 'Bottles'}</strong>
+        <div class="vol-control" style="margin:0;">
+          <button class="qty" onclick="bumpQtyAndRefresh('${b.id}', -1)">−</button>
+          <span style="font-family:'Playfair Display',serif;font-size:22px;color:var(--brass-glow);min-width:48px;text-align:center;font-weight:700;">${b.quantity || 1}</span>
+          <button class="qty" onclick="bumpQtyAndRefresh('${b.id}', 1)">+</button>
         </div>
-        <div style="font-size:12px;color:var(--smoke);margin-top:6px;">${b.volume_ml || 355} ml each</div>
       </div>
-    ` : ''}
+      <div style="font-size:12px;color:var(--smoke);margin-top:6px;">${b.volume_ml || 750} ml each</div>
+    </div>
 
     ${isPercentItem ? `
       <div class="card card-soft" style="margin-bottom:14px;">
@@ -2876,6 +2899,12 @@ function startPhotoMode(mode) {
   document.getElementById('photo-input').click();
 }
 
+function findExistingBarMatch(name) {
+  if (!name) return null;
+  const norm = name.trim().toLowerCase();
+  return db.state.bar.find(b => b.name.trim().toLowerCase() === norm) || null;
+}
+
 async function handleBarPhoto(event) {
   const file = event.target.files[0];
   if (!file) return;
@@ -2883,11 +2912,19 @@ async function handleBarPhoto(event) {
   try {
     const dataUrl = await resizeImage(file, 1024);
     const items = await openaiPhotoToBar(dataUrl);
+    items.forEach(it => {
+      const existing = findExistingBarMatch(it.name);
+      if (existing) {
+        it._existing = existing;
+        it._action = 'add_more';
+        it.quantity = it.quantity ?? 1;
+      }
+    });
     photoDraft = items;
     renderPhotoOutput();
     const headerEl = document.querySelector('#modal-photo .modal-head h2');
     if (headerEl) {
-      headerEl.textContent = photoDraft.length === 1 ? 'Detected 1 bottle' : `Detected ${photoDraft.length} bottles`;
+      headerEl.textContent = photoDraft.length === 1 ? 'Detected 1 item' : `Detected ${photoDraft.length} items`;
     }
     openModal('modal-photo');
   } catch (e) {
@@ -2925,22 +2962,24 @@ function renderPhotoOutput() {
   }
   out.innerHTML = photoDraft.map((it, i) => {
     const multi = it.is_multi_unit;
-    const lastField = multi
-      ? `<div class="pc-field">
-            <span class="pc-label">How many?</span>
-            <input type="number" class="text-input" value="${it.quantity ?? 1}" min="1" placeholder="1" oninput="photoDraft[${i}].quantity=Math.max(1,parseInt(this.value)||1);photoDraft[${i}].remaining_pct=100" />
-          </div>`
-      : `<div class="pc-field">
-            <span class="pc-label">Fill %</span>
-            <input type="number" class="text-input" value="${it.remaining_pct ?? 100}" placeholder="100" oninput="photoDraft[${i}].remaining_pct=parseInt(this.value)||100" />
-          </div>`;
+    const ex = it._existing;
+    const exQty = ex ? (ex.quantity || 1) : 0;
+    const dupeNotice = ex ? `
+      <div class="pc-dupe-notice">
+        <span>Already in your bar: <strong>${escapeHtml(ex.name)}</strong> (${ex.is_multi_unit ? exQty + ' in stock' : Math.round(ex.remaining_pct) + '% full'})</span>
+        <div class="pc-dupe-actions">
+          <button class="chip ${it._action === 'add_more' ? 'active' : ''}" onclick="photoDraft[${i}]._action='add_more';renderPhotoOutput()">Add more (+${it.quantity || 1})</button>
+          <button class="chip ${it._action === 'skip' ? 'active' : ''}" onclick="photoDraft[${i}]._action='skip';renderPhotoOutput()">Skip</button>
+        </div>
+      </div>` : '';
     const categories = ['spirit','liqueur','wine_vermouth','mixer','bitter','garnish','beer'];
     return `
-    <div class="photo-confirm-row">
+    <div class="photo-confirm-row ${it._action === 'skip' ? 'pc-skipped' : ''}">
       ${multi ? '<span class="pc-multi-badge">📦 Multi-pack</span>' : ''}
+      ${dupeNotice}
       <input class="text-input em-input" value="${escapeAttr(it.emoji || '🍾')}" oninput="photoDraft[${i}].emoji=this.value" />
       <div>
-        <input class="text-input" value="${escapeAttr(it.name || '')}" oninput="photoDraft[${i}].name=this.value" placeholder="Name" />
+        <input class="text-input" value="${escapeAttr(it.name || '')}" oninput="photoDraft[${i}].name=this.value;photoDraft[${i}]._existing=findExistingBarMatch(this.value);photoDraft[${i}]._action=photoDraft[${i}]._existing?'add_more':null;renderPhotoOutput()" placeholder="Name" />
         <div class="pc-grid">
           <div class="pc-field">
             <span class="pc-label">Category</span>
@@ -2960,7 +2999,14 @@ function renderPhotoOutput() {
             <span class="pc-label">Size (ml)</span>
             <input type="number" class="text-input" value="${it.volume_ml ?? 750}" placeholder="750" oninput="photoDraft[${i}].volume_ml=parseInt(this.value)||750" />
           </div>
-          ${lastField}
+          <div class="pc-field">
+            <span class="pc-label">How many?</span>
+            <input type="number" class="text-input" value="${it.quantity ?? 1}" min="1" placeholder="1" oninput="photoDraft[${i}].quantity=Math.max(1,parseInt(this.value)||1)" />
+          </div>
+          ${!multi ? `<div class="pc-field">
+            <span class="pc-label">Fill %</span>
+            <input type="number" class="text-input" value="${it.remaining_pct ?? 100}" placeholder="100" oninput="photoDraft[${i}].remaining_pct=parseInt(this.value)||100" />
+          </div>` : ''}
         </div>
       </div>
       <button class="icon-btn danger" onclick="photoDraft.splice(${i},1);renderPhotoOutput()">×</button>
@@ -2971,8 +3017,19 @@ function renderPhotoOutput() {
 async function confirmPhotoAdd() {
   if (!photoDraft || photoDraft.length === 0) { closeModal('modal-photo'); return; }
   const stamp = Date.now();
+  let added = 0, updated = 0;
   photoDraft.forEach(it => {
     if (!it.name) return;
+    if (it._action === 'skip') return;
+    const addQty = Math.max(1, parseInt(it.quantity) || 1);
+    if (it._existing && it._action === 'add_more') {
+      const existing = db.state.bar.find(b => b.id === it._existing.id);
+      if (existing) {
+        existing.quantity = (existing.quantity || 1) + addQty;
+        updated += addQty;
+        return;
+      }
+    }
     db.state.bar.push({
       id: uid('b'),
       name: it.name,
@@ -2982,17 +3039,21 @@ async function confirmPhotoAdd() {
       volume_ml: typeof it.volume_ml === 'number' ? it.volume_ml : 750,
       remaining_pct: it.is_multi_unit ? 100 : (typeof it.remaining_pct === 'number' ? it.remaining_pct : 100),
       is_multi_unit: !!it.is_multi_unit,
-      quantity: it.is_multi_unit ? Math.max(1, parseInt(it.quantity) || 1) : null,
+      quantity: addQty,
       emoji: it.emoji || '🍾',
       notes: it.notes || '',
       favorite: false,
       added_at: stamp
     });
+    added++;
   });
   closeModal('modal-photo');
   renderAll();
   await saveDB();
-  showToast(`Added ${photoDraft.length} item${photoDraft.length>1?'s':''}`);
+  const parts = [];
+  if (added) parts.push(`Added ${added} item${added > 1 ? 's' : ''}`);
+  if (updated) parts.push(`+${updated} to existing`);
+  showToast(parts.join(', ') || 'No changes');
   photoDraft = [];
 }
 
